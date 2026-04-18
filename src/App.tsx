@@ -10,20 +10,18 @@ function App() {
   
   const cameraControlRef = useRef<CameraControls>(null)
 
-  const handleMeshClick = (mesh: THREE.Object3D) => {
+  const handleMeshClick = (mesh: THREE.Object3D, absoluteCenter?: THREE.Vector3) => {
     const name = mesh.name.toLowerCase();
     // Only trigger zoom if clicking a monitor/screen
     if ((name.includes('monitor') || name.includes('screen')) && !isZoomed) {
-      // Calculate world position of the monitor
-      const target = new THREE.Vector3()
-      mesh.getWorldPosition(target)
       
-      // Calculate a position slightly in front of the monitor for the camera
-      // This assumes simple orientation. We lerp the camera to face it.
-      const offset = new THREE.Vector3(0, 0, 1.2) // Stand 1.2 units away
-      offset.applyEuler(mesh.rotation)
+      // Use absolute center if available, otherwise fallback to mesh origin
+      const target = absoluteCenter ? absoluteCenter.clone() : new THREE.Vector3();
+      if (!absoluteCenter) mesh.getWorldPosition(target);
       
-      const camPos = target.clone().add(offset)
+      // Step reliably backward from the screen in world-space
+      // Standard screens usually face the +Z direction in these models
+      const camPos = target.clone().add(new THREE.Vector3(0, 0, 1.2))
       
       // Animate Camera
       if (cameraControlRef.current) {

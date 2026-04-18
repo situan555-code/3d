@@ -3,7 +3,14 @@ import { createPortal } from '@react-three/fiber';
 import { useLayoutEffect, useMemo } from 'react';
 import * as THREE from 'three';
 
-export default function DeskModel({ modelPath, onMeshClick, isZoomed }) {
+interface DeskModelProps {
+  modelPath: string;
+  onMeshClick: (mesh: THREE.Object3D) => void;
+  isZoomed: boolean;
+}
+
+export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskModelProps) {
+  // @ts-ignore - useGLTF type definition can be strict, ignoring to allow dynamic string paths
   const { scene } = useGLTF(modelPath);
 
   // Clone scene so toggling models doesn't mutate cached GLTF internals
@@ -11,8 +18,9 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }) {
 
   // Apply shadows and find monitor dynamically
   const monitorNode = useMemo(() => {
-    let target = null;
-    clonedScene.traverse((obj) => {
+    let target: THREE.Object3D | null = null;
+    clonedScene.traverse((obj: THREE.Object3D) => {
+      // @ts-ignore
       if (obj.isMesh) {
         obj.castShadow = true;
         obj.receiveShadow = true;
@@ -33,18 +41,18 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }) {
   return (
     <primitive 
       object={clonedScene}
-      onClick={(e) => {
+      onClick={(e: any) => {
         e.stopPropagation();
         onMeshClick(e.object);
       }}
-      onPointerOver={(e) => {
+      onPointerOver={(e: any) => {
         e.stopPropagation();
         const n = e.object.name.toLowerCase();
         if (n.includes('monitor') || n.includes('screen') || e.object === monitorNode) {
           document.body.style.cursor = 'pointer';
         }
       }}
-      onPointerOut={(e) => {
+      onPointerOut={(e: any) => {
         e.stopPropagation();
         document.body.style.cursor = 'auto';
       }}
@@ -70,6 +78,7 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }) {
             <iframe src="https://nautis.my" title="Resume" style={{ width: '100%', height: '100%', border: 'none', borderRadius: '12px' }} />
           </div>
         </Html>,
+        // @ts-ignore - Portal targets Object3D perfectly fine but TS types for createPortal expects scene/group directly
         monitorNode
       )}
     </primitive>

@@ -53,27 +53,37 @@ interface OfficeSceneProps {
 export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneProps & Record<string, any>) {
   const { nodes, materials } = useGLTF('/office_assets-transformed.glb') as unknown as GLTFResult
 
-  // Monitor position from the original model data:
-  // Monitor_6 group: T:[0.10, 0.91, 0.50], R:[0, -0.134, 0, 0.991]
-  // The CRT screen faces roughly toward +Z (toward the camera default at [0, 1.5, 4])
-  // The screen center is approximately at the front face of the monitor
-  
-  // The screen face is on the front of the CRT, offset forward (toward camera) from the monitor center
-  // Monitor local-space: screen glass at approximately X≈-0.15, the front face
-  // With the parent rotation of ~-15° around Y, the front face points roughly toward +Z
+  // The Computer mesh (Object_10) is placed at [0.488, 0.743, 0.925] with rotation [0, 0.168, 0]
+  // In the original model, Monitor_6 was at T:[0.10, 0.91, 0.50] with its own rotation
+  // The CRT screen is the front face of the monitor, facing the viewer/chair
+  // 
+  // From the original hierarchy dump:
+  // - Monitor_6 group: T:[0.10, 0.91, 0.50], R:[0, -0.134, 0, 0.991]  
+  // - The screen local bounds: X[-0.357, 0.163], Y[0.000, 0.473], Z[-0.241, 0.241]
+  // - Screen center in local: (-0.097, 0.237, 0.0)
+  // - The front face (screen glass) is at X ≈ -0.25 in local space
+  //
+  // After the parent transform: the screen world position is roughly at:
   const screenPos = useMemo(() => {
-    // Center of the CRT screen in world space
-    // The monitor center is at [0.10, 0.91, 0.50], screen center is slightly higher and forward
-    return new THREE.Vector3(0.06, 1.15, 0.28)
+    // Start with the monitor group world position
+    const monitorWorldPos = new THREE.Vector3(0.10, 0.91, 0.50)
+    const monitorQuat = new THREE.Quaternion(0, -0.134, 0, 0.991).normalize()
+    
+    // The screen center in monitor-local space (front face of CRT)
+    // X=-0.25 is the front glass face, Y=0.24 is vertical center, Z=0 is horizontal center
+    const localScreenCenter = new THREE.Vector3(-0.20, 0.22, 0.0)
+    localScreenCenter.applyQuaternion(monitorQuat)
+    
+    return monitorWorldPos.add(localScreenCenter)
   }, [])
   
   const screenNormal = useMemo(() => {
-    // The screen faces outward toward the viewer (roughly +Z with slight rotation)
-    // Monitor rotation quaternion was [0, -0.134, 0, 0.991] ≈ -15° around Y
-    const normal = new THREE.Vector3(0, 0, 1)
-    const q = new THREE.Quaternion(0, -0.134, 0, 0.991).normalize()
-    normal.applyQuaternion(q)
-    return normal
+    // The screen glass faces -X in monitor local space
+    // Apply the monitor's rotation to get the world normal
+    const localNormal = new THREE.Vector3(-1, 0, 0)
+    const monitorQuat = new THREE.Quaternion(0, -0.134, 0, 0.991).normalize()
+    localNormal.applyQuaternion(monitorQuat)
+    return localNormal.normalize()
   }, [])
 
   // Rotation for the Html to face along the screen normal
@@ -83,12 +93,12 @@ export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneP
     return new THREE.Euler().setFromQuaternion(quat)
   }, [screenNormal])
 
-  // CSS iframe dimensions
-  const iframeWidth = 1024
-  const iframeHeight = 768
+  // CSS iframe dimensions (4:3 for CRT)
+  const iframeWidth = 800
+  const iframeHeight = 600
 
-  // Scale: the CRT screen area is roughly 0.26m wide × 0.24m tall
-  const htmlScale = 0.26 / iframeWidth
+  // Scale: the CRT visible screen area is roughly 0.22m wide  
+  const htmlScale = 0.22 / iframeWidth
 
   const handleMonitorClick = () => {
     onMonitorClick(screenPos.clone(), screenNormal.clone())

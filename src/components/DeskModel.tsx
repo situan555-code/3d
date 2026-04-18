@@ -37,8 +37,10 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
       // @ts-ignore
       if (obj.isMesh) {
         const name = obj.name.toLowerCase();
-        // Look specifically for the screen glass (Object_67) or generic "screen" naming
-        if (name.includes('object_67') || name.includes('screen')) {
+        // Look specifically for screen glass surfaces by material/mesh name
+        // office_desk: MI_Object_67 is the screen glass
+        // office_assets: Object_16 is the monitor screen mesh (child of Monitor_6)
+        if (name.includes('object_67') || name.includes('object_16') || name.includes('screen')) {
           screenMesh = obj as THREE.Mesh;
         }
         // Fallback: if we haven't found a specific screen mesh, try monitor meshes
@@ -216,4 +218,4 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
 }
 
 useGLTF.preload('/office_desk.glb');
-useGLTF.preload('/office_-_assets.glb');
+useGLTF.preload('/office_assets.glb');

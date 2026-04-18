@@ -7,6 +7,6 @@ dist/
 .stitch-mcp/
 github_repo/
 public/office_-_assets.glb
-
-.stitch-mcp/
-github_repo/
+dump_scene.mjs
+dump_meshes.mjs
+._*

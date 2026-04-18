@@ -5,7 +5,7 @@ import * as THREE from 'three'
 import DeskModel from './components/DeskModel'
 
 function App() {
-  const [model, setModel] = useState('/office_desk.glb')
+  const [model, setModel] = useState('/office_assets.glb')
   const [isZoomed, setIsZoomed] = useState(false)
   
   const cameraControlRef = useRef<CameraControls>(null)
@@ -53,14 +53,14 @@ function App() {
             style={{ transform: 'none', background: model === '/office_desk.glb' ? '#fff' : 'rgba(255,255,255,0.1)', color: model === '/office_desk.glb' ? '#000' : '#fff' }}
             onClick={() => { setModel('/office_desk.glb'); handleBack(); }}
           >
-            office_desk
+            Desk
           </button>
           <button 
             className="back-btn visible"
-            style={{ transform: 'none', background: model === '/office_-_assets.glb' ? '#fff' : 'rgba(255,255,255,0.1)', color: model === '/office_-_assets.glb' ? '#000' : '#fff' }}
-            onClick={() => { setModel('/office_-_assets.glb'); handleBack(); }}
+            style={{ transform: 'none', background: model === '/office_assets.glb' ? '#fff' : 'rgba(255,255,255,0.1)', color: model === '/office_assets.glb' ? '#000' : '#fff' }}
+            onClick={() => { setModel('/office_assets.glb'); handleBack(); }}
           >
-            office_-_assets
+            Office
           </button>
         </div>
 

@@ -10,29 +10,25 @@ function App() {
   
   const cameraControlRef = useRef<CameraControls>(null)
 
-  const handleMeshClick = (mesh: THREE.Object3D, absoluteCenter?: THREE.Vector3) => {
-    const name = mesh.name.toLowerCase();
-    // Only trigger zoom if clicking a monitor/screen
-    if ((name.includes('monitor') || name.includes('screen')) && !isZoomed) {
-      
-      // Use absolute center if available, otherwise fallback to mesh origin
-      const target = absoluteCenter ? absoluteCenter.clone() : new THREE.Vector3();
-      if (!absoluteCenter) mesh.getWorldPosition(target);
-      
-      // Step reliably backward from the screen in world-space
-      // Standard screens usually face the +Z direction in these models
-      const camPos = target.clone().add(new THREE.Vector3(0, 0, 1.2))
-      
-      // Animate Camera
-      if (cameraControlRef.current) {
-        cameraControlRef.current.setLookAt(
-          camPos.x, camPos.y + 0.1, camPos.z, // Cam pos (lifted slightly)
-          target.x, target.y, target.z,       // Look target
-          true                                // use animation
-        )
-      }
-      setIsZoomed(true)
+  const handleMeshClick = (mesh: THREE.Object3D, screenWorldPos?: THREE.Vector3, screenNormal?: THREE.Vector3) => {
+    if (isZoomed) return;
+
+    // The DeskModel already filters for monitor clicks, so we trust what arrives here
+    const target = screenWorldPos ? screenWorldPos.clone() : new THREE.Vector3();
+    if (!screenWorldPos) mesh.getWorldPosition(target);
+
+    // Position the camera along the screen's normal direction, 1.2 units away from the face
+    const normal = screenNormal ? screenNormal.clone().normalize() : new THREE.Vector3(0, 0, 1);
+    const camPos = target.clone().add(normal.clone().multiplyScalar(1.2));
+
+    if (cameraControlRef.current) {
+      cameraControlRef.current.setLookAt(
+        camPos.x, camPos.y, camPos.z,
+        target.x, target.y, target.z,
+        true
+      );
     }
+    setIsZoomed(true);
   }
 
   const handleBack = () => {

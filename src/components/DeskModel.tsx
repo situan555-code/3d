@@ -1,11 +1,10 @@
 import { useGLTF, Html } from '@react-three/drei';
-import { createPortal } from '@react-three/fiber';
 import { useLayoutEffect, useMemo } from 'react';
 import * as THREE from 'three';
 
 interface DeskModelProps {
   modelPath: string;
-  onMeshClick: (mesh: THREE.Object3D) => void;
+  onMeshClick: (mesh: THREE.Object3D, absoluteCenter?: THREE.Vector3) => void;
   isZoomed: boolean;
 }
 
@@ -32,11 +31,12 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
     });
     
     if (target) {
-      target.updateMatrixWorld(true);
-      const box = new THREE.Box3().setFromObject(target);
+      const objTarget = target as THREE.Object3D;
+      objTarget.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(objTarget);
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
-      return { node: target, center, size };
+      return { node: objTarget, center, size };
     }
     return null;
   }, [clonedScene]);

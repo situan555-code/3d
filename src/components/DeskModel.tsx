@@ -83,54 +83,55 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
     const worldCenter = box.getCenter(new THREE.Vector3());
     const worldSize = box.getSize(new THREE.Vector3());
 
-    // Determine which axis is "thin" (the screen face normal direction)
-    // The thinnest dimension is the screen's depth/normal direction
-    const dims = [
-      { axis: 'x', size: worldSize.x },
-      { axis: 'y', size: worldSize.y },
-      { axis: 'z', size: worldSize.z },
-    ].sort((a, b) => a.size - b.size);
-
-    const thinAxis = dims[0].axis; // The screen normal direction
-    const wideAxis = dims[2].axis; // The widest = screen width
-    const tallAxis = dims[1].axis; // The middle = screen height
-
-    const screenWidth = dims[2].size;
-    const screenHeight = dims[1].size;
-
-    // The normal direction: figure out which way the screen faces
-    // We use the parent group's world matrix to determine face direction
-    const normal = new THREE.Vector3();
-    if (thinAxis === 'x') normal.set(1, 0, 0);
-    else if (thinAxis === 'y') normal.set(0, 1, 0);
-    else normal.set(0, 0, 1);
-
-    // Check which side of the thin axis the screen faces
-    // The screen face is on the min side of the thin axis (front of monitor)
-    const facePos = worldCenter.clone();
-    const halfThin = dims[0].size / 2;
-    
-    // We need to figure the face direction. Push the position slightly outward from center.
-    // For now, just try both directions - whichever is closer to the camera default position
+    // Camera-direction approach: the screen faces the default camera
+    // This works for flat panels, CRTs, and any arbitrary orientation
     const cameraDefault = new THREE.Vector3(0, 1.5, 4);
-    const posA = worldCenter.clone().add(normal.clone().multiplyScalar(halfThin + 0.5));
-    const posB = worldCenter.clone().add(normal.clone().multiplyScalar(-(halfThin + 0.5)));
     
-    if (posA.distanceTo(cameraDefault) < posB.distanceTo(cameraDefault)) {
-      normal.multiplyScalar(1); // face toward camera
-      facePos.add(new THREE.Vector3().copy(normal).multiplyScalar(halfThin + 0.02));
+    // Direction from monitor center toward the camera (in world space)
+    const toCamera = cameraDefault.clone().sub(worldCenter).normalize();
+    
+    // Project this direction onto the 3 cardinal axes to find which face is "front"
+    const absX = Math.abs(toCamera.x);
+    const absY = Math.abs(toCamera.y);
+    const absZ = Math.abs(toCamera.z);
+    
+    // The normal is the cardinal axis most aligned with the camera direction
+    const normal = new THREE.Vector3();
+    let screenWidth: number, screenHeight: number;
+    
+    if (absX >= absY && absX >= absZ) {
+      // Screen faces along X
+      normal.set(Math.sign(toCamera.x), 0, 0);
+      screenWidth = worldSize.z;  // Z is horizontal
+      screenHeight = worldSize.y; // Y is vertical
+    } else if (absZ >= absX && absZ >= absY) {
+      // Screen faces along Z
+      normal.set(0, 0, Math.sign(toCamera.z));
+      screenWidth = worldSize.x;  // X is horizontal
+      screenHeight = worldSize.y; // Y is vertical
     } else {
-      normal.negate();
-      facePos.add(new THREE.Vector3().copy(normal).multiplyScalar(halfThin + 0.02));
+      // Screen faces along Y (unlikely for a monitor but handle it)
+      normal.set(0, Math.sign(toCamera.y), 0);
+      screenWidth = worldSize.x;
+      screenHeight = worldSize.z;
     }
+    
+    // Place the iframe on the face of the bounding box closest to camera
+    // Offset slightly outward so it sits in front of the surface
+    const halfExtent = new THREE.Vector3(worldSize.x / 2, worldSize.y / 2, worldSize.z / 2);
+    const faceOffset = normal.clone().multiply(halfExtent).length();
+    const facePos = worldCenter.clone().add(normal.clone().multiplyScalar(faceOffset + 0.01));
+    
+    // Shrink screen dimensions to ~70% to account for monitor bezel
+    screenWidth *= 0.55;
+    screenHeight *= 0.55;
 
     console.log('[DeskModel] Screen mesh:', (screenMesh as THREE.Mesh).name);
     console.log('[DeskModel] World center:', worldCenter);
     console.log('[DeskModel] World size:', worldSize);
-    console.log('[DeskModel] Thin axis:', thinAxis, '| Wide axis:', wideAxis, '| Tall axis:', tallAxis);
-    console.log('[DeskModel] Screen dims:', screenWidth, 'x', screenHeight);
-    console.log('[DeskModel] Face position:', facePos);
     console.log('[DeskModel] Normal:', normal);
+    console.log('[DeskModel] Face position:', facePos);
+    console.log('[DeskModel] Screen dims:', screenWidth, 'x', screenHeight);
 
     return {
       mesh: screenMesh,
@@ -140,9 +141,6 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
       normal,
       screenWidth,
       screenHeight,
-      wideAxis,
-      tallAxis,
-      thinAxis,
     };
   }, [clonedScene]);
 

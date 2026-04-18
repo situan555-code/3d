@@ -15,12 +15,25 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
   const clonedScene = useMemo(() => scene.clone(), [scene]);
 
   // After first render, traverse the loaded scene to enable shadows
+  // Nodes to hide (cigarettes, ashtray, ash)
+  const hiddenNodes = [
+    'cigarette_normal', 'cigarettepack_blue', 'ashtray_27', 
+    'cigarette_stub_bent', 'cigarette_stub_straight', 'ashtray_ash',
+    'cigarettepack_brown',
+  ];
+
   useEffect(() => {
     clonedScene.traverse((obj: THREE.Object3D) => {
       // @ts-ignore
       if (obj.isMesh) {
         obj.castShadow = true;
         obj.receiveShadow = true;
+      }
+      
+      // Hide cigarettes, ashtray, and ash
+      const name = obj.name.toLowerCase();
+      if (hiddenNodes.some(h => name.includes(h))) {
+        obj.visible = false;
       }
     });
   }, [clonedScene]);

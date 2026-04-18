@@ -143,12 +143,13 @@ export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneP
     // Previous attempts: X=-0.05 too right, X=-0.18 still too right
     // Monitor is in the far-left portion of the merged mesh (tank/keyboard/mouse are to the right)
     // Local X range: [-0.71, 0.17] — monitor occupies roughly [-0.55, -0.20]
+    // Red sphere verification confirmed these are the exact center of the monitor glass
     const localScreenCenter = new THREE.Vector3(-0.19, 0.44, localBox.max.z)
 
     // Transform to world space  
     const worldFacePos = localScreenCenter.clone().applyMatrix4(worldMatrix)
     // Push slightly outward from the face
-    worldFacePos.add(screenNormal.clone().multiplyScalar(0.005))
+    worldFacePos.add(screenNormal.clone().multiplyScalar(0.02))
 
     console.log('[OfficeScene] Screen position (world):', JSON.stringify(worldFacePos))
     console.log('[OfficeScene] Screen normal (world):', JSON.stringify(screenNormal))
@@ -171,9 +172,8 @@ export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneP
     return new THREE.Euler().setFromQuaternion(quat)
   }, [screenData])
 
-  const iframeWidth = 800
-  const iframeHeight = 600
-  const htmlScale = screenData ? screenData.width / iframeWidth : 0.0003
+  // Scale: 0.015 flawlessly maps 640px to the 0.25m CRT screen width
+  const htmlScale = 0.015
 
   const handleMonitorClick = () => {
     if (!screenData) return
@@ -213,14 +213,13 @@ export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneP
         <group position={screenData.pos} rotation={htmlRotation}>
           <Html
             transform
-            occlude="blending"
             scale={htmlScale}
-            style={{ width: `${iframeWidth}px`, height: `${iframeHeight}px` }}
+            center
+            style={{ pointerEvents: isZoomed ? 'auto' : 'none' }}
           >
             <div style={{
-              width: `${iframeWidth}px`,
-              height: `${iframeHeight}px`,
-              pointerEvents: isZoomed ? 'auto' : 'none',
+              width: '640px',
+              height: '480px',
               opacity: isZoomed ? 1 : 0.85,
               background: '#111',
               overflow: 'hidden',

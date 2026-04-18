@@ -6,26 +6,26 @@ Source: https://sketchfab.com/3d-models/office-assets-16c1a779bb0a4055a26367741d
 */
 
 import * as THREE from 'three'
-import { useMemo } from 'react'
+import { useMemo, useEffect, useRef, useState } from 'react'
 import { useGLTF, Html } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 
 type GLTFResult = GLTF & {
   nodes: {
-    Object_4: THREE.Mesh   // Cactus
-    Object_10: THREE.Mesh  // Computer (monitor + tower + keyboard + mouse merged)
-    Object_18: THREE.Mesh  // FileBoxes
-    Object_26: THREE.Mesh  // Notepad + PinBoard + Photos
-    Object_54: THREE.Mesh  // Cigarettes + Ashtray (HIDDEN)
-    Object_68: THREE.Mesh  // Table
-    Object_70: THREE.Mesh  // TapeRecorder body
-    Object_71: THREE.Mesh  // TapeRecorder rotors/glass
-    Object_75: THREE.Mesh  // Vent
-    Object_95: THREE.Mesh  // Poster
-    Object_97: THREE.Mesh  // PhotoFrames (wall)
-    Object_101: THREE.Mesh // Clipboard
-    Object_107: THREE.Mesh // Chair
-    Object_109: THREE.Mesh // Lamp
+    Object_4: THREE.Mesh
+    Object_10: THREE.Mesh
+    Object_18: THREE.Mesh
+    Object_26: THREE.Mesh
+    Object_54: THREE.Mesh
+    Object_68: THREE.Mesh
+    Object_70: THREE.Mesh
+    Object_71: THREE.Mesh
+    Object_75: THREE.Mesh
+    Object_95: THREE.Mesh
+    Object_97: THREE.Mesh
+    Object_101: THREE.Mesh
+    Object_107: THREE.Mesh
+    Object_109: THREE.Mesh
   }
   materials: {
     M_Cactus_1024: THREE.MeshStandardMaterial
@@ -52,137 +52,188 @@ interface OfficeSceneProps {
 
 export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneProps & Record<string, any>) {
   const { nodes, materials } = useGLTF('/office_assets-transformed.glb') as unknown as GLTFResult
+  const computerRef = useRef<THREE.Mesh>(null)
 
-  // The CRT screen faces +X in monitor-local space (toward the viewer/chair)
-  // The back of the CRT (deep tube) is in -X
-  // Monitor_6 group: T:[0.10, 0.91, 0.50], R:[0, -0.134, 0, 0.991]
-  // Screen local bounds: X[-0.357, 0.163] → front glass at X ≈ +0.16
-  const screenPos = useMemo(() => {
-    const monitorWorldPos = new THREE.Vector3(0.10, 0.91, 0.50)
-    const monitorQuat = new THREE.Quaternion(0, -0.134, 0, 0.991).normalize()
-    
-    // Screen center in local: front glass face at X=+0.16, vertical center Y=0.24, horizontal center Z=0
-    const localScreenCenter = new THREE.Vector3(0.16, 0.24, 0.0)
-    localScreenCenter.applyQuaternion(monitorQuat)
-    
-    return monitorWorldPos.add(localScreenCenter)
-  }, [])
-  
-  const screenNormal = useMemo(() => {
-    // Screen glass faces +X in local (toward viewer), not -X (that's the back)
-    const localNormal = new THREE.Vector3(1, 0, 0)
-    const monitorQuat = new THREE.Quaternion(0, -0.134, 0, 0.991).normalize()
-    localNormal.applyQuaternion(monitorQuat)
-    return localNormal.normalize()
-  }, [])
+  const [screenData, setScreenData] = useState<{
+    pos: THREE.Vector3
+    normal: THREE.Vector3
+    width: number
+    height: number
+  } | null>(null)
 
-  // Rotation for the Html to face along the screen normal
+  useEffect(() => {
+    if (!computerRef.current) return
+
+    const mesh = computerRef.current
+    mesh.updateMatrixWorld(true)
+
+    // Get the geometry's bounding box in LOCAL space
+    const geo = mesh.geometry
+    geo.computeBoundingBox()
+    const localBox = geo.boundingBox!
+    const localCenter = localBox.getCenter(new THREE.Vector3())
+    const localSize = localBox.getSize(new THREE.Vector3())
+
+    console.log('[OfficeScene] Local box min:', JSON.stringify(localBox.min))
+    console.log('[OfficeScene] Local box max:', JSON.stringify(localBox.max))
+    console.log('[OfficeScene] Local center:', JSON.stringify(localCenter))
+    console.log('[OfficeScene] Local size:', JSON.stringify(localSize))
+
+    // The mesh has position=[0.488, 0.743, 0.925] rotation=[0, 0.168, 0]
+    // The monitor screen in the original model faced -X in monitor-local space
+    // gltfjsx --transform may have flattened/merged and changed the orientation
+    // 
+    // From the geometry local bounds we can figure out which direction is "front":
+    // The thinnest axis of just the MONITOR portion would be the screen normal direction
+    // But since tower+keyboard+mouse are merged, we need to use the model knowledge:
+    //
+    // The original Monitor_6 was at the LEFT side of the desk
+    // The original Computer_5 (tower) was at the RIGHT side
+    // In the merged mesh, the monitor screen should face toward the chair at [0.92, 0.01, 0.77]
+    //
+    // Strategy: use the mesh's -Z local direction as the screen normal
+    // (the front of the monitor faces -Z in the merged mesh's local space)
+    // This is because gltfjsx places the "front" of objects along -Z by convention
+
+    // Let's try all 6 faces and pick the one closest to the camera
+    // But use the mesh's WORLD matrix to properly transform the face normals
+    const worldMatrix = mesh.matrixWorld
+    const normalMatrix = new THREE.Matrix3().getNormalMatrix(worldMatrix)
+
+    // Test local -Z face (most likely front)
+    const localNormals = [
+      { dir: new THREE.Vector3(0, 0, -1), label: '-Z' },
+      { dir: new THREE.Vector3(0, 0, 1), label: '+Z' },
+      { dir: new THREE.Vector3(-1, 0, 0), label: '-X' },
+      { dir: new THREE.Vector3(1, 0, 0), label: '+X' },
+    ]
+
+    const cam = new THREE.Vector3(0, 1.5, 4)
+    const worldCenter = localCenter.clone().applyMatrix4(worldMatrix)
+
+    const toCamera = cam.clone().sub(worldCenter).normalize()
+
+    let bestNormal = localNormals[0]
+    let bestDot = -Infinity
+
+    for (const n of localNormals) {
+      const worldNormal = n.dir.clone().applyMatrix3(normalMatrix).normalize()
+      const dot = worldNormal.dot(toCamera)
+      console.log(`[OfficeScene] Face ${n.label}: worldNormal=${JSON.stringify(worldNormal)}, dot=${dot.toFixed(3)}`)
+      if (dot > bestDot) {
+        bestDot = dot
+        bestNormal = n
+      }
+    }
+
+    console.log('[OfficeScene] Best face:', bestNormal.label, 'dot:', bestDot.toFixed(3))
+
+    // Get the world-space normal
+    const screenNormal = bestNormal.dir.clone().applyMatrix3(normalMatrix).normalize()
+
+    // Position: start at the face of the bounding box in the best direction
+    // In local space, find the face position
+    const localFacePos = localCenter.clone()
+    if (bestNormal.label === '-Z') localFacePos.z = localBox.min.z
+    else if (bestNormal.label === '+Z') localFacePos.z = localBox.max.z
+    else if (bestNormal.label === '-X') localFacePos.x = localBox.min.x
+    else if (bestNormal.label === '+X') localFacePos.x = localBox.max.x
+
+    // The screen center in LOCAL mesh space:
+    // Previous attempts: X=-0.05 too right, X=-0.18 still too right
+    // Monitor is in the far-left portion of the merged mesh (tank/keyboard/mouse are to the right)
+    // Local X range: [-0.71, 0.17] — monitor occupies roughly [-0.55, -0.20]
+    const localScreenCenter = new THREE.Vector3(-0.19, 0.44, localBox.max.z)
+
+    // Transform to world space  
+    const worldFacePos = localScreenCenter.clone().applyMatrix4(worldMatrix)
+    // Push slightly outward from the face
+    worldFacePos.add(screenNormal.clone().multiplyScalar(0.005))
+
+    console.log('[OfficeScene] Screen position (world):', JSON.stringify(worldFacePos))
+    console.log('[OfficeScene] Screen normal (world):', JSON.stringify(screenNormal))
+
+    // Screen dimensions: CRT visible area ~0.28m wide x 0.22m tall
+    setScreenData({
+      pos: worldFacePos,
+      normal: screenNormal,
+      width: 0.28,
+      height: 0.22,
+    })
+  }, [nodes])
+
   const htmlRotation = useMemo(() => {
-    const defaultDir = new THREE.Vector3(0, 0, 1)
-    const quat = new THREE.Quaternion().setFromUnitVectors(defaultDir, screenNormal.clone().normalize())
+    if (!screenData) return new THREE.Euler()
+    const quat = new THREE.Quaternion().setFromUnitVectors(
+      new THREE.Vector3(0, 0, 1),
+      screenData.normal.clone().normalize()
+    )
     return new THREE.Euler().setFromQuaternion(quat)
-  }, [screenNormal])
+  }, [screenData])
 
-  // CSS iframe dimensions (4:3 for CRT)
   const iframeWidth = 800
   const iframeHeight = 600
-
-  // The CRT screen visible area is about 0.35m wide (Z spans [-0.241, 0.241] = 0.48m, ~70% is screen)
-  const htmlScale = 0.34 / iframeWidth
+  const htmlScale = screenData ? screenData.width / iframeWidth : 0.0003
 
   const handleMonitorClick = () => {
-    onMonitorClick(screenPos.clone(), screenNormal.clone())
+    if (!screenData) return
+    onMonitorClick(screenData.pos.clone(), screenData.normal.clone())
   }
 
   return (
     <group {...props} dispose={null}>
-      {/* Cactus */}
       <mesh geometry={nodes.Object_4.geometry} material={materials.M_Cactus_1024} position={[-0.051, 0.743, 0.876]} rotation={[0, -0.736, 0]} castShadow receiveShadow />
-      
-      {/* Computer (monitor + tower + keyboard + mouse) — CLICKABLE */}
+
       <mesh
+        ref={computerRef}
         geometry={nodes.Object_10.geometry}
         material={materials.M_Computer_2048}
         position={[0.488, 0.743, 0.925]}
         rotation={[0, 0.168, 0]}
         castShadow
         receiveShadow
-        onClick={(e) => {
-          e.stopPropagation()
-          handleMonitorClick()
-        }}
+        onClick={(e) => { e.stopPropagation(); handleMonitorClick() }}
         onPointerOver={() => { document.body.style.cursor = 'pointer' }}
         onPointerOut={() => { document.body.style.cursor = 'auto' }}
       />
 
-      {/* FileBoxes */}
       <mesh geometry={nodes.Object_18.geometry} material={materials.M_Filebox_1024} position={[-0.084, 0.743, 1.283]} rotation={[0, 1.531, 0]} scale={[1.096, 1, 1]} castShadow receiveShadow />
-      
-      {/* PinBoard + Photos + Notepad */}
       <mesh geometry={nodes.Object_26.geometry} material={materials.M_Office_PinBoard_Photo_Notepad_1024} position={[0.363, 0.743, 1.741]} rotation={[-0.005, 1.388, 0.005]} scale={[0.381, 0.137, 0.381]} castShadow receiveShadow />
-
-      {/* Cigarettes + Ashtray — HIDDEN */}
-      {/* <mesh geometry={nodes.Object_54.geometry} material={materials.M_Sigarettes_512} ... /> */}
-
-      {/* Table */}
       <mesh geometry={nodes.Object_68.geometry} material={materials.M_Table_2048} position={[0.213, 0.006, 1.171]} castShadow receiveShadow />
-      
-      {/* Tape Recorder */}
       <mesh geometry={nodes.Object_70.geometry} material={materials.M_TapeRecorder_1024} position={[0.035, 0.743, 1.904]} rotation={[-Math.PI, 1.358, -Math.PI]} castShadow receiveShadow />
       <mesh geometry={nodes.Object_71.geometry} material={materials.M_TapeRecorder_Tape_Rotors_Glass_1024} position={[0.035, 0.743, 1.904]} rotation={[-Math.PI, 1.358, -Math.PI]} castShadow receiveShadow />
-      
-      {/* Vent */}
       <mesh geometry={nodes.Object_75.geometry} material={materials.M_Vent_1024} position={[-0.22, 2.009, 2.101]} castShadow receiveShadow />
-      
-      {/* Poster */}
       <mesh geometry={nodes.Object_95.geometry} material={materials.Poster_1024} position={[-0.246, 1.568, 1.317]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[0.619, 0.309, 0.619]} castShadow receiveShadow />
-      
-      {/* Photo Frames (wall) */}
       <mesh geometry={nodes.Object_97.geometry} material={materials.PhotoFrame_20x30_likeA4_512} position={[-0.241, 1.27, -0.097]} rotation={[0, -Math.PI / 2, 0]} scale={[0.992, 0.992, 1.118]} castShadow receiveShadow />
-      
-      {/* Clipboard */}
       <mesh geometry={nodes.Object_101.geometry} material={materials.M_Clipboard_Notepad_1024} position={[0.996, 0.565, 0.619]} rotation={[-3.126, -1.002, -1.576]} castShadow receiveShadow />
-      
-      {/* Chair */}
       <mesh geometry={nodes.Object_107.geometry} material={materials.M_OfficeStool_Bin_2048} position={[0.923, 0.008, 0.77]} rotation={[-Math.PI, -0.416, -Math.PI]} scale={[1.235, 1, 1.235]} castShadow receiveShadow />
-      
-      {/* Lamp */}
       <mesh geometry={nodes.Object_109.geometry} material={materials['M_Lamps_CCTV_2048.001']} position={[-0.039, 0.743, 1.563]} rotation={[0, 0.454, 0]} castShadow receiveShadow />
 
-      {/* === IFRAME ON MONITOR SCREEN === */}
-      <group position={screenPos} rotation={htmlRotation}>
-        <Html
-          transform
-          occlude="blending"
-          scale={htmlScale}
-          style={{
-            width: `${iframeWidth}px`,
-            height: `${iframeHeight}px`,
-          }}
-        >
-          <div
-            style={{
+      {screenData && (
+        <group position={screenData.pos} rotation={htmlRotation}>
+          <Html
+            transform
+            occlude="blending"
+            scale={htmlScale}
+            style={{ width: `${iframeWidth}px`, height: `${iframeHeight}px` }}
+          >
+            <div style={{
               width: `${iframeWidth}px`,
               height: `${iframeHeight}px`,
               pointerEvents: isZoomed ? 'auto' : 'none',
-              opacity: isZoomed ? 1 : 0.7,
-              background: '#000',
-              borderRadius: '4px',
+              opacity: isZoomed ? 1 : 0.85,
+              background: '#111',
               overflow: 'hidden',
-            }}
-          >
-            <iframe
-              src="https://nautis.my"
-              title="Resume"
-              style={{
-                width: '100%',
-                height: '100%',
-                border: 'none',
-              }}
-            />
-          </div>
-        </Html>
-      </group>
+            }}>
+              <iframe
+                src="https://nautis.my"
+                title="Resume"
+                style={{ width: '100%', height: '100%', border: 'none' }}
+              />
+            </div>
+          </Html>
+        </group>
+      )}
     </group>
   )
 }

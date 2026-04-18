@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.vite/
+.DS_Store
+.remote_bridge/
+.stitch-mcp/
+github_repo/
+public/office_-_assets.glb
+
+.stitch-mcp/
+github_repo/

@@ -9,10 +9,10 @@ function App() {
   const cameraControlRef = useRef<CameraControls>(null)
   
   // LIVE DEBUG CONTROLS
-  const [debugX, setDebugX] = useState(-0.0910)
-  const [debugY, setDebugY] = useState(0.5650)
+  const [debugX, setDebugX] = useState(-0.1700)
+  const [debugY, setDebugY] = useState(0.4000)
   const [debugZ, setDebugZ] = useState(-0.8030)
-  const [debugScale, setDebugScale] = useState(0.0210)
+  const [debugScale, setDebugScale] = useState(0.0150)
   const [debugRotX, setDebugRotX] = useState(0)
   const [debugRotY, setDebugRotY] = useState(1.1330)
   const [debugRotZ, setDebugRotZ] = useState(-0.0060)
@@ -71,13 +71,13 @@ function App() {
             X offset: 
             <input type="number" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{width: '60px'}} />
             <input type="range" min="-0.60" max="0.20" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{width: '90px'}} />
-            <button onClick={() => setDebugX(-0.091)} style={{padding: '0 5px'}}>↺</button>
+            <button onClick={() => setDebugX(-0.170)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Y offset: 
             <input type="number" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{width: '60px'}} />
             <input type="range" min="0.0" max="1.0" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{width: '90px'}} />
-            <button onClick={() => setDebugY(0.565)} style={{padding: '0 5px'}}>↺</button>
+            <button onClick={() => setDebugY(0.400)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Z offset: 
@@ -89,7 +89,7 @@ function App() {
             Scale: 
             <input type="number" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{width: '60px'}} />
             <input type="range" min="0.001" max="0.05" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{width: '90px'}} />
-            <button onClick={() => setDebugScale(0.021)} style={{padding: '0 5px'}}>↺</button>
+            <button onClick={() => setDebugScale(0.015)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Pitch X: 

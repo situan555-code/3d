@@ -60,10 +60,10 @@ type OfficeSceneProps = JSX.IntrinsicElements['group'] & {
 export function OfficeScene({ 
   onMonitorClick, 
   isZoomed, 
-  debugX = -0.0910, 
-  debugY = 0.5650, 
+  debugX = -0.1700, 
+  debugY = 0.4000, 
   debugZ = -0.8030, 
-  debugScale = 0.0210,
+  debugScale = 0.0150,
   debugRotX = 0,
   debugRotY = 1.1330,
   debugRotZ = -0.0060,

@@ -321,7 +321,7 @@ export function OfficeScene({
             <div style={{
               width: '640px',
               height: '480px',
-              transform: 'translate(-50%, 50%)',
+              transform: 'translate(-50%, -50%)',
               opacity: isZoomed ? 1 : 0.85,
               background: '#111',
               overflow: 'hidden',

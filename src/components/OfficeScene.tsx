@@ -46,8 +46,6 @@ type GLTFResult = GLTF & {
 }
 
 type OfficeSceneProps = JSX.IntrinsicElements['group'] & {
-  onMonitorClick: (pos: THREE.Vector3, normal: THREE.Vector3) => void
-  isZoomed: boolean
   debugX?: number
   debugY?: number
   debugZ?: number
@@ -58,8 +56,6 @@ type OfficeSceneProps = JSX.IntrinsicElements['group'] & {
 }
 
 export function OfficeScene({ 
-  onMonitorClick, 
-  isZoomed, 
   debugX = -0.045, 
   debugY = 0.675, 
   debugZ = -0.803, 
@@ -273,13 +269,7 @@ export function OfficeScene({
     return euler
   }, [screenData, debugRotX, debugRotY, debugRotZ])
 
-  // Scale: 0.015 maps 640px to ~0.27 units width, ~0.20 units height
   const htmlScale = debugScale
-
-  const handleMonitorClick = () => {
-    if (!screenData) return
-    onMonitorClick(screenData.pos.clone(), screenData.normal.clone())
-  }
 
   return (
     <group {...props} dispose={null}>
@@ -293,9 +283,6 @@ export function OfficeScene({
         rotation={[0, 0.168, 0]}
         castShadow
         receiveShadow
-        onClick={(e) => { e.stopPropagation(); handleMonitorClick() }}
-        onPointerOver={() => { document.body.style.cursor = 'pointer' }}
-        onPointerOut={() => { document.body.style.cursor = 'auto' }}
       />
 
       <mesh geometry={nodes.Object_18.geometry} material={materials.M_Filebox_1024} position={[-0.084, 0.743, 1.283]} rotation={[0, 1.531, 0]} scale={[1.096, 1, 1]} castShadow receiveShadow />
@@ -316,12 +303,12 @@ export function OfficeScene({
             transform
             occlude="blending"
             scale={htmlScale}
-            style={{ pointerEvents: isZoomed ? 'auto' : 'none' }}
+            style={{ pointerEvents: 'auto' }}
           >
             <div style={{
               width: '640px',
               height: '480px',
-              opacity: isZoomed ? 1 : 0.85,
+              opacity: 1,
               background: '#111',
               overflow: 'hidden',
             }}>

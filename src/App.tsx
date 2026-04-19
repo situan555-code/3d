@@ -5,7 +5,6 @@ import * as THREE from 'three'
 import { OfficeScene } from './components/OfficeScene'
 
 function App() {
-  const [isZoomed, setIsZoomed] = useState(false)
   const cameraControlRef = useRef<CameraControls>(null)
   
   // LIVE DEBUG CONTROLS
@@ -23,46 +22,10 @@ function App() {
   const [sliceMinZ] = useState(0)
   const [sliceMaxZ] = useState(0)
 
-  const handleMonitorClick = (screenWorldPos: THREE.Vector3, screenNormal: THREE.Vector3) => {
-    if (isZoomed) return
-
-    const target = screenWorldPos.clone()
-    const normal = screenNormal.clone().normalize()
-    
-    // Position camera 0.8 units away along the screen normal
-    const camPos = target.clone().add(normal.clone().multiplyScalar(0.8))
-
-    if (cameraControlRef.current) {
-      cameraControlRef.current.setLookAt(
-        camPos.x, camPos.y, camPos.z,
-        target.x, target.y, target.z,
-        true
-      )
-    }
-    setIsZoomed(true)
-  }
-
-  const handleBack = () => {
-    if (cameraControlRef.current) {
-      cameraControlRef.current.setLookAt(
-        0, 1.5, 4,
-        0.2, 1.0, 1.0,
-        true
-      )
-    }
-    setIsZoomed(false)
-  }
-
   return (
     <>
       <div id="overlay-ui">
-        {/* Back Button */}
-        <button
-          className={`back-btn ${isZoomed ? 'visible' : ''}`}
-          onClick={handleBack}
-        >
-          ← Step Back
-        </button>
+      </div>
 
       </div>
 
@@ -86,13 +49,10 @@ function App() {
           makeDefault 
           minDistance={0.3} 
           maxDistance={6}
-          enabled={!isZoomed}
         />
 
         <Suspense fallback={null}>
           <OfficeScene 
-            isZoomed={isZoomed}
-            onMonitorClick={handleMonitorClick}
             debugX={debugX}
             debugY={debugY}
             debugZ={debugZ}

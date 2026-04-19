@@ -9,13 +9,13 @@ function App() {
   const cameraControlRef = useRef<CameraControls>(null)
   
   // LIVE DEBUG CONTROLS
-  const [debugX, setDebugX] = useState(-0.0170)
-  const [debugY, setDebugY] = useState(0.5530)
-  const [debugZ, setDebugZ] = useState(-0.4870)
-  const [debugScale, setDebugScale] = useState(0.0180)
+  const [debugX, setDebugX] = useState(-0.0910)
+  const [debugY, setDebugY] = useState(0.5650)
+  const [debugZ, setDebugZ] = useState(-0.8030)
+  const [debugScale, setDebugScale] = useState(0.0210)
   const [debugRotX, setDebugRotX] = useState(0)
-  const [debugRotY, setDebugRotY] = useState(0)
-  const [debugRotZ, setDebugRotZ] = useState(0)
+  const [debugRotY, setDebugRotY] = useState(1.1330)
+  const [debugRotZ, setDebugRotZ] = useState(-0.0060)
 
   const handleMonitorClick = (screenWorldPos: THREE.Vector3, screenNormal: THREE.Vector3) => {
     if (isZoomed) return
@@ -65,25 +65,25 @@ function App() {
             X offset: 
             <input type="number" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{width: '60px'}} />
             <input type="range" min="-0.60" max="0.20" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{width: '100px'}} />
-            <button onClick={() => setDebugX(-0.017)} style={{padding: '0 5px'}}>↺</button>
+            <button onClick={() => setDebugX(-0.091)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Y offset: 
             <input type="number" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{width: '60px'}} />
             <input type="range" min="0.0" max="1.0" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{width: '100px'}} />
-            <button onClick={() => setDebugY(0.553)} style={{padding: '0 5px'}}>↺</button>
+            <button onClick={() => setDebugY(0.565)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Z offset: 
             <input type="number" step="0.001" value={debugZ} onChange={e => setDebugZ(parseFloat(e.target.value))} style={{width: '60px'}} />
             <input type="range" min="-1.50" max="0.50" step="0.001" value={debugZ} onChange={e => setDebugZ(parseFloat(e.target.value))} style={{width: '100px'}} />
-            <button onClick={() => setDebugZ(-0.487)} style={{padding: '0 5px'}}>↺</button>
+            <button onClick={() => setDebugZ(-0.803)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Scale: 
             <input type="number" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{width: '60px'}} />
             <input type="range" min="0.001" max="0.05" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{width: '100px'}} />
-            <button onClick={() => setDebugScale(0.018)} style={{padding: '0 5px'}}>↺</button>
+            <button onClick={() => setDebugScale(0.021)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Pitch X: 
@@ -95,13 +95,13 @@ function App() {
             Yaw Y: 
             <input type="number" step="0.001" value={debugRotY} onChange={e => setDebugRotY(parseFloat(e.target.value))} style={{width: '60px'}} />
             <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotY} onChange={e => setDebugRotY(parseFloat(e.target.value))} style={{width: '100px'}} />
-            <button onClick={() => setDebugRotY(0)} style={{padding: '0 5px'}}>↺</button>
+            <button onClick={() => setDebugRotY(1.133)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Roll Z: 
             <input type="number" step="0.001" value={debugRotZ} onChange={e => setDebugRotZ(parseFloat(e.target.value))} style={{width: '60px'}} />
             <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotZ} onChange={e => setDebugRotZ(parseFloat(e.target.value))} style={{width: '100px'}} />
-            <button onClick={() => setDebugRotZ(0)} style={{padding: '0 5px'}}>↺</button>
+            <button onClick={() => setDebugRotZ(-0.006)} style={{padding: '0 5px'}}>↺</button>
           </div>
         </div>
       </div>

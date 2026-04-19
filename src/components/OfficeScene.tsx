@@ -60,13 +60,13 @@ type OfficeSceneProps = JSX.IntrinsicElements['group'] & {
 export function OfficeScene({ 
   onMonitorClick, 
   isZoomed, 
-  debugX = -0.1225, 
-  debugY = 0.44, 
-  debugZ = 0, 
-  debugScale = 0.015,
+  debugX = -0.0910, 
+  debugY = 0.5650, 
+  debugZ = -0.8030, 
+  debugScale = 0.0210,
   debugRotX = 0,
-  debugRotY = 0,
-  debugRotZ = 0,
+  debugRotY = 1.1330,
+  debugRotZ = -0.0060,
   ...props 
 }: OfficeSceneProps) {
   const { nodes, materials } = useGLTF('/office_assets.glb') as unknown as GLTFResult

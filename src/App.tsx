@@ -61,34 +61,48 @@ function App() {
         {/* Live Debug Panel */}
         <div style={{ position: 'fixed', top: 20, left: 20, background: 'rgba(0,0,0,0.8)', padding: '15px', color: 'white', borderRadius: '8px', zIndex: 9999, pointerEvents: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', fontFamily: 'monospace' }}>
           <strong>Visual Iframe Tuner</strong>
-          <label>
-            X offset: {debugX.toFixed(4)}
-            <input type="range" min="-0.60" max="0.20" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
-          </label>
-          <label>
-            Y offset: {debugY.toFixed(4)}
-            <input type="range" min="0.0" max="1.0" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
-          </label>
-          <label>
-            Z offset: {debugZ.toFixed(4)}
-            <input type="range" min="-1.50" max="0.50" step="0.001" value={debugZ} onChange={e => setDebugZ(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
-          </label>
-          <label>
-            Scale: {debugScale.toFixed(4)}
-            <input type="range" min="0.001" max="0.05" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
-          </label>
-          <label>
-            Rot X (Pitch): {debugRotX.toFixed(4)}
-            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotX} onChange={e => setDebugRotX(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
-          </label>
-          <label>
-            Rot Y (Yaw): {debugRotY.toFixed(4)}
-            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotY} onChange={e => setDebugRotY(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
-          </label>
-          <label>
-            Rot Z (Roll): {debugRotZ.toFixed(4)}
-            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotZ} onChange={e => setDebugRotZ(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
-          </label>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            X offset: 
+            <input type="number" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="-0.60" max="0.20" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <button onClick={() => setDebugX(-0.017)} style={{padding: '0 5px'}}>↺</button>
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            Y offset: 
+            <input type="number" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="0.0" max="1.0" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <button onClick={() => setDebugY(0.553)} style={{padding: '0 5px'}}>↺</button>
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            Z offset: 
+            <input type="number" step="0.001" value={debugZ} onChange={e => setDebugZ(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="-1.50" max="0.50" step="0.001" value={debugZ} onChange={e => setDebugZ(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <button onClick={() => setDebugZ(-0.487)} style={{padding: '0 5px'}}>↺</button>
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            Scale: 
+            <input type="number" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="0.001" max="0.05" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <button onClick={() => setDebugScale(0.018)} style={{padding: '0 5px'}}>↺</button>
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            Pitch X: 
+            <input type="number" step="0.001" value={debugRotX} onChange={e => setDebugRotX(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotX} onChange={e => setDebugRotX(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <button onClick={() => setDebugRotX(0)} style={{padding: '0 5px'}}>↺</button>
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            Yaw Y: 
+            <input type="number" step="0.001" value={debugRotY} onChange={e => setDebugRotY(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotY} onChange={e => setDebugRotY(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <button onClick={() => setDebugRotY(0)} style={{padding: '0 5px'}}>↺</button>
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            Roll Z: 
+            <input type="number" step="0.001" value={debugRotZ} onChange={e => setDebugRotZ(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotZ} onChange={e => setDebugRotZ(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <button onClick={() => setDebugRotZ(0)} style={{padding: '0 5px'}}>↺</button>
+          </div>
         </div>
       </div>
 

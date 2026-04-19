@@ -67,12 +67,12 @@ export function OfficeScene({
   debugRotX = 0,
   debugRotY = 1.1330,
   debugRotZ = -0.0060,
-  sliceMinX = -0.394,
-  sliceMaxX = -0.035,
-  sliceMinY = 0.302,
-  sliceMaxY = 0.573,
-  sliceMinZ = -1.5,
-  sliceMaxZ = -0.46,
+  sliceMinX = 0,
+  sliceMaxX = 0,
+  sliceMinY = 0,
+  sliceMaxY = 0,
+  sliceMinZ = 0,
+  sliceMaxZ = 0,
   ...props 
 }: OfficeSceneProps & Record<string, any>) {
   const { nodes, materials } = useGLTF('/office_assets.glb') as unknown as GLTFResult
@@ -125,12 +125,14 @@ export function OfficeScene({
         shader.fragmentShader = shader.fragmentShader.replace(
           'void main() {',
           `void main() {
-             if (
-               vLocalPosOut.x >= clipMinX && vLocalPosOut.x <= clipMaxX &&
-               vLocalPosOut.y >= clipMinY && vLocalPosOut.y <= clipMaxY &&
-               vLocalPosOut.z >= clipMinZ && vLocalPosOut.z <= clipMaxZ
-             ) {
-               discard;
+             if (clipMinX < clipMaxX && clipMinY < clipMaxY && clipMinZ < clipMaxZ) {
+               if (
+                 vLocalPosOut.x >= clipMinX && vLocalPosOut.x <= clipMaxX &&
+                 vLocalPosOut.y >= clipMinY && vLocalPosOut.y <= clipMaxY &&
+                 vLocalPosOut.z >= clipMinZ && vLocalPosOut.z <= clipMaxZ
+               ) {
+                 discard;
+               }
              }
           `
         )
@@ -312,6 +314,7 @@ export function OfficeScene({
         <group position={screenData.pos} rotation={htmlRotation}>
           <Html
             transform
+            occlude="blending"
             scale={htmlScale}
             style={{ pointerEvents: isZoomed ? 'auto' : 'none' }}
           >

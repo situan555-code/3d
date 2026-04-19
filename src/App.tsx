@@ -16,13 +16,12 @@ function App() {
   const [debugRotX, setDebugRotX] = useState(0)
   const [debugRotY, setDebugRotY] = useState(1.1330)
   const [debugRotZ, setDebugRotZ] = useState(-0.0060)
-  
-  const [sliceMinX, setSliceMinX] = useState(-0.394)
-  const [sliceMaxX, setSliceMaxX] = useState(-0.035)
-  const [sliceMinY, setSliceMinY] = useState(0.302)
-  const [sliceMaxY, setSliceMaxY] = useState(0.573)
-  const [sliceMinZ, setSliceMinZ] = useState(-1.5)
-  const [sliceMaxZ, setSliceMaxZ] = useState(-0.46)
+  const [sliceMinX, setSliceMinX] = useState(0)
+  const [sliceMaxX, setSliceMaxX] = useState(0)
+  const [sliceMinY, setSliceMinY] = useState(0)
+  const [sliceMaxY, setSliceMaxY] = useState(0)
+  const [sliceMinZ, setSliceMinZ] = useState(0)
+  const [sliceMaxZ, setSliceMaxZ] = useState(0)
 
   const handleMonitorClick = (screenWorldPos: THREE.Vector3, screenNormal: THREE.Vector3) => {
     if (isZoomed) return

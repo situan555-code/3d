@@ -143,8 +143,10 @@ export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneP
     // Previous attempts: X=-0.05 too right, X=-0.18 still too right
     // Monitor is in the far-left portion of the merged mesh (tank/keyboard/mouse are to the right)
     // Local X range: [-0.71, 0.17] — monitor occupies roughly [-0.55, -0.20]
-    // Red sphere verification confirmed these are the exact center of the monitor glass
-    const localScreenCenter = new THREE.Vector3(-0.19, 0.44, localBox.max.z)
+    // True center of the screen glass confirmed manually:
+    // Y=0.44 is flawlessly centered vertically. 
+    // X=-0.1225 is the mathematical midpoint between the left edge (-0.19) and right edge (-0.055).
+    const localScreenCenter = new THREE.Vector3(-0.1225, 0.44, localBox.max.z)
 
     // Transform to world space  
     const worldFacePos = localScreenCenter.clone().applyMatrix4(worldMatrix)
@@ -172,7 +174,7 @@ export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneP
     return new THREE.Euler().setFromQuaternion(quat)
   }, [screenData])
 
-  // Scale: 0.015 flawlessly maps 640px to the 0.25m CRT screen width
+  // Scale: 0.015 maps 640px to ~0.27 units width, ~0.20 units height
   const htmlScale = 0.015
 
   const handleMonitorClick = () => {
@@ -214,12 +216,12 @@ export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneP
           <Html
             transform
             scale={htmlScale}
-            center
             style={{ pointerEvents: isZoomed ? 'auto' : 'none' }}
           >
             <div style={{
               width: '640px',
               height: '480px',
+              transform: 'translate(-50%, 50%)',
               opacity: isZoomed ? 1 : 0.85,
               background: '#111',
               overflow: 'hidden',

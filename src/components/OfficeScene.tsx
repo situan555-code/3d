@@ -301,7 +301,6 @@ export function OfficeScene({
         <group position={screenData.pos} rotation={htmlRotation}>
           <Html
             transform
-            occlude="blending"
             scale={htmlScale}
             style={{ pointerEvents: 'auto' }}
           >

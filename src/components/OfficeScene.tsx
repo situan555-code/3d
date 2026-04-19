@@ -67,10 +67,90 @@ export function OfficeScene({
   debugRotX = 0,
   debugRotY = 1.1330,
   debugRotZ = -0.0060,
+  sliceMinX = -0.32,
+  sliceMaxX = 0.08,
+  sliceMinY = 0.30,
+  sliceMaxY = 0.61,
+  sliceMinZ = -0.50,
+  sliceMaxZ = 0.50,
   ...props 
-}: OfficeSceneProps) {
+}: OfficeSceneProps & Record<string, any>) {
   const { nodes, materials } = useGLTF('/office_assets.glb') as unknown as GLTFResult
   const computerRef = useRef<THREE.Mesh>(null)
+
+  // Inject Volumetric Shader Slicer into the Computer Material
+  useEffect(() => {
+    const mat = materials.M_Computer_2048 as any
+    if (!mat.userData.shaderUniforms) {
+      mat.userData.shaderUniforms = {
+        clipMinX: { value: sliceMinX },
+        clipMaxX: { value: sliceMaxX },
+        clipMinY: { value: sliceMinY },
+        clipMaxY: { value: sliceMaxY },
+        clipMinZ: { value: sliceMinZ },
+        clipMaxZ: { value: sliceMaxZ },
+      }
+
+      mat.onBeforeCompile = (shader: any) => {
+        shader.uniforms.clipMinX = mat.userData.shaderUniforms.clipMinX
+        shader.uniforms.clipMaxX = mat.userData.shaderUniforms.clipMaxX
+        shader.uniforms.clipMinY = mat.userData.shaderUniforms.clipMinY
+        shader.uniforms.clipMaxY = mat.userData.shaderUniforms.clipMaxY
+        shader.uniforms.clipMinZ = mat.userData.shaderUniforms.clipMinZ
+        shader.uniforms.clipMaxZ = mat.userData.shaderUniforms.clipMaxZ
+
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <common>',
+          `#include <common>
+           varying vec3 vLocalPosOut;`
+        )
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <begin_vertex>',
+          `#include <begin_vertex>
+           vLocalPosOut = position;`
+        )
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <common>',
+          `#include <common>
+           varying vec3 vLocalPosOut;
+           uniform float clipMinX;
+           uniform float clipMaxX;
+           uniform float clipMinY;
+           uniform float clipMaxY;
+           uniform float clipMinZ;
+           uniform float clipMaxZ;`
+        )
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+          'void main() {',
+          `void main() {
+             if (
+               vLocalPosOut.x >= clipMinX && vLocalPosOut.x <= clipMaxX &&
+               vLocalPosOut.y >= clipMinY && vLocalPosOut.y <= clipMaxY &&
+               vLocalPosOut.z >= clipMinZ && vLocalPosOut.z <= clipMaxZ
+             ) {
+               discard;
+             }
+          `
+        )
+      }
+      mat.needsUpdate = true
+    }
+  }, [materials])
+
+  // Synchronously pipe the react props into the shader uniforms
+  useEffect(() => {
+    const mat = materials.M_Computer_2048 as any
+    if (mat.userData.shaderUniforms) {
+      mat.userData.shaderUniforms.clipMinX.value = sliceMinX
+      mat.userData.shaderUniforms.clipMaxX.value = sliceMaxX
+      mat.userData.shaderUniforms.clipMinY.value = sliceMinY
+      mat.userData.shaderUniforms.clipMaxY.value = sliceMaxY
+      mat.userData.shaderUniforms.clipMinZ.value = sliceMinZ
+      mat.userData.shaderUniforms.clipMaxZ.value = sliceMaxZ
+    }
+  }, [sliceMinX, sliceMaxX, sliceMinY, sliceMaxY, sliceMinZ, sliceMaxZ, materials])
 
   const [screenData, setScreenData] = useState<{
     pos: THREE.Vector3

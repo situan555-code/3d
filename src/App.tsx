@@ -16,6 +16,13 @@ function App() {
   const [debugRotX, setDebugRotX] = useState(0)
   const [debugRotY, setDebugRotY] = useState(1.1330)
   const [debugRotZ, setDebugRotZ] = useState(-0.0060)
+  
+  const [sliceMinX, setSliceMinX] = useState(-0.35)
+  const [sliceMaxX, setSliceMaxX] = useState(0.01)
+  const [sliceMinY, setSliceMinY] = useState(0.32)
+  const [sliceMaxY, setSliceMaxY] = useState(0.60)
+  const [sliceMinZ, setSliceMinZ] = useState(-0.50)
+  const [sliceMaxZ, setSliceMaxZ] = useState(-0.43)
 
   const handleMonitorClick = (screenWorldPos: THREE.Vector3, screenNormal: THREE.Vector3) => {
     if (isZoomed) return
@@ -59,49 +66,81 @@ function App() {
         </button>
 
         {/* Live Debug Panel */}
-        <div style={{ position: 'fixed', top: 20, left: 20, background: 'rgba(0,0,0,0.8)', padding: '15px', color: 'white', borderRadius: '8px', zIndex: 9999, pointerEvents: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', fontFamily: 'monospace' }}>
+        <div style={{ position: 'fixed', top: 20, left: 20, background: 'rgba(0,0,0,0.8)', padding: '15px', color: 'white', borderRadius: '8px', zIndex: 9999, pointerEvents: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px', fontFamily: 'monospace', maxHeight: '95vh', overflowY: 'auto' }}>
           <strong>Visual Iframe Tuner</strong>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             X offset: 
             <input type="number" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{width: '60px'}} />
-            <input type="range" min="-0.60" max="0.20" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <input type="range" min="-0.60" max="0.20" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{width: '90px'}} />
             <button onClick={() => setDebugX(-0.091)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Y offset: 
             <input type="number" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{width: '60px'}} />
-            <input type="range" min="0.0" max="1.0" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <input type="range" min="0.0" max="1.0" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{width: '90px'}} />
             <button onClick={() => setDebugY(0.565)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Z offset: 
             <input type="number" step="0.001" value={debugZ} onChange={e => setDebugZ(parseFloat(e.target.value))} style={{width: '60px'}} />
-            <input type="range" min="-1.50" max="0.50" step="0.001" value={debugZ} onChange={e => setDebugZ(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <input type="range" min="-1.50" max="0.50" step="0.001" value={debugZ} onChange={e => setDebugZ(parseFloat(e.target.value))} style={{width: '90px'}} />
             <button onClick={() => setDebugZ(-0.803)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Scale: 
             <input type="number" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{width: '60px'}} />
-            <input type="range" min="0.001" max="0.05" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <input type="range" min="0.001" max="0.05" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{width: '90px'}} />
             <button onClick={() => setDebugScale(0.021)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Pitch X: 
             <input type="number" step="0.001" value={debugRotX} onChange={e => setDebugRotX(parseFloat(e.target.value))} style={{width: '60px'}} />
-            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotX} onChange={e => setDebugRotX(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotX} onChange={e => setDebugRotX(parseFloat(e.target.value))} style={{width: '90px'}} />
             <button onClick={() => setDebugRotX(0)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Yaw Y: 
             <input type="number" step="0.001" value={debugRotY} onChange={e => setDebugRotY(parseFloat(e.target.value))} style={{width: '60px'}} />
-            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotY} onChange={e => setDebugRotY(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotY} onChange={e => setDebugRotY(parseFloat(e.target.value))} style={{width: '90px'}} />
             <button onClick={() => setDebugRotY(1.133)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Roll Z: 
             <input type="number" step="0.001" value={debugRotZ} onChange={e => setDebugRotZ(parseFloat(e.target.value))} style={{width: '60px'}} />
-            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotZ} onChange={e => setDebugRotZ(parseFloat(e.target.value))} style={{width: '100px'}} />
+            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotZ} onChange={e => setDebugRotZ(parseFloat(e.target.value))} style={{width: '90px'}} />
             <button onClick={() => setDebugRotZ(-0.006)} style={{padding: '0 5px'}}>↺</button>
+          </div>
+
+          <strong style={{marginTop: '10px', display: 'block', color: 'orange'}}>Geometric Slicer</strong>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            Min X: 
+            <input type="number" step="0.01" value={sliceMinX} onChange={e => setSliceMinX(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="-1.0" max="1.0" step="0.01" value={sliceMinX} onChange={e => setSliceMinX(parseFloat(e.target.value))} style={{width: '90px'}} />
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            Max X: 
+            <input type="number" step="0.01" value={sliceMaxX} onChange={e => setSliceMaxX(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="-1.0" max="1.0" step="0.01" value={sliceMaxX} onChange={e => setSliceMaxX(parseFloat(e.target.value))} style={{width: '90px'}} />
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            Min Y: 
+            <input type="number" step="0.01" value={sliceMinY} onChange={e => setSliceMinY(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="-1.0" max="1.0" step="0.01" value={sliceMinY} onChange={e => setSliceMinY(parseFloat(e.target.value))} style={{width: '90px'}} />
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            Max Y: 
+            <input type="number" step="0.01" value={sliceMaxY} onChange={e => setSliceMaxY(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="-1.0" max="1.0" step="0.01" value={sliceMaxY} onChange={e => setSliceMaxY(parseFloat(e.target.value))} style={{width: '90px'}} />
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            Min Z: 
+            <input type="number" step="0.01" value={sliceMinZ} onChange={e => setSliceMinZ(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="-1.0" max="1.0" step="0.01" value={sliceMinZ} onChange={e => setSliceMinZ(parseFloat(e.target.value))} style={{width: '90px'}} />
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+            Max Z: 
+            <input type="number" step="0.01" value={sliceMaxZ} onChange={e => setSliceMaxZ(parseFloat(e.target.value))} style={{width: '60px'}} />
+            <input type="range" min="-1.0" max="1.0" step="0.01" value={sliceMaxZ} onChange={e => setSliceMaxZ(parseFloat(e.target.value))} style={{width: '90px'}} />
           </div>
         </div>
       </div>
@@ -139,6 +178,12 @@ function App() {
             debugRotX={debugRotX}
             debugRotY={debugRotY}
             debugRotZ={debugRotZ}
+            sliceMinX={sliceMinX}
+            sliceMaxX={sliceMaxX}
+            sliceMinY={sliceMinY}
+            sliceMaxY={sliceMaxY}
+            sliceMinZ={sliceMinZ}
+            sliceMaxZ={sliceMaxZ}
           />
         </Suspense>
       </Canvas>

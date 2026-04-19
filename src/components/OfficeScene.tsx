@@ -45,13 +45,16 @@ type GLTFResult = GLTF & {
   }
 }
 
-interface OfficeSceneProps {
+type OfficeSceneProps = JSX.IntrinsicElements['group'] & {
+  onMonitorClick: (pos: THREE.Vector3, normal: THREE.Vector3) => void
   isZoomed: boolean
-  onMonitorClick: (screenWorldPos: THREE.Vector3, screenNormal: THREE.Vector3) => void
+  debugX?: number
+  debugY?: number
+  debugScale?: number
 }
 
-export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneProps & Record<string, any>) {
-  const { nodes, materials } = useGLTF('/office_assets-transformed.glb') as unknown as GLTFResult
+export function OfficeScene({ onMonitorClick, isZoomed, debugX = -0.1225, debugY = 0.44, debugScale = 0.015, ...props }: OfficeSceneProps) {
+  const { nodes, materials } = useGLTF('/office_assets.glb') as unknown as GLTFResult
   const computerRef = useRef<THREE.Mesh>(null)
 
   const [screenData, setScreenData] = useState<{
@@ -62,20 +65,21 @@ export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneP
   } | null>(null)
 
   useEffect(() => {
-    if (!computerRef.current) return
-
     const mesh = computerRef.current
+    if (!mesh) return
+
+    // Ensure world matrix is up to date
     mesh.updateMatrixWorld(true)
 
-    // Get the geometry's bounding box in LOCAL space
-    const geo = mesh.geometry
-    geo.computeBoundingBox()
-    const localBox = geo.boundingBox!
-    const localCenter = localBox.getCenter(new THREE.Vector3())
-    const localSize = localBox.getSize(new THREE.Vector3())
+    // Calculate local bounding box
+    mesh.geometry.computeBoundingBox()
+    mesh.geometry.computeBoundingSphere()
+    
+    const localBox = mesh.geometry.boundingBox!
+    const localCenter = mesh.geometry.boundingSphere!.center
+    const localSize = new THREE.Vector3()
+    localBox.getSize(localSize)
 
-    console.log('[OfficeScene] Local box min:', JSON.stringify(localBox.min))
-    console.log('[OfficeScene] Local box max:', JSON.stringify(localBox.max))
     console.log('[OfficeScene] Local center:', JSON.stringify(localCenter))
     console.log('[OfficeScene] Local size:', JSON.stringify(localSize))
 
@@ -139,14 +143,8 @@ export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneP
     else if (bestNormal.label === '-X') localFacePos.x = localBox.min.x
     else if (bestNormal.label === '+X') localFacePos.x = localBox.max.x
 
-    // The screen center in LOCAL mesh space:
-    // Previous attempts: X=-0.05 too right, X=-0.18 still too right
-    // Monitor is in the far-left portion of the merged mesh (tank/keyboard/mouse are to the right)
-    // Local X range: [-0.71, 0.17] — monitor occupies roughly [-0.55, -0.20]
-    // True center of the screen glass confirmed manually:
-    // Y=0.44 is flawlessly centered vertically. 
-    // X=-0.1225 is the mathematical midpoint between the left edge (-0.19) and right edge (-0.055).
-    const localScreenCenter = new THREE.Vector3(-0.1225, 0.44, localBox.max.z)
+    // Tune using interactive debug coordinates passed from App
+    const localScreenCenter = new THREE.Vector3(debugX, debugY, localBox.max.z)
 
     // Transform to world space  
     const worldFacePos = localScreenCenter.clone().applyMatrix4(worldMatrix)
@@ -175,7 +173,7 @@ export function OfficeScene({ isZoomed, onMonitorClick, ...props }: OfficeSceneP
   }, [screenData])
 
   // Scale: 0.015 maps 640px to ~0.27 units width, ~0.20 units height
-  const htmlScale = 0.015
+  const htmlScale = debugScale
 
   const handleMonitorClick = () => {
     if (!screenData) return

@@ -7,6 +7,11 @@ import { OfficeScene } from './components/OfficeScene'
 function App() {
   const [isZoomed, setIsZoomed] = useState(false)
   const cameraControlRef = useRef<CameraControls>(null)
+  
+  // LIVE DEBUG CONTROLS
+  const [debugX, setDebugX] = useState(-0.1225)
+  const [debugY, setDebugY] = useState(0.44)
+  const [debugScale, setDebugScale] = useState(0.015)
 
   const handleMonitorClick = (screenWorldPos: THREE.Vector3, screenNormal: THREE.Vector3) => {
     if (isZoomed) return
@@ -48,6 +53,23 @@ function App() {
         >
           ← Step Back
         </button>
+
+        {/* Live Debug Panel */}
+        <div style={{ position: 'fixed', top: 20, left: 20, background: 'rgba(0,0,0,0.8)', padding: '15px', color: 'white', borderRadius: '8px', zIndex: 9999, pointerEvents: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', fontFamily: 'monospace' }}>
+          <strong>Visual Iframe Tuner</strong>
+          <label>
+            X offset: {debugX.toFixed(4)}
+            <input type="range" min="-0.60" max="0.20" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
+          </label>
+          <label>
+            Y offset: {debugY.toFixed(4)}
+            <input type="range" min="0.0" max="1.0" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
+          </label>
+          <label>
+            Scale: {debugScale.toFixed(4)}
+            <input type="range" min="0.001" max="0.05" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
+          </label>
+        </div>
       </div>
 
       <Canvas camera={{ position: [0, 1.5, 4], fov: 50 }} shadows>
@@ -76,6 +98,9 @@ function App() {
           <OfficeScene 
             isZoomed={isZoomed}
             onMonitorClick={handleMonitorClick}
+            debugX={debugX}
+            debugY={debugY}
+            debugScale={debugScale}
           />
         </Suspense>
       </Canvas>

@@ -11,6 +11,7 @@ function App() {
   // LIVE DEBUG CONTROLS
   const [debugX, setDebugX] = useState(-0.1225)
   const [debugY, setDebugY] = useState(0.44)
+  const [debugZ, setDebugZ] = useState(0)
   const [debugScale, setDebugScale] = useState(0.015)
 
   const handleMonitorClick = (screenWorldPos: THREE.Vector3, screenNormal: THREE.Vector3) => {
@@ -66,6 +67,10 @@ function App() {
             <input type="range" min="0.0" max="1.0" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
           </label>
           <label>
+            Z offset: {debugZ.toFixed(4)}
+            <input type="range" min="-0.50" max="0.50" step="0.001" value={debugZ} onChange={e => setDebugZ(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
+          </label>
+          <label>
             Scale: {debugScale.toFixed(4)}
             <input type="range" min="0.001" max="0.05" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
           </label>
@@ -100,6 +105,7 @@ function App() {
             onMonitorClick={handleMonitorClick}
             debugX={debugX}
             debugY={debugY}
+            debugZ={debugZ}
             debugScale={debugScale}
           />
         </Suspense>

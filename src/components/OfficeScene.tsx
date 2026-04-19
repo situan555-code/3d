@@ -50,10 +50,11 @@ type OfficeSceneProps = JSX.IntrinsicElements['group'] & {
   isZoomed: boolean
   debugX?: number
   debugY?: number
+  debugZ?: number
   debugScale?: number
 }
 
-export function OfficeScene({ onMonitorClick, isZoomed, debugX = -0.1225, debugY = 0.44, debugScale = 0.015, ...props }: OfficeSceneProps) {
+export function OfficeScene({ onMonitorClick, isZoomed, debugX = -0.1225, debugY = 0.44, debugZ = 0, debugScale = 0.015, ...props }: OfficeSceneProps) {
   const { nodes, materials } = useGLTF('/office_assets.glb') as unknown as GLTFResult
   const computerRef = useRef<THREE.Mesh>(null)
 
@@ -144,7 +145,7 @@ export function OfficeScene({ onMonitorClick, isZoomed, debugX = -0.1225, debugY
     else if (bestNormal.label === '+X') localFacePos.x = localBox.max.x
 
     // Tune using interactive debug coordinates passed from App
-    const localScreenCenter = new THREE.Vector3(debugX, debugY, localBox.max.z)
+    const localScreenCenter = new THREE.Vector3(debugX, debugY, localBox.max.z + debugZ)
 
     // Transform to world space  
     const worldFacePos = localScreenCenter.clone().applyMatrix4(worldMatrix)
@@ -161,7 +162,7 @@ export function OfficeScene({ onMonitorClick, isZoomed, debugX = -0.1225, debugY
       width: 0.28,
       height: 0.22,
     })
-  }, [nodes])
+  }, [nodes, debugX, debugY, debugZ])
 
   const htmlRotation = useMemo(() => {
     if (!screenData) return new THREE.Euler()

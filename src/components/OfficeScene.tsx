@@ -52,9 +52,23 @@ type OfficeSceneProps = JSX.IntrinsicElements['group'] & {
   debugY?: number
   debugZ?: number
   debugScale?: number
+  debugRotX?: number
+  debugRotY?: number
+  debugRotZ?: number
 }
 
-export function OfficeScene({ onMonitorClick, isZoomed, debugX = -0.1225, debugY = 0.44, debugZ = 0, debugScale = 0.015, ...props }: OfficeSceneProps) {
+export function OfficeScene({ 
+  onMonitorClick, 
+  isZoomed, 
+  debugX = -0.1225, 
+  debugY = 0.44, 
+  debugZ = 0, 
+  debugScale = 0.015,
+  debugRotX = 0,
+  debugRotY = 0,
+  debugRotZ = 0,
+  ...props 
+}: OfficeSceneProps) {
   const { nodes, materials } = useGLTF('/office_assets.glb') as unknown as GLTFResult
   const computerRef = useRef<THREE.Mesh>(null)
 
@@ -170,8 +184,12 @@ export function OfficeScene({ onMonitorClick, isZoomed, debugX = -0.1225, debugY
       new THREE.Vector3(0, 0, 1),
       screenData.normal.clone().normalize()
     )
-    return new THREE.Euler().setFromQuaternion(quat)
-  }, [screenData])
+    const euler = new THREE.Euler().setFromQuaternion(quat)
+    euler.x += debugRotX
+    euler.y += debugRotY
+    euler.z += debugRotZ
+    return euler
+  }, [screenData, debugRotX, debugRotY, debugRotZ])
 
   // Scale: 0.015 maps 640px to ~0.27 units width, ~0.20 units height
   const htmlScale = debugScale

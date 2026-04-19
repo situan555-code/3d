@@ -9,10 +9,13 @@ function App() {
   const cameraControlRef = useRef<CameraControls>(null)
   
   // LIVE DEBUG CONTROLS
-  const [debugX, setDebugX] = useState(-0.1225)
-  const [debugY, setDebugY] = useState(0.44)
-  const [debugZ, setDebugZ] = useState(0)
-  const [debugScale, setDebugScale] = useState(0.015)
+  const [debugX, setDebugX] = useState(-0.0170)
+  const [debugY, setDebugY] = useState(0.5530)
+  const [debugZ, setDebugZ] = useState(-0.4870)
+  const [debugScale, setDebugScale] = useState(0.0180)
+  const [debugRotX, setDebugRotX] = useState(0)
+  const [debugRotY, setDebugRotY] = useState(0)
+  const [debugRotZ, setDebugRotZ] = useState(0)
 
   const handleMonitorClick = (screenWorldPos: THREE.Vector3, screenNormal: THREE.Vector3) => {
     if (isZoomed) return
@@ -68,11 +71,23 @@ function App() {
           </label>
           <label>
             Z offset: {debugZ.toFixed(4)}
-            <input type="range" min="-0.50" max="0.50" step="0.001" value={debugZ} onChange={e => setDebugZ(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
+            <input type="range" min="-1.50" max="0.50" step="0.001" value={debugZ} onChange={e => setDebugZ(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
           </label>
           <label>
             Scale: {debugScale.toFixed(4)}
             <input type="range" min="0.001" max="0.05" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
+          </label>
+          <label>
+            Rot X (Pitch): {debugRotX.toFixed(4)}
+            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotX} onChange={e => setDebugRotX(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
+          </label>
+          <label>
+            Rot Y (Yaw): {debugRotY.toFixed(4)}
+            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotY} onChange={e => setDebugRotY(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
+          </label>
+          <label>
+            Rot Z (Roll): {debugRotZ.toFixed(4)}
+            <input type="range" min="-3.14" max="3.14" step="0.001" value={debugRotZ} onChange={e => setDebugRotZ(parseFloat(e.target.value))} style={{display: 'block', width: '200px'}} />
           </label>
         </div>
       </div>
@@ -107,6 +122,9 @@ function App() {
             debugY={debugY}
             debugZ={debugZ}
             debugScale={debugScale}
+            debugRotX={debugRotX}
+            debugRotY={debugRotY}
+            debugRotZ={debugRotZ}
           />
         </Suspense>
       </Canvas>

@@ -9,8 +9,8 @@ function App() {
   const cameraControlRef = useRef<CameraControls>(null)
   
   // LIVE DEBUG CONTROLS
-  const [debugX, setDebugX] = useState(-0.091)
-  const [debugY, setDebugY] = useState(0.565)
+  const [debugX, setDebugX] = useState(0.014)
+  const [debugY, setDebugY] = useState(0.780)
   const [debugZ, setDebugZ] = useState(-0.803)
   const [debugScale, setDebugScale] = useState(0.0210)
   const [debugRotX, setDebugRotX] = useState(0)
@@ -71,13 +71,13 @@ function App() {
             X offset: 
             <input type="number" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{width: '60px'}} />
             <input type="range" min="-0.60" max="0.20" step="0.001" value={debugX} onChange={e => setDebugX(parseFloat(e.target.value))} style={{width: '90px'}} />
-            <button onClick={() => setDebugX(-0.091)} style={{padding: '0 5px'}}>↺</button>
+            <button onClick={() => setDebugX(0.014)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Y offset: 
             <input type="number" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{width: '60px'}} />
             <input type="range" min="0.0" max="1.0" step="0.001" value={debugY} onChange={e => setDebugY(parseFloat(e.target.value))} style={{width: '90px'}} />
-            <button onClick={() => setDebugY(0.565)} style={{padding: '0 5px'}}>↺</button>
+            <button onClick={() => setDebugY(0.780)} style={{padding: '0 5px'}}>↺</button>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Z offset: 

@@ -65,7 +65,7 @@ function App() {
         </button>
 
         {/* Live Debug Panel */}
-        <div style={{ position: 'fixed', top: 20, left: 20, background: 'rgba(0,0,0,0.8)', padding: '15px', color: 'white', borderRadius: '8px', zIndex: 9999, pointerEvents: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px', fontFamily: 'monospace', maxHeight: '95vh', overflowY: 'auto' }}>
+        <div style={{ position: 'fixed', top: 20, left: 20, background: 'rgba(0,0,0,0.8)', padding: '15px', color: 'white', borderRadius: '8px', zIndex: 2147483647, pointerEvents: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px', fontFamily: 'monospace', maxHeight: '95vh', overflowY: 'auto' }}>
           <strong>Visual Iframe Tuner</strong>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             X offset: 

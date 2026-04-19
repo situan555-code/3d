@@ -17,12 +17,12 @@ function App() {
   const [debugRotY, setDebugRotY] = useState(1.1330)
   const [debugRotZ, setDebugRotZ] = useState(-0.0060)
   
-  const [sliceMinX, setSliceMinX] = useState(-0.35)
-  const [sliceMaxX, setSliceMaxX] = useState(0.01)
-  const [sliceMinY, setSliceMinY] = useState(0.32)
-  const [sliceMaxY, setSliceMaxY] = useState(0.60)
-  const [sliceMinZ, setSliceMinZ] = useState(-0.50)
-  const [sliceMaxZ, setSliceMaxZ] = useState(-0.43)
+  const [sliceMinX, setSliceMinX] = useState(-0.394)
+  const [sliceMaxX, setSliceMaxX] = useState(-0.035)
+  const [sliceMinY, setSliceMinY] = useState(0.302)
+  const [sliceMaxY, setSliceMaxY] = useState(0.573)
+  const [sliceMinZ, setSliceMinZ] = useState(-1.5)
+  const [sliceMaxZ, setSliceMaxZ] = useState(-0.46)
 
   const handleMonitorClick = (screenWorldPos: THREE.Vector3, screenNormal: THREE.Vector3) => {
     if (isZoomed) return
@@ -135,12 +135,12 @@ function App() {
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Min Z: 
             <input type="number" step="0.01" value={sliceMinZ} onChange={e => setSliceMinZ(parseFloat(e.target.value))} style={{width: '60px'}} />
-            <input type="range" min="-1.0" max="1.0" step="0.01" value={sliceMinZ} onChange={e => setSliceMinZ(parseFloat(e.target.value))} style={{width: '90px'}} />
+            <input type="range" min="-1.5" max="1.0" step="0.01" value={sliceMinZ} onChange={e => setSliceMinZ(parseFloat(e.target.value))} style={{width: '90px'}} />
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
             Max Z: 
             <input type="number" step="0.01" value={sliceMaxZ} onChange={e => setSliceMaxZ(parseFloat(e.target.value))} style={{width: '60px'}} />
-            <input type="range" min="-1.0" max="1.0" step="0.01" value={sliceMaxZ} onChange={e => setSliceMaxZ(parseFloat(e.target.value))} style={{width: '90px'}} />
+            <input type="range" min="-1.5" max="1.0" step="0.01" value={sliceMaxZ} onChange={e => setSliceMaxZ(parseFloat(e.target.value))} style={{width: '90px'}} />
           </div>
         </div>
       </div>

@@ -67,12 +67,12 @@ export function OfficeScene({
   debugRotX = 0,
   debugRotY = 1.1330,
   debugRotZ = -0.0060,
-  sliceMinX = -0.32,
-  sliceMaxX = 0.08,
-  sliceMinY = 0.30,
-  sliceMaxY = 0.61,
-  sliceMinZ = -0.50,
-  sliceMaxZ = 0.50,
+  sliceMinX = -0.394,
+  sliceMaxX = -0.035,
+  sliceMinY = 0.302,
+  sliceMaxY = 0.573,
+  sliceMinZ = -1.5,
+  sliceMaxZ = -0.46,
   ...props 
 }: OfficeSceneProps & Record<string, any>) {
   const { nodes, materials } = useGLTF('/office_assets.glb') as unknown as GLTFResult

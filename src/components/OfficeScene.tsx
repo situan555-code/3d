@@ -8,7 +8,7 @@ Source: https://sketchfab.com/3d-models/office-assets-16c1a779bb0a4055a26367741d
 import * as THREE from 'three'
 import { useMemo, useEffect, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useGLTF, Html } from '@react-three/drei'
+import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 
 type GLTFResult = GLTF & {
@@ -49,249 +49,121 @@ type GLTFResult = GLTF & {
 type OfficeSceneProps = JSX.IntrinsicElements['group'] & {
   onMonitorClick: (pos: THREE.Vector3, normal: THREE.Vector3) => void
   isZoomed: boolean
-  debugX?: number
-  debugY?: number
-  debugZ?: number
-  debugScale?: number
-  debugRotX?: number
-  debugRotY?: number
-  debugRotZ?: number
+  captureCanvas: HTMLCanvasElement | null
+  resumeElement: HTMLDivElement | null
 }
+
+// Calibrated screen coordinates from previous session
+const SCREEN_POS = new THREE.Vector3(-0.045, 0.675, -0.803)
+const SCREEN_ROT_OFFSET = { x: 0, y: 1.133, z: -0.006 }
+const SCREEN_SCALE = 0.021
 
 export function OfficeScene({ 
   onMonitorClick, 
   isZoomed, 
-  debugX = -0.045, 
-  debugY = 0.675, 
-  debugZ = -0.803, 
-  debugScale = 0.0210,
-  debugRotX = 0,
-  debugRotY = 1.133,
-  debugRotZ = -0.006,
-  sliceMinX = 0,
-  sliceMaxX = 0,
-  sliceMinY = 0,
-  sliceMaxY = 0,
-  sliceMinZ = 0,
-  sliceMaxZ = 0,
+  captureCanvas,
+  resumeElement,
   ...props 
-}: OfficeSceneProps & Record<string, any>) {
+}: OfficeSceneProps) {
   const { nodes, materials } = useGLTF('/office_assets.glb') as unknown as GLTFResult
   const computerRef = useRef<THREE.Mesh>(null)
-  
-  // -- HTML-in-Canvas Experimental Texture Pipeline --
-  const domRef = useRef<HTMLDivElement>(null)
-  
-  const { canvas, texture } = useMemo(() => {
-    const cvs = document.createElement('canvas')
-    cvs.width = 640
-    cvs.height = 480
-    
-    const tex = new THREE.CanvasTexture(cvs)
+  const paintFired = useRef(false)
+
+  // -- HTML-in-Canvas Texture via WICG drawElementImage API --
+  const screenTexture = useMemo(() => {
+    if (!captureCanvas) return null
+    const tex = new THREE.CanvasTexture(captureCanvas)
     tex.minFilter = THREE.LinearFilter
     tex.magFilter = THREE.LinearFilter
     tex.flipY = false
-    
-    return { canvas: cvs, texture: tex }
-  }, [])
+    return tex
+  }, [captureCanvas])
 
+  // Listen for the WICG `paint` event on the capture canvas
+  useEffect(() => {
+    if (!captureCanvas) return
+    const onPaint = () => { paintFired.current = true }
+    captureCanvas.addEventListener('paint', onPaint)
+    return () => captureCanvas.removeEventListener('paint', onPaint)
+  }, [captureCanvas])
+
+  // Render loop: call drawElementImage on the 2D context each frame
   useFrame(() => {
-    if (domRef.current && canvas && texture) {
-      const ctx = canvas.getContext('2d') as any
-      // Test for Chromium Beta API capability
-      if (ctx && typeof ctx.drawElementImage === 'function') {
-        try {
-          ctx.drawElementImage(domRef.current, 0, 0)
-          texture.needsUpdate = true
-        } catch (e) {
-          // Ignore execution errors on frame rate
-        }
+    if (!captureCanvas || !resumeElement || !screenTexture) return
+    
+    const ctx = captureCanvas.getContext('2d') as any
+    if (!ctx) return
+
+    // Only proceed if the API exists
+    if (typeof ctx.drawElementImage !== 'function') {
+      // Fallback: if the API is not available, show a static placeholder
+      if (!paintFired.current) {
+        ctx.fillStyle = '#111'
+        ctx.fillRect(0, 0, captureCanvas.width, captureCanvas.height)
+        ctx.fillStyle = '#666'
+        ctx.font = '16px monospace'
+        ctx.fillText('html-in-canvas API not available', 40, 240)
+        ctx.fillText('Enable chrome://flags/#canvas-draw-element', 40, 270)
+        screenTexture.needsUpdate = true
+        paintFired.current = true // only draw once
       }
+      return
+    }
+
+    try {
+      ctx.reset()
+      ctx.drawElementImage(resumeElement, 0, 0, captureCanvas.width, captureCanvas.height)
+      screenTexture.needsUpdate = true
+    } catch (e) {
+      // Initial paint hasn't fired yet — silently wait
     }
   })
-  // ------------------------------------------------
 
-  // Inject Volumetric Shader Slicer into the Computer Material
-  useEffect(() => {
-    const mat = materials.M_Computer_2048 as any
-    if (!mat.userData.shaderUniforms) {
-      mat.userData.shaderUniforms = {
-        clipMinX: { value: sliceMinX },
-        clipMaxX: { value: sliceMaxX },
-        clipMinY: { value: sliceMinY },
-        clipMaxY: { value: sliceMaxY },
-        clipMinZ: { value: sliceMinZ },
-        clipMaxZ: { value: sliceMaxZ },
-      }
-
-      mat.onBeforeCompile = (shader: any) => {
-        shader.uniforms.clipMinX = mat.userData.shaderUniforms.clipMinX
-        shader.uniforms.clipMaxX = mat.userData.shaderUniforms.clipMaxX
-        shader.uniforms.clipMinY = mat.userData.shaderUniforms.clipMinY
-        shader.uniforms.clipMaxY = mat.userData.shaderUniforms.clipMaxY
-        shader.uniforms.clipMinZ = mat.userData.shaderUniforms.clipMinZ
-        shader.uniforms.clipMaxZ = mat.userData.shaderUniforms.clipMaxZ
-
-        shader.vertexShader = shader.vertexShader.replace(
-          '#include <common>',
-          `#include <common>
-           varying vec3 vLocalPosOut;`
-        )
-        shader.vertexShader = shader.vertexShader.replace(
-          '#include <begin_vertex>',
-          `#include <begin_vertex>
-           vLocalPosOut = position;`
-        )
-
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <common>',
-          `#include <common>
-           varying vec3 vLocalPosOut;
-           uniform float clipMinX;
-           uniform float clipMaxX;
-           uniform float clipMinY;
-           uniform float clipMaxY;
-           uniform float clipMinZ;
-           uniform float clipMaxZ;`
-        )
-
-        shader.fragmentShader = shader.fragmentShader.replace(
-          'void main() {',
-          `void main() {
-             if (clipMinX < clipMaxX && clipMinY < clipMaxY && clipMinZ < clipMaxZ) {
-               if (
-                 vLocalPosOut.x >= clipMinX && vLocalPosOut.x <= clipMaxX &&
-                 vLocalPosOut.y >= clipMinY && vLocalPosOut.y <= clipMaxY &&
-                 vLocalPosOut.z >= clipMinZ && vLocalPosOut.z <= clipMaxZ
-               ) {
-                 discard;
-               }
-             }
-          `
-        )
-      }
-      mat.needsUpdate = true
-    }
-  }, [materials])
-
-  // Synchronously pipe the react props into the shader uniforms
-  useEffect(() => {
-    const mat = materials.M_Computer_2048 as any
-    if (mat.userData.shaderUniforms) {
-      mat.userData.shaderUniforms.clipMinX.value = sliceMinX
-      mat.userData.shaderUniforms.clipMaxX.value = sliceMaxX
-      mat.userData.shaderUniforms.clipMinY.value = sliceMinY
-      mat.userData.shaderUniforms.clipMaxY.value = sliceMaxY
-      mat.userData.shaderUniforms.clipMinZ.value = sliceMinZ
-      mat.userData.shaderUniforms.clipMaxZ.value = sliceMaxZ
-    }
-  }, [sliceMinX, sliceMaxX, sliceMinY, sliceMaxY, sliceMinZ, sliceMaxZ, materials])
-
+  // Compute screen position from the monitor mesh geometry
   const [screenData, setScreenData] = useState<{
-    pos: THREE.Vector3
-    normal: THREE.Vector3
-    width: number
-    height: number
+    pos: THREE.Vector3, normal: THREE.Vector3, width: number, height: number
   } | null>(null)
 
   useEffect(() => {
-    const mesh = computerRef.current
-    if (!mesh) return
+    const mesh = nodes.Object_10
+    if (!mesh?.geometry) return
 
-    // Ensure world matrix is up to date
-    mesh.updateMatrixWorld(true)
+    const geo = mesh.geometry
+    geo.computeBoundingBox()
+    const box = geo.boundingBox!
+    const center = new THREE.Vector3()
+    box.getCenter(center)
 
-    // Calculate local bounding box
-    mesh.geometry.computeBoundingBox()
-    mesh.geometry.computeBoundingSphere()
-    
-    const localBox = mesh.geometry.boundingBox!
-    const localCenter = mesh.geometry.boundingSphere!.center
-    const localSize = new THREE.Vector3()
-    localBox.getSize(localSize)
+    // Get world matrix from the mesh instance data
+    const worldMatrix = new THREE.Matrix4()
+    worldMatrix.compose(
+      new THREE.Vector3(0.488, 0.743, 0.925),
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0.168, 0)),
+      new THREE.Vector3(1, 1, 1)
+    )
 
-    console.log('[OfficeScene] Local center:', JSON.stringify(localCenter))
-    console.log('[OfficeScene] Local size:', JSON.stringify(localSize))
-
-    // The mesh has position=[0.488, 0.743, 0.925] rotation=[0, 0.168, 0]
-    // The monitor screen in the original model faced -X in monitor-local space
-    // gltfjsx --transform may have flattened/merged and changed the orientation
-    // 
-    // From the geometry local bounds we can figure out which direction is "front":
-    // The thinnest axis of just the MONITOR portion would be the screen normal direction
-    // But since tower+keyboard+mouse are merged, we need to use the model knowledge:
-    //
-    // The original Monitor_6 was at the LEFT side of the desk
-    // The original Computer_5 (tower) was at the RIGHT side
-    // In the merged mesh, the monitor screen should face toward the chair at [0.92, 0.01, 0.77]
-    //
-    // Strategy: use the mesh's -Z local direction as the screen normal
-    // (the front of the monitor faces -Z in the merged mesh's local space)
-    // This is because gltfjsx places the "front" of objects along -Z by convention
-
-    // Let's try all 6 faces and pick the one closest to the camera
-    // But use the mesh's WORLD matrix to properly transform the face normals
-    const worldMatrix = mesh.matrixWorld
+    // Compute screen normal
+    const localNormal = new THREE.Vector3(0, 0, -1)
     const normalMatrix = new THREE.Matrix3().getNormalMatrix(worldMatrix)
+    const screenNormal = localNormal.applyMatrix3(normalMatrix).normalize()
 
-    // Test local -Z face (most likely front)
-    const localNormals = [
-      { dir: new THREE.Vector3(0, 0, -1), label: '-Z' },
-      { dir: new THREE.Vector3(0, 0, 1), label: '+Z' },
-      { dir: new THREE.Vector3(-1, 0, 0), label: '-X' },
-      { dir: new THREE.Vector3(1, 0, 0), label: '+X' },
-    ]
+    // Screen center in local model coords, offset to front face  
+    const localScreenCenter = new THREE.Vector3(
+      center.x + SCREEN_POS.x,
+      center.y + SCREEN_POS.y, 
+      box.min.z + SCREEN_POS.z
+    )
 
-    const cam = new THREE.Vector3(0, 1.5, 4)
-    const worldCenter = localCenter.clone().applyMatrix4(worldMatrix)
-
-    const toCamera = cam.clone().sub(worldCenter).normalize()
-
-    let bestNormal = localNormals[0]
-    let bestDot = -Infinity
-
-    for (const n of localNormals) {
-      const worldNormal = n.dir.clone().applyMatrix3(normalMatrix).normalize()
-      const dot = worldNormal.dot(toCamera)
-      console.log(`[OfficeScene] Face ${n.label}: worldNormal=${JSON.stringify(worldNormal)}, dot=${dot.toFixed(3)}`)
-      if (dot > bestDot) {
-        bestDot = dot
-        bestNormal = n
-      }
-    }
-
-    console.log('[OfficeScene] Best face:', bestNormal.label, 'dot:', bestDot.toFixed(3))
-
-    // Get the world-space normal
-    const screenNormal = bestNormal.dir.clone().applyMatrix3(normalMatrix).normalize()
-
-    // Position: start at the face of the bounding box in the best direction
-    // In local space, find the face position
-    const localFacePos = localCenter.clone()
-    if (bestNormal.label === '-Z') localFacePos.z = localBox.min.z
-    else if (bestNormal.label === '+Z') localFacePos.z = localBox.max.z
-    else if (bestNormal.label === '-X') localFacePos.x = localBox.min.x
-    else if (bestNormal.label === '+X') localFacePos.x = localBox.max.x
-
-    // Tune using interactive debug coordinates passed from App
-    const localScreenCenter = new THREE.Vector3(debugX, debugY, localBox.max.z + debugZ)
-
-    // Transform to world space  
     const worldFacePos = localScreenCenter.clone().applyMatrix4(worldMatrix)
-    // Push slightly outward from the face
     worldFacePos.add(screenNormal.clone().multiplyScalar(0.02))
 
-    console.log('[OfficeScene] Screen position (world):', JSON.stringify(worldFacePos))
-    console.log('[OfficeScene] Screen normal (world):', JSON.stringify(screenNormal))
-
-    // Screen dimensions: CRT visible area ~0.28m wide x 0.22m tall
     setScreenData({
       pos: worldFacePos,
       normal: screenNormal,
       width: 0.28,
       height: 0.22,
     })
-  }, [nodes, debugX, debugY, debugZ])
+  }, [nodes])
 
   const htmlRotation = useMemo(() => {
     if (!screenData) return new THREE.Euler()
@@ -300,14 +172,11 @@ export function OfficeScene({
       screenData.normal.clone().normalize()
     )
     const euler = new THREE.Euler().setFromQuaternion(quat)
-    euler.x += debugRotX
-    euler.y += debugRotY
-    euler.z += debugRotZ
+    euler.x += SCREEN_ROT_OFFSET.x
+    euler.y += SCREEN_ROT_OFFSET.y
+    euler.z += SCREEN_ROT_OFFSET.z
     return euler
-  }, [screenData, debugRotX, debugRotY, debugRotZ])
-
-  // Scale: 0.015 maps 640px to ~0.27 units width, ~0.20 units height
-  const htmlScale = debugScale
+  }, [screenData])
 
   const handleMonitorClick = () => {
     if (!screenData) return
@@ -343,41 +212,19 @@ export function OfficeScene({
       <mesh geometry={nodes.Object_107.geometry} material={materials.M_OfficeStool_Bin_2048} position={[0.923, 0.008, 0.77]} rotation={[-Math.PI, -0.416, -Math.PI]} scale={[1.235, 1, 1.235]} castShadow receiveShadow />
       <mesh geometry={nodes.Object_109.geometry} material={materials['M_Lamps_CCTV_2048.001']} position={[-0.039, 0.743, 1.563]} rotation={[0, 0.454, 0]} castShadow receiveShadow />
 
-      {screenData && (
+      {/* Screen texture drape — native WebGL texture from html-in-canvas */}
+      {screenData && screenTexture && (
         <group position={screenData.pos} rotation={htmlRotation}>
-          <Html style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-            <div 
-              // @ts-ignore: layoutsubtree is experimental
-              layoutsubtree=""
-              ref={domRef} 
-              style={{
-                width: '640px',
-                height: '480px',
-                background: '#111',
-                overflow: 'hidden',
-                pointerEvents: isZoomed ? 'auto' : 'none'
-              }}
-            >
-              <iframe
-                src="/resume/index.html"
-                title="Resume"
-                style={{ width: '100%', height: '100%', border: 'none' }}
-              />
-            </div>
-          </Html>
-
-          {/* WebGL Projection Mesh Map */}
-          {texture && (
-            <mesh scale={[htmlScale * 30, htmlScale * 30, htmlScale * 30]}>
-              <planeGeometry args={[1.3333, 1]} />
-              <meshBasicMaterial 
-                map={texture} 
-                color="red" // Debug Visibility 
-                side={THREE.DoubleSide} 
-                transparent={false} 
-              />
-            </mesh>
-          )}
+          <mesh scale={[SCREEN_SCALE * 30, SCREEN_SCALE * 30, 1]}>
+            <planeGeometry args={[1.3333, 1]} />
+            <meshBasicMaterial 
+              map={screenTexture} 
+              side={THREE.DoubleSide}
+              transparent
+              opacity={isZoomed ? 1 : 0.85}
+              toneMapped={false}
+            />
+          </mesh>
         </group>
       )}
     </group>

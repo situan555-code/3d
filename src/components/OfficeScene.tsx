@@ -53,11 +53,8 @@ type OfficeSceneProps = Record<string, any> & {
   resumeElement: HTMLDivElement | null
 }
 
-// Calibrated world-space screen coordinates from previous slider math:
-// X: -0.198901 - 0.057 + (-0.045) = -0.300901
-// Y: 0.64169 + 0.144 + 0.675 = 1.46069
-// Z: 1.22238 - 1.1 + (-0.803) = -0.68062
-const SCREEN_POS = new THREE.Vector3(-0.300901, 1.46069, -0.68062)
+// Calibrated relative offsets from the monitor's bounding box center/front face
+const SCREEN_POS = new THREE.Vector3(-0.045, 0.675, -0.803)
 const SCREEN_ROT_OFFSET = { x: 0, y: 1.133, z: -0.006 }
 const SCREEN_SCALE = 0.021
 
@@ -97,65 +94,89 @@ export function OfficeScene({
     const ctx = captureCanvas.getContext('2d') as any
     if (!ctx) return
 
-    // Only proceed if the API exists
-    if (typeof ctx.drawElementImage !== 'function') {
-      // Fallback: if the API is not available, show a static placeholder
-      if (!paintFired.current) {
-        const methods = []
-        for (let key in ctx) {
-          if (typeof ctx[key] === 'function' && (key.includes('draw') || key.includes('Element') || key.includes('Html') || key.includes('HTML'))) {
-            methods.push(key)
-          }
-        }
-        ctx.fillStyle = '#111'
-        ctx.fillRect(0, 0, captureCanvas.width, captureCanvas.height)
-        ctx.fillStyle = '#666'
-        ctx.font = '14px monospace'
-        ctx.fillText('API error: drawElementImage missing', 20, 160)
-        ctx.fillText('Available methods:', 20, 190)
-        
-        let yPos = 220
-        methods.slice(0, 20).forEach((m) => {
-          ctx.fillText('- ' + m, 20, yPos)
-          yPos += 20
-        })
-        
+    // Check for the formal WICG proposed method name
+    if (typeof ctx.drawElementImage === 'function') {
+      try {
+        ctx.reset()
+        ctx.drawElementImage(resumeElement, 0, 0, captureCanvas.width, captureCanvas.height)
         screenTexture.needsUpdate = true
-        paintFired.current = true // only log once
+      } catch (e) {
+        // Wait for next frame
       }
-      return
-    }
-
-    try {
-      ctx.reset()
-      ctx.drawElementImage(resumeElement, 0, 0, captureCanvas.width, captureCanvas.height)
-      screenTexture.needsUpdate = true
-    } catch (e) {
-      // Initial paint hasn't fired yet — silently wait
+    } else {
+      // WICG method missing. Try injecting Element into native drawImage (latest Chromium union overload?)
+      try {
+        ctx.reset()
+        ctx.drawImage(resumeElement, 0, 0, captureCanvas.width, captureCanvas.height)
+        screenTexture.needsUpdate = true
+      } catch (err) {
+        // Fallback placeholder
+        if (!paintFired.current) {
+          const methods = []
+          for (let key in ctx) {
+            if (typeof ctx[key] === 'function' && (key.includes('draw') || key.includes('Element') || key.includes('Html'))) {
+              methods.push(key)
+            }
+          }
+          ctx.fillStyle = '#111'
+          ctx.fillRect(0, 0, captureCanvas.width, captureCanvas.height)
+          ctx.fillStyle = '#666'
+          ctx.font = '14px monospace'
+          ctx.fillText('API error: DOM -> Canvas rendering failed.', 20, 160)
+          ctx.fillText('Available methods:', 20, 190)
+          
+          let yPos = 220
+          methods.slice(0, 20).forEach((m) => {
+            ctx.fillText('- ' + m, 20, yPos)
+            yPos += 20
+          })
+          
+          screenTexture.needsUpdate = true
+          paintFired.current = true // only log once
+        }
+      }
     }
   })
 
-  // ------------------------------------------------
-  // Compute static screen data
-  const screenData = useMemo(() => {
-    // Normal vector facing out from the screen
-    const normal = new THREE.Vector3(0, 0, 1) // default normal 
-    // Rotate normal by the Euler angles we calibrated so the camera zooms exactly facing it
-    const euler = new THREE.Euler(
-      SCREEN_ROT_OFFSET.x,
-      SCREEN_ROT_OFFSET.y,
-      SCREEN_ROT_OFFSET.z,
-      'XYZ'
-    )
-    normal.applyEuler(euler).normalize()
+  // Compute screen position from the monitor mesh geometry accurately using bounding box
+  const [screenData, setScreenData] = useState<{
+    pos: THREE.Vector3, normal: THREE.Vector3, width: number, height: number
+  } | null>(null)
 
-    return {
-      pos: SCREEN_POS,
-      normal: normal,
+  useEffect(() => {
+    const mesh = computerRef.current
+    if (!mesh || !mesh.geometry) return
+
+    mesh.updateMatrixWorld(true)
+    mesh.geometry.computeBoundingBox()
+    mesh.geometry.computeBoundingSphere()
+    
+    const localBox = mesh.geometry.boundingBox!
+    const localCenter = mesh.geometry.boundingSphere!.center
+
+    // Screen center in local model coords, relative to bounding box center
+    const localScreenCenter = new THREE.Vector3(
+      localCenter.x + SCREEN_POS.x,
+      localCenter.y + SCREEN_POS.y, 
+      localBox.min.z + SCREEN_POS.z
+    )
+
+    const worldFacePos = localScreenCenter.clone().applyMatrix4(mesh.matrixWorld)
+
+    // Compute static outwards normal based on the world orientation of the screen
+    const localNormal = new THREE.Vector3(0, 0, -1)
+    const normalMatrix = new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld)
+    const screenNormal = localNormal.applyMatrix3(normalMatrix).normalize()
+
+    worldFacePos.add(screenNormal.clone().multiplyScalar(0.005)) // push slightly in front of glass
+
+    setScreenData({
+      pos: worldFacePos,
+      normal: screenNormal,
       width: 0.28,
       height: 0.22,
-    }
-  }, [])
+    })
+  }, [nodes])
 
   const htmlRotation = useMemo(() => {
     if (!screenData) return new THREE.Euler()
@@ -207,7 +228,7 @@ export function OfficeScene({
       {/* Screen texture drape — native WebGL texture from html-in-canvas */}
       {screenData && screenTexture && (
         <group position={screenData.pos} rotation={htmlRotation}>
-          <mesh scale={[SCREEN_SCALE * 30, SCREEN_SCALE * 30, 1]}>
+          <mesh scale={[-SCREEN_SCALE * 30, SCREEN_SCALE * 30, 1]}>
             <planeGeometry args={[1.3333, 1]} />
             <meshBasicMaterial 
               map={screenTexture} 

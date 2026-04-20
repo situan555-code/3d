@@ -370,7 +370,12 @@ export function OfficeScene({
           {texture && (
             <mesh>
               <planeGeometry args={[640 * htmlScale, 480 * htmlScale]} />
-              <meshBasicMaterial map={texture} transparent opacity={isZoomed ? 1 : 0.85} />
+              <meshBasicMaterial 
+                map={texture} 
+                color="red" // Debug Visibility 
+                side={THREE.DoubleSide} 
+                transparent={false} 
+              />
             </mesh>
           )}
         </group>

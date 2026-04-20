@@ -6,7 +6,7 @@ Source: https://sketchfab.com/3d-models/office-assets-16c1a779bb0a4055a26367741d
 */
 
 import * as THREE from 'three'
-import { useMemo, useEffect, useRef, useState } from 'react'
+import { useMemo, useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
@@ -46,7 +46,7 @@ type GLTFResult = GLTF & {
   }
 }
 
-type OfficeSceneProps = JSX.IntrinsicElements['group'] & {
+type OfficeSceneProps = Record<string, any> & {
   onMonitorClick: (pos: THREE.Vector3, normal: THREE.Vector3) => void
   isZoomed: boolean
   captureCanvas: HTMLCanvasElement | null

@@ -101,14 +101,27 @@ export function OfficeScene({
     if (typeof ctx.drawElementImage !== 'function') {
       // Fallback: if the API is not available, show a static placeholder
       if (!paintFired.current) {
+        const methods = []
+        for (let key in ctx) {
+          if (typeof ctx[key] === 'function' && (key.includes('draw') || key.includes('Element') || key.includes('Html') || key.includes('HTML'))) {
+            methods.push(key)
+          }
+        }
         ctx.fillStyle = '#111'
         ctx.fillRect(0, 0, captureCanvas.width, captureCanvas.height)
         ctx.fillStyle = '#666'
-        ctx.font = '16px monospace'
-        ctx.fillText('html-in-canvas API not available', 40, 240)
-        ctx.fillText('Enable chrome://flags/#canvas-draw-element', 40, 270)
+        ctx.font = '14px monospace'
+        ctx.fillText('API error: drawElementImage missing', 20, 160)
+        ctx.fillText('Available methods:', 20, 190)
+        
+        let yPos = 220
+        methods.slice(0, 20).forEach((m) => {
+          ctx.fillText('- ' + m, 20, yPos)
+          yPos += 20
+        })
+        
         screenTexture.needsUpdate = true
-        paintFired.current = true // only draw once
+        paintFired.current = true // only log once
       }
       return
     }

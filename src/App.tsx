@@ -86,15 +86,18 @@ function App() {
           style={{
             width: '640px',
             height: '480px',
-            background: '#111',
+            background: 'blue',
+            color: 'white',
             overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: 'sans-serif'
           }}
         >
-          <iframe
-            src="/resume/index.html"
-            title="Resume"
-            style={{ width: '100%', height: '100%', border: 'none' }}
-          />
+          <h1>NATIVE DOM CAPTURE TEST</h1>
+          <p>If you see this, IFRAMES are blocked by WICG security policy.</p>
         </div>
       </canvas>
 

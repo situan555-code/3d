@@ -53,8 +53,11 @@ type OfficeSceneProps = JSX.IntrinsicElements['group'] & {
   resumeElement: HTMLDivElement | null
 }
 
-// Calibrated screen coordinates from previous session
-const SCREEN_POS = new THREE.Vector3(-0.045, 0.675, -0.803)
+// Calibrated world-space screen coordinates from previous slider math:
+// X: -0.198901 - 0.057 + (-0.045) = -0.300901
+// Y: 0.64169 + 0.144 + 0.675 = 1.46069
+// Z: 1.22238 - 1.1 + (-0.803) = -0.68062
+const SCREEN_POS = new THREE.Vector3(-0.300901, 1.46069, -0.68062)
 const SCREEN_ROT_OFFSET = { x: 0, y: 1.133, z: -0.006 }
 const SCREEN_SCALE = 0.021
 
@@ -119,51 +122,27 @@ export function OfficeScene({
     }
   })
 
-  // Compute screen position from the monitor mesh geometry
-  const [screenData, setScreenData] = useState<{
-    pos: THREE.Vector3, normal: THREE.Vector3, width: number, height: number
-  } | null>(null)
-
-  useEffect(() => {
-    const mesh = nodes.Object_10
-    if (!mesh?.geometry) return
-
-    const geo = mesh.geometry
-    geo.computeBoundingBox()
-    const box = geo.boundingBox!
-    const center = new THREE.Vector3()
-    box.getCenter(center)
-
-    // Get world matrix from the mesh instance data
-    const worldMatrix = new THREE.Matrix4()
-    worldMatrix.compose(
-      new THREE.Vector3(0.488, 0.743, 0.925),
-      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0.168, 0)),
-      new THREE.Vector3(1, 1, 1)
+  // ------------------------------------------------
+  // Compute static screen data
+  const screenData = useMemo(() => {
+    // Normal vector facing out from the screen
+    const normal = new THREE.Vector3(0, 0, 1) // default normal 
+    // Rotate normal by the Euler angles we calibrated so the camera zooms exactly facing it
+    const euler = new THREE.Euler(
+      SCREEN_ROT_OFFSET.x,
+      SCREEN_ROT_OFFSET.y,
+      SCREEN_ROT_OFFSET.z,
+      'XYZ'
     )
+    normal.applyEuler(euler).normalize()
 
-    // Compute screen normal
-    const localNormal = new THREE.Vector3(0, 0, -1)
-    const normalMatrix = new THREE.Matrix3().getNormalMatrix(worldMatrix)
-    const screenNormal = localNormal.applyMatrix3(normalMatrix).normalize()
-
-    // Screen center in local model coords, offset to front face  
-    const localScreenCenter = new THREE.Vector3(
-      center.x + SCREEN_POS.x,
-      center.y + SCREEN_POS.y, 
-      box.min.z + SCREEN_POS.z
-    )
-
-    const worldFacePos = localScreenCenter.clone().applyMatrix4(worldMatrix)
-    worldFacePos.add(screenNormal.clone().multiplyScalar(0.02))
-
-    setScreenData({
-      pos: worldFacePos,
-      normal: screenNormal,
+    return {
+      pos: SCREEN_POS,
+      normal: normal,
       width: 0.28,
       height: 0.22,
-    })
-  }, [nodes])
+    }
+  }, [])
 
   const htmlRotation = useMemo(() => {
     if (!screenData) return new THREE.Euler()

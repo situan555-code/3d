@@ -81,32 +81,28 @@ export function OfficeScene({
   
   // -- HTML-in-Canvas Experimental Texture Pipeline --
   const domRef = useRef<HTMLDivElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const textureRef = useRef<THREE.CanvasTexture | null>(null)
-
-  useEffect(() => {
-    if (!canvasRef.current) {
-      canvasRef.current = document.createElement('canvas')
-      canvasRef.current.width = 640
-      canvasRef.current.height = 480
-    }
-    if (!textureRef.current) {
-      textureRef.current = new THREE.CanvasTexture(canvasRef.current)
-      textureRef.current.minFilter = THREE.LinearFilter
-      textureRef.current.magFilter = THREE.LinearFilter
-      // WebGL textures read from bottom up, standard trick is to flip Y
-      textureRef.current.flipY = false
-    }
+  
+  const { canvas, texture } = useMemo(() => {
+    const cvs = document.createElement('canvas')
+    cvs.width = 640
+    cvs.height = 480
+    
+    const tex = new THREE.CanvasTexture(cvs)
+    tex.minFilter = THREE.LinearFilter
+    tex.magFilter = THREE.LinearFilter
+    tex.flipY = false
+    
+    return { canvas: cvs, texture: tex }
   }, [])
 
   useFrame(() => {
-    if (domRef.current && canvasRef.current && textureRef.current) {
-      const ctx = canvasRef.current.getContext('2d') as any
+    if (domRef.current && canvas && texture) {
+      const ctx = canvas.getContext('2d') as any
       // Test for Chromium Beta API capability
       if (ctx && typeof ctx.drawElementImage === 'function') {
         try {
           ctx.drawElementImage(domRef.current, 0, 0)
-          textureRef.current.needsUpdate = true
+          texture.needsUpdate = true
         } catch (e) {
           // Ignore execution errors on frame rate
         }
@@ -371,10 +367,10 @@ export function OfficeScene({
           </Html>
 
           {/* WebGL Projection Mesh Map */}
-          {textureRef.current && (
+          {texture && (
             <mesh>
               <planeGeometry args={[640 * htmlScale, 480 * htmlScale]} />
-              <meshBasicMaterial map={textureRef.current} transparent opacity={isZoomed ? 1 : 0.85} />
+              <meshBasicMaterial map={texture} transparent opacity={isZoomed ? 1 : 0.85} />
             </mesh>
           )}
         </group>

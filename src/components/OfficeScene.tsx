@@ -7,6 +7,7 @@ Source: https://sketchfab.com/3d-models/office-assets-16c1a779bb0a4055a26367741d
 
 import * as THREE from 'three'
 import { useMemo, useEffect, useRef, useState } from 'react'
+import { useFrame } from '@react-three/fiber'
 import { useGLTF, Html } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 
@@ -77,6 +78,42 @@ export function OfficeScene({
 }: OfficeSceneProps & Record<string, any>) {
   const { nodes, materials } = useGLTF('/office_assets.glb') as unknown as GLTFResult
   const computerRef = useRef<THREE.Mesh>(null)
+  
+  // -- HTML-in-Canvas Experimental Texture Pipeline --
+  const domRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const textureRef = useRef<THREE.CanvasTexture | null>(null)
+
+  useEffect(() => {
+    if (!canvasRef.current) {
+      canvasRef.current = document.createElement('canvas')
+      canvasRef.current.width = 640
+      canvasRef.current.height = 480
+    }
+    if (!textureRef.current) {
+      textureRef.current = new THREE.CanvasTexture(canvasRef.current)
+      textureRef.current.minFilter = THREE.LinearFilter
+      textureRef.current.magFilter = THREE.LinearFilter
+      // WebGL textures read from bottom up, standard trick is to flip Y
+      textureRef.current.flipY = false
+    }
+  }, [])
+
+  useFrame(() => {
+    if (domRef.current && canvasRef.current && textureRef.current) {
+      const ctx = canvasRef.current.getContext('2d') as any
+      // Test for Chromium Beta API capability
+      if (ctx && typeof ctx.drawElementImage === 'function') {
+        try {
+          ctx.drawElementImage(domRef.current, 0, 0)
+          textureRef.current.needsUpdate = true
+        } catch (e) {
+          // Ignore execution errors on frame rate
+        }
+      }
+    }
+  })
+  // ------------------------------------------------
 
   // Inject Volumetric Shader Slicer into the Computer Material
   useEffect(() => {
@@ -312,27 +349,34 @@ export function OfficeScene({
 
       {screenData && (
         <group position={screenData.pos} rotation={htmlRotation}>
-          <Html
-            transform
-            occlude="blending"
-            zIndexRange={[100, 0]}
-            scale={htmlScale}
-            style={{ pointerEvents: isZoomed ? 'auto' : 'none' }}
-          >
-            <div style={{
-              width: '640px',
-              height: '480px',
-              opacity: isZoomed ? 1 : 0.85,
-              background: '#111',
-              overflow: 'hidden',
-            }}>
+          <Html style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+            <div 
+              // @ts-ignore: layoutsubtree is experimental
+              layoutsubtree=""
+              ref={domRef} 
+              style={{
+                width: '640px',
+                height: '480px',
+                background: '#111',
+                overflow: 'hidden',
+                pointerEvents: isZoomed ? 'auto' : 'none'
+              }}
+            >
               <iframe
-                src="https://nautis.my"
+                src="/resume/index.html"
                 title="Resume"
                 style={{ width: '100%', height: '100%', border: 'none' }}
               />
             </div>
           </Html>
+
+          {/* WebGL Projection Mesh Map */}
+          {textureRef.current && (
+            <mesh>
+              <planeGeometry args={[640 * htmlScale, 480 * htmlScale]} />
+              <meshBasicMaterial map={textureRef.current} transparent opacity={isZoomed ? 1 : 0.85} />
+            </mesh>
+          )}
         </group>
       )}
     </group>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ============================================================
+       HEAD PARTIAL — Shared <head> content for all pages
+       Variables: pageTitle, pageDescription, pageCSS (optional extra stylesheet)
+       ============================================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — [AGENCY]</title>
+  <meta name="description" content="Fractional Chief Digital Officer services for legacy B2B, manufacturing, and heavy-inventory retail. MarTech, 3D Commerce, RevOps, AI, and Brand Strategy.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Contact — [AGENCY]">
+  <meta property="og:description" content="We architect the entire revenue system for industrial brands — from ERP integrations to 3D product configurators.">
+  <meta property="og:type" content="website">
+  
+  <!-- Preconnect for fonts (non-blocking) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap">
+  
+  <!-- Design System -->
+  
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "[AGENCY]",
+    "description": "Digital Transformation & Revenue Operations Consultancy for legacy B2B and manufacturing companies.",
+    "url": "#",
+    "serviceType": ["MarTech Consulting", "3D Commerce", "Revenue Operations", "AI Automation", "Brand Strategy"]
+  }
+  </script>
+  <script type="module" crossorigin src="/assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
+  <script type="module" crossorigin src="/assets/glass-sphere-BVoBx5DY.js"></script>
+  <script type="module" crossorigin src="/assets/main-BXmilcYp.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-Om5IY-8E.css">
+  <link rel="stylesheet" crossorigin href="/assets/pages-Bp8WmUZO.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       NAV PARTIAL — Main navigation
+       Variable: activePage (string matching nav item id)
+       ============================================================ -->
+  <nav class="nav" id="main-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="/index.html" class="nav__logo" aria-label="Home">
+        <span>[</span>[AGENCY]<span>]</span>
+      </a>
+      <ul class="nav__links">
+        <li><a href="/index.html" class="nav__link " >Home</a></li>
+        <li><a href="/services.html" class="nav__link ">Services</a></li>
+        <li><a href="/case-studies.html" class="nav__link ">Case Studies</a></li>
+        <li><a href="/about.html" class="nav__link ">About</a></li>
+        <li><a href="/engagement.html" class="nav__link ">How We Work</a></li>
+        <li><a href="/insights.html" class="nav__link ">Insights</a></li>
+      </ul>
+      <a href="/contact.html" class="btn btn--primary nav__cta desktop-only">Start an Audit</a>
+      <button class="nav__toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav__mobile-menu" id="mobile-menu">
+      <a href="/index.html" class="nav__mobile-link">Home</a>
+      <a href="/services.html" class="nav__mobile-link">Services</a>
+      <a href="/case-studies.html" class="nav__mobile-link">Case Studies</a>
+      <a href="/about.html" class="nav__mobile-link">About</a>
+      <a href="/engagement.html" class="nav__mobile-link">How We Work</a>
+      <a href="/insights.html" class="nav__mobile-link">Insights</a>
+      <a href="/contact.html" class="btn btn--primary" style="margin-top: var(--space-4); text-align: center; justify-content: center;">Start an Audit</a>
+    </div>
+  </nav>
+
+  <!-- Page Hero -->
+  <section class="page-hero" id="contact-hero">
+    <div class="glow-orb glow-orb--cyan" style="width:400px;height:400px;top:-10%;left:40%;"></div>
+    <div class="container" style="position:relative;z-index:1;">
+      <span class="label">Contact</span>
+      <h1>Start the conversation.</h1>
+      <p class="lead">No sales pitch. No obligation. Just a clear-eyed look at where your revenue architecture stands.</p>
+    </div>
+  </section>
+
+  <!-- Contact Form -->
+  <section class="section" id="contact-form-section">
+    <div class="container">
+      <div class="contact-grid">
+
+        <!-- Form -->
+        <div class="reveal">
+          <h2 style="margin-bottom:var(--space-2);">Tell us about your company.</h2>
+          <p style="margin-bottom:var(--space-8);">We'll respond within one business day with next steps or a calendar link.</p>
+
+          <form id="contact-form" action="#" method="post">
+            <div class="grid grid--2" style="gap:var(--space-4);">
+              <div class="form-group">
+                <label for="firstName">First Name *</label>
+                <input type="text" id="firstName" name="firstName" required placeholder="John">
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last Name *</label>
+                <input type="text" id="lastName" name="lastName" required placeholder="Smith">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Work Email *</label>
+              <input type="email" id="email" name="email" required placeholder="john@company.com">
+            </div>
+
+            <div class="form-group">
+              <label for="company">Company Name *</label>
+              <input type="text" id="company" name="company" required placeholder="Acme Manufacturing">
+            </div>
+
+            <div class="grid grid--2" style="gap:var(--space-4);">
+              <div class="form-group">
+                <label for="phone">Phone (optional)</label>
+                <input type="tel" id="phone" name="phone" placeholder="(555) 000-0000">
+              </div>
+              <div class="form-group">
+                <label for="interest">What are you most interested in?</label>
+                <select id="interest" name="interest">
+                  <option value="" disabled selected>Select one...</option>
+                  <option value="audit">The Audit ($3K–$10K)</option>
+                  <option value="build">A Build Project ($20K–$100K+)</option>
+                  <option value="retainer">Growth Retainer ($5K–$15K/mo)</option>
+                  <option value="3d">3D Configurator / Kiosk</option>
+                  <option value="ai">AI / Automation</option>
+                  <option value="unsure">Not Sure Yet — Let's Talk</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="message">Tell us about your challenge.</label>
+              <textarea id="message" name="message" placeholder="What's broken? What's the goal? What have you already tried?"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--lg" id="submit-btn" style="width:100%;justify-content:center;">
+              Send Message
+            </button>
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-3);text-align:center;">We'll never share your info. No spam. Ever.</p>
+          </form>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="contact-sidebar reveal reveal--delay-1">
+          <div class="card contact-sidebar__card">
+            <h4>📧 Email Direct</h4>
+            <a href="mailto:hello@agency.com">hello@agency.com</a>
+          </div>
+
+          <div class="card contact-sidebar__card">
+            <h4>📞 Call</h4>
+            <a href="tel:+15550000000">(555) 000-0000</a>
+            <p style="margin-top:var(--space-2);">Mon–Fri, 9am–5pm ET</p>
+          </div>
+
+          <div class="card contact-sidebar__card">
+            <h4>🔗 Connect</h4>
+            <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn →</a>
+          </div>
+
+          <div class="card contact-sidebar__card" style="background:linear-gradient(160deg,rgba(0,229,255,0.04),transparent);border-color:rgba(0,229,255,0.15);">
+            <h4 style="color:var(--color-accent);">💡 Prefer to schedule directly?</h4>
+            <p>Skip the form and grab a 30-minute discovery call on our calendar.</p>
+            <a href="#" class="btn btn--primary" style="margin-top:var(--space-4);width:100%;justify-content:center;" id="calendly-cta">Book a Call</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq" style="background:var(--color-surface);border-top:1px solid var(--color-border);">
+    <div class="container container--sm">
+      <div class="section-header text-center reveal">
+        <span class="label">FAQ</span>
+        <h2>Common questions.</h2>
+      </div>
+
+      <div class="accordion reveal" style="margin-top:var(--space-8);">
+        <div class="accordion__item">
+          <button class="accordion__trigger" id="faq-1">
+            <span>What does The Audit actually include?</span>
+            <span class="accordion__icon">+</span>
+          </button>
+          <div class="accordion__body">
+            <div class="accordion__content">
+              <p>A comprehensive assessment of your MarTech stack, CRM pipeline, digital storefront, and competitive landscape. We map every system, every data flow, and every leak. Deliverable: an executive-ready strategic roadmap with prioritized recommendations, projected ROI, and a build timeline.</p>
+            </div>
+          </div>
+        </div>
+        <div class="accordion__item">
+          <button class="accordion__trigger" id="faq-2">
+            <span>How quickly can we start?</span>
+            <span class="accordion__icon">+</span>
+          </button>
+          <div class="accordion__body">
+            <div class="accordion__content">
+              <p>Most Audit engagements begin within 1–2 weeks of signing. Build projects depend on scope, but we typically have capacity for new projects within 3–4 weeks. Retainer engagements start the first of the following month.</p>
+            </div>
+          </div>
+        </div>
+        <div class="accordion__item">
+          <button class="accordion__trigger" id="faq-3">
+            <span>Do you work with companies outside of manufacturing?</span>
+            <span class="accordion__icon">+</span>
+          </button>
+          <div class="accordion__body">
+            <div class="accordion__content">
+              <p>Our deepest expertise is in manufacturing, B2B wholesale, and heavy-inventory retail. However, the revenue operations and AI automation pillars apply broadly. If you sell physical products through complex distribution — we should talk.</p>
+            </div>
+          </div>
+        </div>
+        <div class="accordion__item">
+          <button class="accordion__trigger" id="faq-4">
+            <span>Are you a solo operation or a team?</span>
+            <span class="accordion__icon">+</span>
+          </button>
+          <div class="accordion__body">
+            <div class="accordion__content">
+              <p>Core strategy, architecture, and technical leadership come from a single deeply experienced practitioner. For production-scale builds, we bring in vetted specialist partners for specific verticals (iOS development, large-format video, industrial design). You get one accountable point of contact with access to world-class execution.</p>
+            </div>
+          </div>
+        </div>
+        <div class="accordion__item">
+          <button class="accordion__trigger" id="faq-5">
+            <span>What's the minimum engagement?</span>
+            <span class="accordion__icon">+</span>
+          </button>
+          <div class="accordion__body">
+            <div class="accordion__content">
+              <p>The Audit starts at $3K. That's the minimum. We don't do one-off tasks, hourly consulting, or "quick fixes." Every engagement starts with a proper diagnosis, because guessing is expensive.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER PARTIAL — Site footer
+       ============================================================ -->
+  <footer class="footer" id="site-footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="/index.html" class="nav__logo" style="font-size: var(--text-2xl);">
+            <span>[</span>[AGENCY]<span>]</span>
+          </a>
+          <p>Digital Transformation & Revenue Operations for legacy B2B, manufacturing, and heavy-inventory retail.</p>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Services</h4>
+          <ul class="footer__links">
+            <li><a href="/services.html#martech">MarTech & Data</a></li>
+            <li><a href="/services.html#3d">3D Commerce</a></li>
+            <li><a href="/services.html#revops">Revenue Ops</a></li>
+            <li><a href="/services.html#ai">Applied AI</a></li>
+            <li><a href="/services.html#brand">Brand Strategy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Company</h4>
+          <ul class="footer__links">
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/case-studies.html">Case Studies</a></li>
+            <li><a href="/engagement.html">How We Work</a></li>
+            <li><a href="/insights.html">Insights</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Connect</h4>
+          <ul class="footer__links">
+            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li>
+            <li><a href="mailto:hello@agency.com">hello@agency.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2026 [AGENCY]. All rights reserved.</p>
+        <p>Built with precision. <a href="/portfolio.html" style="font-size: 11px; font-family: monospace; color: inherit; opacity: 0.4; text-decoration: none; margin-left: 12px; transition: opacity 0.2s;">[ portfolio.exe ]</a> <a href="/portfolio-v2.html" style="font-size: 11px; font-family: monospace; color: inherit; opacity: 0.4; text-decoration: none; margin-left: 8px; transition: opacity 0.2s;">[ portfolio.v2 ]</a></p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

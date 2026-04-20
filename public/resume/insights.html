@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ============================================================
+       HEAD PARTIAL — Shared <head> content for all pages
+       Variables: pageTitle, pageDescription, pageCSS (optional extra stylesheet)
+       ============================================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insights — [AGENCY]</title>
+  <meta name="description" content="Fractional Chief Digital Officer services for legacy B2B, manufacturing, and heavy-inventory retail. MarTech, 3D Commerce, RevOps, AI, and Brand Strategy.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Insights — [AGENCY]">
+  <meta property="og:description" content="We architect the entire revenue system for industrial brands — from ERP integrations to 3D product configurators.">
+  <meta property="og:type" content="website">
+  
+  <!-- Preconnect for fonts (non-blocking) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap">
+  
+  <!-- Design System -->
+  
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "[AGENCY]",
+    "description": "Digital Transformation & Revenue Operations Consultancy for legacy B2B and manufacturing companies.",
+    "url": "#",
+    "serviceType": ["MarTech Consulting", "3D Commerce", "Revenue Operations", "AI Automation", "Brand Strategy"]
+  }
+  </script>
+  <script type="module" crossorigin src="/assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
+  <script type="module" crossorigin src="/assets/glass-sphere-BVoBx5DY.js"></script>
+  <script type="module" crossorigin src="/assets/main-BXmilcYp.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-Om5IY-8E.css">
+  <link rel="stylesheet" crossorigin href="/assets/pages-Bp8WmUZO.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       NAV PARTIAL — Main navigation
+       Variable: activePage (string matching nav item id)
+       ============================================================ -->
+  <nav class="nav" id="main-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="/index.html" class="nav__logo" aria-label="Home">
+        <span>[</span>[AGENCY]<span>]</span>
+      </a>
+      <ul class="nav__links">
+        <li><a href="/index.html" class="nav__link " >Home</a></li>
+        <li><a href="/services.html" class="nav__link ">Services</a></li>
+        <li><a href="/case-studies.html" class="nav__link ">Case Studies</a></li>
+        <li><a href="/about.html" class="nav__link ">About</a></li>
+        <li><a href="/engagement.html" class="nav__link ">How We Work</a></li>
+        <li><a href="/insights.html" class="nav__link is-active">Insights</a></li>
+      </ul>
+      <a href="/contact.html" class="btn btn--primary nav__cta desktop-only">Start an Audit</a>
+      <button class="nav__toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav__mobile-menu" id="mobile-menu">
+      <a href="/index.html" class="nav__mobile-link">Home</a>
+      <a href="/services.html" class="nav__mobile-link">Services</a>
+      <a href="/case-studies.html" class="nav__mobile-link">Case Studies</a>
+      <a href="/about.html" class="nav__mobile-link">About</a>
+      <a href="/engagement.html" class="nav__mobile-link">How We Work</a>
+      <a href="/insights.html" class="nav__mobile-link">Insights</a>
+      <a href="/contact.html" class="btn btn--primary" style="margin-top: var(--space-4); text-align: center; justify-content: center;">Start an Audit</a>
+    </div>
+  </nav>
+
+  <!-- Page Hero -->
+  <section class="page-hero" id="insights-hero">
+    <div class="glow-orb glow-orb--cyan" style="width:400px;height:400px;top:-15%;right:20%;"></div>
+    <div class="container" style="position:relative;z-index:1;">
+      <span class="label">Insights</span>
+      <h1>Points of view.</h1>
+      <p class="lead">Long-form thinking on what's broken in industrial commerce — and how to fix it.</p>
+    </div>
+  </section>
+
+  <!-- Blog Grid -->
+  <section class="section" id="insights-content">
+    <div class="container">
+      <div class="filter-tabs reveal" id="insight-filters">
+        <button class="filter-tab is-active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="martech">MarTech</button>
+        <button class="filter-tab" data-filter="3d">3D Commerce</button>
+        <button class="filter-tab" data-filter="revops">RevOps</button>
+        <button class="filter-tab" data-filter="ai">AI</button>
+        <button class="filter-tab" data-filter="strategy">Strategy</button>
+      </div>
+
+      <div class="grid grid--3" id="insights-grid">
+
+        <!-- Article 1 — Featured -->
+        <div class="card insight-card reveal" data-category="martech" id="insight-erp" style="grid-column:span 2;">
+          <div class="insight-card__image" style="height:280px;">📐</div>
+          <div class="insight-card__body">
+            <div class="insight-card__meta">
+              <span class="tag">MarTech</span>
+              <span>12 min read</span>
+            </div>
+            <h3 class="insight-card__title">Why Your $2M ERP Integration Is Failing (And How to Fix It in 90 Days)</h3>
+            <p class="insight-card__excerpt">You hired a "Magento partner." They promised a 6-month integration timeline. It's been 18 months, you've burned through $2M, and your inventory still doesn't sync with your website. Here's why this keeps happening — and the exact playbook to get it to the finish line.</p>
+            <a href="#" class="btn btn--ghost">Read Article</a>
+          </div>
+        </div>
+
+        <!-- Article 2 -->
+        <div class="card insight-card reveal reveal--delay-1" data-category="3d" id="insight-photoshoot">
+          <div class="insight-card__image">📷</div>
+          <div class="insight-card__body">
+            <div class="insight-card__meta">
+              <span class="tag">3D Commerce</span>
+              <span>8 min read</span>
+            </div>
+            <h3 class="insight-card__title">The Death of the Product Photoshoot: How 3D Pipelines Save 70%</h3>
+            <p class="insight-card__excerpt">If you're still renting studios and hiring stylists for catalog photography, you're burning money. Here's the math on PBR rendering pipelines.</p>
+            <a href="#" class="btn btn--ghost">Read Article</a>
+          </div>
+        </div>
+
+        <!-- Article 3 -->
+        <div class="card insight-card reveal" data-category="strategy" id="insight-fractional">
+          <div class="insight-card__image">🏛️</div>
+          <div class="insight-card__body">
+            <div class="insight-card__meta">
+              <span class="tag">Strategy</span>
+              <span>10 min read</span>
+            </div>
+            <h3 class="insight-card__title">What a Fractional CDO Actually Does (And Why Legacy Brands Need One)</h3>
+            <p class="insight-card__excerpt">You don't need another agency. You need an executive-level technologist embedded in your operation. Here's what that engagement looks like from week one.</p>
+            <a href="#" class="btn btn--ghost">Read Article</a>
+          </div>
+        </div>
+
+        <!-- Article 4 -->
+        <div class="card insight-card reveal reveal--delay-1" data-category="revops" id="insight-whale">
+          <div class="insight-card__image">🐋</div>
+          <div class="insight-card__body">
+            <div class="insight-card__meta">
+              <span class="tag">RevOps</span>
+              <span>15 min read</span>
+            </div>
+            <h3 class="insight-card__title">Dealer Rationalization: The $500K Conversation Nobody Wants to Have</h3>
+            <p class="insight-card__excerpt">Your bottom 40% of dealers are costing you more to service than they bring in revenue. Here's the Whale Curve analysis that proves it — and the framework to act on it.</p>
+            <a href="#" class="btn btn--ghost">Read Article</a>
+          </div>
+        </div>
+
+        <!-- Article 5 -->
+        <div class="card insight-card reveal reveal--delay-2" data-category="ai" id="insight-copilot">
+          <div class="insight-card__image">🤖</div>
+          <div class="insight-card__body">
+            <div class="insight-card__meta">
+              <span class="tag">AI</span>
+              <span>7 min read</span>
+            </div>
+            <h3 class="insight-card__title">Your Content Agency Is Obsolete: Building a Brand Copilot That Actually Knows Your Voice</h3>
+            <p class="insight-card__excerpt">Generic ChatGPT outputs are making your brand sound like everyone else's. Here's how private LLMs trained on your data produce content that's actually on-brand.</p>
+            <a href="#" class="btn btn--ghost">Read Article</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-banner section" id="insights-cta">
+    <div class="container">
+      <div class="reveal">
+        <span class="label" style="display:block;margin-bottom:var(--space-6);">Want More?</span>
+        <h2>Get the playbook in person.</h2>
+        <p>These articles are the appetizer. The Audit is the full meal — customized to your company, your stack, and your revenue goals.</p>
+        <a href="/contact.html" class="btn btn--primary btn--lg" id="insights-cta-btn">Start with an Audit</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER PARTIAL — Site footer
+       ============================================================ -->
+  <footer class="footer" id="site-footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="/index.html" class="nav__logo" style="font-size: var(--text-2xl);">
+            <span>[</span>[AGENCY]<span>]</span>
+          </a>
+          <p>Digital Transformation & Revenue Operations for legacy B2B, manufacturing, and heavy-inventory retail.</p>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Services</h4>
+          <ul class="footer__links">
+            <li><a href="/services.html#martech">MarTech & Data</a></li>
+            <li><a href="/services.html#3d">3D Commerce</a></li>
+            <li><a href="/services.html#revops">Revenue Ops</a></li>
+            <li><a href="/services.html#ai">Applied AI</a></li>
+            <li><a href="/services.html#brand">Brand Strategy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Company</h4>
+          <ul class="footer__links">
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/case-studies.html">Case Studies</a></li>
+            <li><a href="/engagement.html">How We Work</a></li>
+            <li><a href="/insights.html">Insights</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Connect</h4>
+          <ul class="footer__links">
+            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li>
+            <li><a href="mailto:hello@agency.com">hello@agency.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2026 [AGENCY]. All rights reserved.</p>
+        <p>Built with precision. <a href="/portfolio.html" style="font-size: 11px; font-family: monospace; color: inherit; opacity: 0.4; text-decoration: none; margin-left: 12px; transition: opacity 0.2s;">[ portfolio.exe ]</a> <a href="/portfolio-v2.html" style="font-size: 11px; font-family: monospace; color: inherit; opacity: 0.4; text-decoration: none; margin-left: 8px; transition: opacity 0.2s;">[ portfolio.v2 ]</a></p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ============================================================
+       HEAD PARTIAL — Shared <head> content for all pages
+       Variables: pageTitle, pageDescription, pageCSS (optional extra stylesheet)
+       ============================================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Case Studies — [AGENCY]</title>
+  <meta name="description" content="Fractional Chief Digital Officer services for legacy B2B, manufacturing, and heavy-inventory retail. MarTech, 3D Commerce, RevOps, AI, and Brand Strategy.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Case Studies — [AGENCY]">
+  <meta property="og:description" content="We architect the entire revenue system for industrial brands — from ERP integrations to 3D product configurators.">
+  <meta property="og:type" content="website">
+  
+  <!-- Preconnect for fonts (non-blocking) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap">
+  
+  <!-- Design System -->
+  
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "[AGENCY]",
+    "description": "Digital Transformation & Revenue Operations Consultancy for legacy B2B and manufacturing companies.",
+    "url": "#",
+    "serviceType": ["MarTech Consulting", "3D Commerce", "Revenue Operations", "AI Automation", "Brand Strategy"]
+  }
+  </script>
+  <script type="module" crossorigin src="/assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
+  <script type="module" crossorigin src="/assets/glass-sphere-BVoBx5DY.js"></script>
+  <script type="module" crossorigin src="/assets/main-BXmilcYp.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-Om5IY-8E.css">
+  <link rel="stylesheet" crossorigin href="/assets/pages-Bp8WmUZO.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       NAV PARTIAL — Main navigation
+       Variable: activePage (string matching nav item id)
+       ============================================================ -->
+  <nav class="nav" id="main-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="/index.html" class="nav__logo" aria-label="Home">
+        <span>[</span>[AGENCY]<span>]</span>
+      </a>
+      <ul class="nav__links">
+        <li><a href="/index.html" class="nav__link " >Home</a></li>
+        <li><a href="/services.html" class="nav__link ">Services</a></li>
+        <li><a href="/case-studies.html" class="nav__link is-active">Case Studies</a></li>
+        <li><a href="/about.html" class="nav__link ">About</a></li>
+        <li><a href="/engagement.html" class="nav__link ">How We Work</a></li>
+        <li><a href="/insights.html" class="nav__link ">Insights</a></li>
+      </ul>
+      <a href="/contact.html" class="btn btn--primary nav__cta desktop-only">Start an Audit</a>
+      <button class="nav__toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav__mobile-menu" id="mobile-menu">
+      <a href="/index.html" class="nav__mobile-link">Home</a>
+      <a href="/services.html" class="nav__mobile-link">Services</a>
+      <a href="/case-studies.html" class="nav__mobile-link">Case Studies</a>
+      <a href="/about.html" class="nav__mobile-link">About</a>
+      <a href="/engagement.html" class="nav__mobile-link">How We Work</a>
+      <a href="/insights.html" class="nav__mobile-link">Insights</a>
+      <a href="/contact.html" class="btn btn--primary" style="margin-top: var(--space-4); text-align: center; justify-content: center;">Start an Audit</a>
+    </div>
+  </nav>
+
+  <!-- Page Hero -->
+  <section class="page-hero" id="cases-hero">
+    <div class="glow-orb glow-orb--cyan" style="width:400px;height:400px;top:-15%;left:50%;"></div>
+    <div class="container" style="position:relative;z-index:1;">
+      <span class="label">Case Studies</span>
+      <h1>What the work<br>actually looks like.</h1>
+      <p class="lead">Scenario-based walkthroughs of how we audit, build, and scale revenue systems for industrial brands.</p>
+    </div>
+  </section>
+
+  <!-- Filter -->
+  <section class="section" id="cases-content">
+    <div class="container">
+      <div class="filter-tabs reveal" id="case-filters">
+        <button class="filter-tab is-active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="martech">MarTech</button>
+        <button class="filter-tab" data-filter="3d">3D Commerce</button>
+        <button class="filter-tab" data-filter="revops">RevOps</button>
+        <button class="filter-tab" data-filter="ai">Applied AI</button>
+        <button class="filter-tab" data-filter="brand">Brand Strategy</button>
+      </div>
+
+      <div class="grid grid--3" id="case-grid">
+
+        <!-- Case 1 -->
+        <div class="card case-card reveal" data-category="martech" id="case-erp">
+          <span class="tag">MarTech</span>
+          <h3 class="case-card__title">Rescuing a $2M ERP Migration That Was 18 Months Behind Schedule</h3>
+          <span class="case-card__result">Result: Launched in 90 days. $340K in recovered SaaS waste.</span>
+          <p class="case-card__desc">A mid-market furniture manufacturer had burned through two agencies trying to connect their Acumatica ERP to a Magento storefront. Duplicate SKU data, broken inventory feeds, vendor lock-in. We performed a stack audit, fired the redundant vendor, rebuilt the integration layer, and launched in a single quarter.</p>
+          <div style="padding-top:var(--space-4);border-top:1px solid var(--color-border);">
+            <p class="label" style="margin-bottom:var(--space-2);">Engagement Type</p>
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted);">Audit ($8K) → Build ($65K) → Retainer ($8K/mo)</p>
+          </div>
+        </div>
+
+        <!-- Case 2 -->
+        <div class="card case-card reveal reveal--delay-1" data-category="3d" id="case-configurator">
+          <span class="tag">3D Commerce</span>
+          <h3 class="case-card__title">Replacing $180K/Year in Product Photography with a 3D Pipeline</h3>
+          <span class="case-card__result">Result: 67% cost reduction. Infinite SKU variations. Zero studio time.</span>
+          <p class="case-card__desc">A custom cabinetry brand was spending $180K annually on physical photoshoots for their 400+ SKU catalog. We built a PBR rendering pipeline and a browser-based WebGL configurator that generates every possible combination in real-time. The photoshoot budget was reallocated to paid media.</p>
+          <div style="padding-top:var(--space-4);border-top:1px solid var(--color-border);">
+            <p class="label" style="margin-bottom:var(--space-2);">Engagement Type</p>
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted);">Audit ($5K) → Build ($85K)</p>
+          </div>
+        </div>
+
+        <!-- Case 3 -->
+        <div class="card case-card reveal reveal--delay-2" data-category="revops" id="case-whale">
+          <span class="tag">RevOps</span>
+          <h3 class="case-card__title">The $500K Conversation: Whale Curve Analysis Exposes 40 Underwater Dealers</h3>
+          <span class="case-card__result">Result: $430K recovered annually by enforcing minimum order thresholds.</span>
+          <p class="case-card__desc">A national building products manufacturer knew "some dealers weren't worth it" but couldn't prove it. We ran an Activity-Based Costing workshop, plotted the Whale Curve, and delivered a dealer scorecard that definitively exposed 40 accounts where cost-to-serve exceeded revenue. Minimum thresholds were enforced. Annual savings: $430K.</p>
+          <div style="padding-top:var(--space-4);border-top:1px solid var(--color-border);">
+            <p class="label" style="margin-bottom:var(--space-2);">Engagement Type</p>
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted);">Audit ($10K) → Retainer ($12K/mo)</p>
+          </div>
+        </div>
+
+        <!-- Case 4 -->
+        <div class="card case-card reveal" data-category="ai" id="case-copilot">
+          <span class="tag">Applied AI</span>
+          <h3 class="case-card__title">Custom Brand Copilot Eliminates $96K/Year in Agency Content Costs</h3>
+          <span class="case-card__result">Result: 5x content velocity. $0 agency retainer for copy.</span>
+          <p class="case-card__desc">A luxury outdoor furniture brand was paying $8K/month to a content agency for product descriptions, social copy, and email campaigns. We built a private LLM fine-tuned on their brand voice, product catalog, and historical top-performing content. The marketing team now generates all content in-house at 5x the speed.</p>
+          <div style="padding-top:var(--space-4);border-top:1px solid var(--color-border);">
+            <p class="label" style="margin-bottom:var(--space-2);">Engagement Type</p>
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted);">Audit ($3K) → Build ($28K)</p>
+          </div>
+        </div>
+
+        <!-- Case 5 -->
+        <div class="card case-card reveal reveal--delay-1" data-category="brand" id="case-tradeshow">
+          <span class="tag">Brand Strategy</span>
+          <h3 class="case-card__title">Industry Trade Show Activation Generates 340 Qualified Leads in 3 Days</h3>
+          <span class="case-card__result">Result: 340 scanned leads. $2.1M in attributed pipeline.</span>
+          <p class="case-card__desc">A heavy equipment manufacturer needed to dominate their industry's largest annual show. We designed the full activation: 40x60 booth with interactive kiosk displays running our 3D configurator, fleet wraps, large-format signage, and an automated lead-capture-to-CRM pipeline that scored and routed leads to regional dealers in real-time.</p>
+          <div style="padding-top:var(--space-4);border-top:1px solid var(--color-border);">
+            <p class="label" style="margin-bottom:var(--space-2);">Engagement Type</p>
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted);">Build ($72K) → Retainer ($10K/mo)</p>
+          </div>
+        </div>
+
+        <!-- Case 6 -->
+        <div class="card case-card reveal reveal--delay-2" data-category="3d revops" id="case-kiosk">
+          <span class="tag">3D Commerce + RevOps</span>
+          <h3 class="case-card__title">Interactive Retail Kiosks Drive 28% Uplift in Showroom Conversion</h3>
+          <span class="case-card__result">Result: 28% conversion uplift. Break-even in 4 months.</span>
+          <p class="case-card__desc">A premium flooring brand deployed 12 interactive kiosks across their dealer showroom network. Each kiosk ran a custom room visualizer built on our WebGL platform, connected to live inventory. We built the ROI model, sourced the hardware, developed the software, and managed the rollout. Break-even in 4 months.</p>
+          <div style="padding-top:var(--space-4);border-top:1px solid var(--color-border);">
+            <p class="label" style="margin-bottom:var(--space-2);">Engagement Type</p>
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted);">Audit ($8K) → Build ($95K) → Retainer ($6K/mo)</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-banner section" id="cases-cta">
+    <div class="container">
+      <div class="reveal">
+        <span class="label" style="display:block;margin-bottom:var(--space-6);">Your Turn</span>
+        <h2>What does your scenario look like?</h2>
+        <p>Every company's revenue architecture is different. Let's map yours — and build the roadmap to fix it.</p>
+        <a href="/contact.html" class="btn btn--primary btn--lg" id="cases-cta-btn">Start with an Audit</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER PARTIAL — Site footer
+       ============================================================ -->
+  <footer class="footer" id="site-footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="/index.html" class="nav__logo" style="font-size: var(--text-2xl);">
+            <span>[</span>[AGENCY]<span>]</span>
+          </a>
+          <p>Digital Transformation & Revenue Operations for legacy B2B, manufacturing, and heavy-inventory retail.</p>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Services</h4>
+          <ul class="footer__links">
+            <li><a href="/services.html#martech">MarTech & Data</a></li>
+            <li><a href="/services.html#3d">3D Commerce</a></li>
+            <li><a href="/services.html#revops">Revenue Ops</a></li>
+            <li><a href="/services.html#ai">Applied AI</a></li>
+            <li><a href="/services.html#brand">Brand Strategy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Company</h4>
+          <ul class="footer__links">
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/case-studies.html">Case Studies</a></li>
+            <li><a href="/engagement.html">How We Work</a></li>
+            <li><a href="/insights.html">Insights</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Connect</h4>
+          <ul class="footer__links">
+            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li>
+            <li><a href="mailto:hello@agency.com">hello@agency.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2026 [AGENCY]. All rights reserved.</p>
+        <p>Built with precision. <a href="/portfolio.html" style="font-size: 11px; font-family: monospace; color: inherit; opacity: 0.4; text-decoration: none; margin-left: 12px; transition: opacity 0.2s;">[ portfolio.exe ]</a> <a href="/portfolio-v2.html" style="font-size: 11px; font-family: monospace; color: inherit; opacity: 0.4; text-decoration: none; margin-left: 8px; transition: opacity 0.2s;">[ portfolio.v2 ]</a></p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

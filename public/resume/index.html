@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ============================================================
+       HEAD PARTIAL — Shared <head> content for all pages
+       Variables: pageTitle, pageDescription, pageCSS (optional extra stylesheet)
+       ============================================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home — [AGENCY]</title>
+  <meta name="description" content="Fractional Chief Digital Officer services for legacy B2B, manufacturing, and heavy-inventory retail. MarTech, 3D Commerce, RevOps, AI, and Brand Strategy.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Home — [AGENCY]">
+  <meta property="og:description" content="We architect the entire revenue system for industrial brands — from ERP integrations to 3D product configurators.">
+  <meta property="og:type" content="website">
+  
+  <!-- Preconnect for fonts (non-blocking) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap">
+  
+  <!-- Design System -->
+  
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "[AGENCY]",
+    "description": "Digital Transformation & Revenue Operations Consultancy for legacy B2B and manufacturing companies.",
+    "url": "#",
+    "serviceType": ["MarTech Consulting", "3D Commerce", "Revenue Operations", "AI Automation", "Brand Strategy"]
+  }
+  </script>
+  <script type="module" crossorigin src="/assets/index-CK6p7XOD.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/assets/glass-sphere-BVoBx5DY.js">
+  <link rel="modulepreload" crossorigin href="/assets/main-BXmilcYp.js">
+  <link rel="stylesheet" crossorigin href="/assets/main-Om5IY-8E.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-D6UpO5N3.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       NAV PARTIAL — Main navigation
+       Variable: activePage (string matching nav item id)
+       ============================================================ -->
+  <nav class="nav" id="main-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="/index.html" class="nav__logo" aria-label="Home">
+        <span>[</span>[AGENCY]<span>]</span>
+      </a>
+      <ul class="nav__links">
+        <li><a href="/index.html" class="nav__link is-active" >Home</a></li>
+        <li><a href="/services.html" class="nav__link ">Services</a></li>
+        <li><a href="/case-studies.html" class="nav__link ">Case Studies</a></li>
+        <li><a href="/about.html" class="nav__link ">About</a></li>
+        <li><a href="/engagement.html" class="nav__link ">How We Work</a></li>
+        <li><a href="/insights.html" class="nav__link ">Insights</a></li>
+      </ul>
+      <a href="/contact.html" class="btn btn--primary nav__cta desktop-only">Start an Audit</a>
+      <button class="nav__toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav__mobile-menu" id="mobile-menu">
+      <a href="/index.html" class="nav__mobile-link">Home</a>
+      <a href="/services.html" class="nav__mobile-link">Services</a>
+      <a href="/case-studies.html" class="nav__mobile-link">Case Studies</a>
+      <a href="/about.html" class="nav__mobile-link">About</a>
+      <a href="/engagement.html" class="nav__mobile-link">How We Work</a>
+      <a href="/insights.html" class="nav__mobile-link">Insights</a>
+      <a href="/contact.html" class="btn btn--primary" style="margin-top: var(--space-4); text-align: center; justify-content: center;">Start an Audit</a>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       HERO
+       ============================================================ -->
+  <section class="hero" id="hero">
+    <canvas id="hero-canvas" class="hero__canvas"></canvas>
+
+    <div class="hero__content">
+      <div class="hero__eyebrow">
+        <span class="pulse-dot"></span>
+        <span class="label">Digital Transformation & Revenue Operations</span>
+      </div>
+
+      <h1 class="hero__title">
+        Your factory makes the product.
+        <span class="accent-line">We make the revenue machine.</span>
+      </h1>
+
+      <p class="hero__subtitle">
+        Fractional CDO services for legacy B2B, manufacturing, and heavy-inventory retail. We bridge the gap between your production floor and modern digital commerce.
+      </p>
+
+      <div class="hero__actions">
+        <a href="/contact.html" class="btn btn--primary btn--lg" id="hero-cta-audit">Start with an Audit</a>
+        <a href="/services.html" class="btn btn--secondary btn--lg" id="hero-cta-services">Explore Services</a>
+      </div>
+    </div>
+
+    <div class="hero__scroll-indicator" aria-hidden="true">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAIN STRIP — Industry Stats
+       ============================================================ -->
+  <section class="pain-strip" id="pain-strip">
+    <div class="container">
+      <div class="pain-strip__grid">
+        <div class="pain-stat reveal">
+          <div class="pain-stat__number" data-counter data-target="72" data-suffix="%">0%</div>
+          <p class="pain-stat__text">of B2B manufacturers lose leads between website and dealer</p>
+        </div>
+        <div class="pain-stat reveal reveal--delay-1">
+          <div class="pain-stat__number" data-counter data-target="430" data-prefix="$" data-suffix="K">$0K</div>
+          <p class="pain-stat__text">average annual loss from unoptimized wholesale accounts</p>
+        </div>
+        <div class="pain-stat reveal reveal--delay-2">
+          <div class="pain-stat__number" data-counter data-target="67" data-suffix="%">0%</div>
+          <p class="pain-stat__text">of product photoshoot costs eliminated by 3D pipelines</p>
+        </div>
+        <div class="pain-stat reveal reveal--delay-3">
+          <div class="pain-stat__number" data-counter data-target="5" data-suffix="x">0x</div>
+          <p class="pain-stat__text">faster content production with custom AI copilots</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SERVICE PILLARS
+       ============================================================ -->
+  <section class="section pillars-section" id="pillars">
+    <!-- Ambient glow -->
+    <div class="glow-orb glow-orb--cyan" style="width:500px;height:500px;top:-10%;right:-5%;"></div>
+
+    <div class="container">
+      <div class="section-header text-center reveal">
+        <span class="label">What We Do</span>
+        <h2>Five pillars. <br>One integrated revenue system.</h2>
+        <p class="lead" style="margin: var(--space-4) auto 0;">Most agencies sell you one channel. We architect the entire stack — from your ERP to your customer's living room.</p>
+      </div>
+
+      <div class="grid grid--3" style="margin-top: var(--space-12);">
+
+        <!-- Pillar 1 -->
+        <a href="/services.html#martech" class="card pillar-card reveal" id="pillar-martech" style="text-decoration:none;">
+          <div class="pillar-card__icon">⚡</div>
+          <h3 class="pillar-card__title">MarTech &<br>Data Architecture</h3>
+          <p class="pillar-card__desc">Bridge legacy ERPs to modern storefronts. Tame your PIM. Automate your catalog syndication to every retail channel.</p>
+          <ul class="pillar-card__services">
+            <li>ERP-to-E-Commerce Integrations</li>
+            <li>Enterprise PIM & Taxonomy</li>
+            <li>Omnichannel Syndication</li>
+            <li>MarTech Stack Turnarounds</li>
+          </ul>
+          <span class="pillar-card__link">Explore MarTech →</span>
+        </a>
+
+        <!-- Pillar 2 -->
+        <a href="/services.html#3d" class="card pillar-card reveal reveal--delay-1" id="pillar-3d" style="text-decoration:none;">
+          <div class="pillar-card__icon">🔮</div>
+          <h3 class="pillar-card__title">3D Commerce &<br>Spatial Computing</h3>
+          <p class="pillar-card__desc">Browser-based 3D configurators, AR try-before-you-buy, virtual showrooms, and the end of expensive photoshoots.</p>
+          <ul class="pillar-card__services">
+            <li>WebGL Product Configurators</li>
+            <li>Physical-to-3D Pipeline</li>
+            <li>Interactive Retail Kiosks</li>
+            <li>AR App Development</li>
+          </ul>
+          <span class="pillar-card__link">Explore 3D Commerce →</span>
+        </a>
+
+        <!-- Pillar 3 -->
+        <a href="/services.html#revops" class="card pillar-card reveal reveal--delay-2" id="pillar-revops" style="text-decoration:none;">
+          <div class="pillar-card__icon">📊</div>
+          <h3 class="pillar-card__title">Revenue Ops &<br>Data Intelligence</h3>
+          <p class="pillar-card__desc">Expose unprofitable accounts. Find the revenue hiding in your CRM. Build closed-loop lead gen that actually converts.</p>
+          <ul class="pillar-card__services">
+            <li>Dealer Rationalization</li>
+            <li>Leaky Funnel Audits</li>
+            <li>CRM & Lifecycle Automation</li>
+            <li>Sales Enablement Strategy</li>
+          </ul>
+          <span class="pillar-card__link">Explore RevOps →</span>
+        </a>
+
+        <!-- Pillar 4 -->
+        <a href="/services.html#ai" class="card pillar-card reveal" id="pillar-ai" style="text-decoration:none;">
+          <div class="pillar-card__icon">🤖</div>
+          <h3 class="pillar-card__title">Applied AI &<br>Custom Automation</h3>
+          <p class="pillar-card__desc">Private brand copilots, automated competitive intelligence, agentic workflows, and scripts that eliminate manual data entry.</p>
+          <ul class="pillar-card__services">
+            <li>Custom Brand AI Copilots</li>
+            <li>Competitive Intelligence Scrapers</li>
+            <li>Agentic Workflow (MCP)</li>
+            <li>Internal Automation</li>
+          </ul>
+          <span class="pillar-card__link">Explore AI →</span>
+        </a>
+
+        <!-- Pillar 5 -->
+        <a href="/services.html#brand" class="card pillar-card reveal reveal--delay-1" id="pillar-brand" style="text-decoration:none;">
+          <div class="pillar-card__icon">🎯</div>
+          <h3 class="pillar-card__title">Brand Strategy &<br>Creative Production</h3>
+          <p class="pillar-card__desc">Fractional CMO/CDO retainers. Trade show activations. High-end media production — elevated by data-driven precision.</p>
+          <ul class="pillar-card__services">
+            <li>Fractional CMO / CDO</li>
+            <li>Trade Show Activations</li>
+            <li>Media Production (4K/Photo)</li>
+            <li>Data-Driven Product Strategy</li>
+          </ul>
+          <span class="pillar-card__link">Explore Brand →</span>
+        </a>
+
+        <!-- Cross-sell card -->
+        <div class="card pillar-card reveal reveal--delay-2" style="display:flex;align-items:center;justify-content:center;text-align:center;background:linear-gradient(160deg,rgba(0,229,255,0.04) 0%,rgba(15,22,41,0.9) 100%);border-color:rgba(0,229,255,0.15);">
+          <div>
+            <p style="font-size:var(--text-lg);color:var(--color-text-secondary);margin-bottom:var(--space-6);max-width:25ch;">Not sure where to start?</p>
+            <a href="/contact.html" class="btn btn--primary" id="pillar-audit-cta">Start with an Audit</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PROOF BAR — Platforms & Technologies
+       ============================================================ -->
+  <section class="proof-bar" id="proof-bar">
+    <div class="container reveal">
+      <p class="label text-center" style="margin-bottom:var(--space-8);">Platforms We Operate In</p>
+    </div>
+    <div style="overflow:hidden;">
+      <div class="proof-bar__marquee">
+        <span class="proof-bar__item"><span class="dot"></span> Acumatica</span>
+        <span class="proof-bar__item"><span class="dot"></span> NetSuite</span>
+        <span class="proof-bar__item"><span class="dot"></span> Magento</span>
+        <span class="proof-bar__item"><span class="dot"></span> Shopify Plus</span>
+        <span class="proof-bar__item"><span class="dot"></span> BigCommerce</span>
+        <span class="proof-bar__item"><span class="dot"></span> Pimberly</span>
+        <span class="proof-bar__item"><span class="dot"></span> Salsify</span>
+        <span class="proof-bar__item"><span class="dot"></span> Akeneo</span>
+        <span class="proof-bar__item"><span class="dot"></span> Three.js / WebGL</span>
+        <span class="proof-bar__item"><span class="dot"></span> Next.js / React</span>
+        <span class="proof-bar__item"><span class="dot"></span> Klaviyo</span>
+        <span class="proof-bar__item"><span class="dot"></span> HubSpot</span>
+        <span class="proof-bar__item"><span class="dot"></span> Swift / RoomPlan</span>
+        <span class="proof-bar__item"><span class="dot"></span> Python / Node.js</span>
+        <!-- Duplicate set for seamless loop -->
+        <span class="proof-bar__item"><span class="dot"></span> Acumatica</span>
+        <span class="proof-bar__item"><span class="dot"></span> NetSuite</span>
+        <span class="proof-bar__item"><span class="dot"></span> Magento</span>
+        <span class="proof-bar__item"><span class="dot"></span> Shopify Plus</span>
+        <span class="proof-bar__item"><span class="dot"></span> BigCommerce</span>
+        <span class="proof-bar__item"><span class="dot"></span> Pimberly</span>
+        <span class="proof-bar__item"><span class="dot"></span> Salsify</span>
+        <span class="proof-bar__item"><span class="dot"></span> Akeneo</span>
+        <span class="proof-bar__item"><span class="dot"></span> Three.js / WebGL</span>
+        <span class="proof-bar__item"><span class="dot"></span> Next.js / React</span>
+        <span class="proof-bar__item"><span class="dot"></span> Klaviyo</span>
+        <span class="proof-bar__item"><span class="dot"></span> HubSpot</span>
+        <span class="proof-bar__item"><span class="dot"></span> Swift / RoomPlan</span>
+        <span class="proof-bar__item"><span class="dot"></span> Python / Node.js</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ENGAGEMENT MODEL TEASER
+       ============================================================ -->
+  <section class="section engagement-teaser" id="engagement-teaser">
+    <div class="glow-orb glow-orb--blue" style="width:600px;height:600px;bottom:-20%;left:-10%;"></div>
+
+    <div class="container">
+      <div class="section-header text-center reveal">
+        <span class="label">How We Work</span>
+        <h2>Three tiers. One trajectory.</h2>
+        <p class="lead" style="margin:var(--space-4) auto 0;">Every engagement starts with an Audit. Most clients never stop.</p>
+      </div>
+
+      <div class="engagement-teaser__grid" style="margin-top:var(--space-12);">
+
+        <div class="card engagement-card reveal" id="tier-audit">
+          <span class="engagement-card__step">Step 01</span>
+          <h3 class="engagement-card__title">The Audit</h3>
+          <span class="engagement-card__price">$3K – $10K</span>
+          <p class="engagement-card__desc">We map your MarTech stack, find the lost revenue in your CRM, and deliver a strategic roadmap.</p>
+          <span class="tag">2–4 Weeks</span>
+        </div>
+
+        <div class="card engagement-card engagement-card--featured reveal reveal--delay-1" id="tier-build">
+          <span class="engagement-card__step">Step 02</span>
+          <h3 class="engagement-card__title">The Build</h3>
+          <span class="engagement-card__price">$20K – $100K+</span>
+          <p class="engagement-card__desc">Project-based execution. 3D configurators, ERP integrations, kiosk deployments, AI copilots — built and delivered.</p>
+          <span class="tag">Project-Based</span>
+        </div>
+
+        <div class="card engagement-card reveal reveal--delay-2" id="tier-growth">
+          <span class="engagement-card__step">Step 03</span>
+          <h3 class="engagement-card__title">Growth Retainer</h3>
+          <span class="engagement-card__price">$5K – $15K/mo</span>
+          <p class="engagement-card__desc">Ongoing Fractional CDO. We run your Klaviyo, manage dealer pipelines, and direct creative strategy.</p>
+          <span class="tag">Monthly</span>
+        </div>
+
+      </div>
+
+      <div class="text-center reveal" style="margin-top:var(--space-12);">
+        <a href="/engagement.html" class="btn btn--secondary" id="engagement-cta">See How We Work →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CTA BANNER
+       ============================================================ -->
+  <section class="cta-banner section" id="cta-banner">
+    <div class="container">
+      <div class="reveal">
+        <span class="label" style="display:block;margin-bottom:var(--space-6);">Ready?</span>
+        <h2>Stop losing revenue to<br>disconnected systems.</h2>
+        <p>Every engagement starts with a conversation. No sales pitch — just a clear-eyed look at where your money is leaking.</p>
+        <a href="/contact.html" class="btn btn--primary btn--lg" id="bottom-cta">Book a Discovery Call</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER PARTIAL — Site footer
+       ============================================================ -->
+  <footer class="footer" id="site-footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="/index.html" class="nav__logo" style="font-size: var(--text-2xl);">
+            <span>[</span>[AGENCY]<span>]</span>
+          </a>
+          <p>Digital Transformation & Revenue Operations for legacy B2B, manufacturing, and heavy-inventory retail.</p>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Services</h4>
+          <ul class="footer__links">
+            <li><a href="/services.html#martech">MarTech & Data</a></li>
+            <li><a href="/services.html#3d">3D Commerce</a></li>
+            <li><a href="/services.html#revops">Revenue Ops</a></li>
+            <li><a href="/services.html#ai">Applied AI</a></li>
+            <li><a href="/services.html#brand">Brand Strategy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Company</h4>
+          <ul class="footer__links">
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/case-studies.html">Case Studies</a></li>
+            <li><a href="/engagement.html">How We Work</a></li>
+            <li><a href="/insights.html">Insights</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Connect</h4>
+          <ul class="footer__links">
+            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li>
+            <li><a href="mailto:hello@agency.com">hello@agency.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2026 [AGENCY]. All rights reserved.</p>
+        <p>Built with precision. <a href="/portfolio.html" style="font-size: 11px; font-family: monospace; color: inherit; opacity: 0.4; text-decoration: none; margin-left: 12px; transition: opacity 0.2s;">[ portfolio.exe ]</a> <a href="/portfolio-v2.html" style="font-size: 11px; font-family: monospace; color: inherit; opacity: 0.4; text-decoration: none; margin-left: 8px; transition: opacity 0.2s;">[ portfolio.v2 ]</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       SCRIPTS
+       ============================================================ -->
+</body>
+</html>

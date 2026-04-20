@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ============================================================
+       HEAD PARTIAL — Shared <head> content for all pages
+       Variables: pageTitle, pageDescription, pageCSS (optional extra stylesheet)
+       ============================================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services — [AGENCY]</title>
+  <meta name="description" content="Fractional Chief Digital Officer services for legacy B2B, manufacturing, and heavy-inventory retail. MarTech, 3D Commerce, RevOps, AI, and Brand Strategy.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Services — [AGENCY]">
+  <meta property="og:description" content="We architect the entire revenue system for industrial brands — from ERP integrations to 3D product configurators.">
+  <meta property="og:type" content="website">
+  
+  <!-- Preconnect for fonts (non-blocking) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap">
+  
+  <!-- Design System -->
+  
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "[AGENCY]",
+    "description": "Digital Transformation & Revenue Operations Consultancy for legacy B2B and manufacturing companies.",
+    "url": "#",
+    "serviceType": ["MarTech Consulting", "3D Commerce", "Revenue Operations", "AI Automation", "Brand Strategy"]
+  }
+  </script>
+  <script type="module" crossorigin src="/assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
+  <script type="module" crossorigin src="/assets/glass-sphere-BVoBx5DY.js"></script>
+  <script type="module" crossorigin src="/assets/main-BXmilcYp.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-Om5IY-8E.css">
+  <link rel="stylesheet" crossorigin href="/assets/pages-Bp8WmUZO.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       NAV PARTIAL — Main navigation
+       Variable: activePage (string matching nav item id)
+       ============================================================ -->
+  <nav class="nav" id="main-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="/index.html" class="nav__logo" aria-label="Home">
+        <span>[</span>[AGENCY]<span>]</span>
+      </a>
+      <ul class="nav__links">
+        <li><a href="/index.html" class="nav__link " >Home</a></li>
+        <li><a href="/services.html" class="nav__link is-active">Services</a></li>
+        <li><a href="/case-studies.html" class="nav__link ">Case Studies</a></li>
+        <li><a href="/about.html" class="nav__link ">About</a></li>
+        <li><a href="/engagement.html" class="nav__link ">How We Work</a></li>
+        <li><a href="/insights.html" class="nav__link ">Insights</a></li>
+      </ul>
+      <a href="/contact.html" class="btn btn--primary nav__cta desktop-only">Start an Audit</a>
+      <button class="nav__toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav__mobile-menu" id="mobile-menu">
+      <a href="/index.html" class="nav__mobile-link">Home</a>
+      <a href="/services.html" class="nav__mobile-link">Services</a>
+      <a href="/case-studies.html" class="nav__mobile-link">Case Studies</a>
+      <a href="/about.html" class="nav__mobile-link">About</a>
+      <a href="/engagement.html" class="nav__mobile-link">How We Work</a>
+      <a href="/insights.html" class="nav__mobile-link">Insights</a>
+      <a href="/contact.html" class="btn btn--primary" style="margin-top: var(--space-4); text-align: center; justify-content: center;">Start an Audit</a>
+    </div>
+  </nav>
+
+  <!-- Page Hero -->
+  <section class="page-hero" id="services-hero">
+    <div class="glow-orb glow-orb--cyan" style="width:600px;height:600px;top:-30%;left:30%;"></div>
+    <div class="container" style="position:relative;z-index:1;">
+      <span class="label">Services</span>
+      <h1>Five pillars.<br>One integrated system.</h1>
+      <p class="lead">Most agencies sell you one channel. We architect the entire revenue stack — from your ERP to your customer's living room.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PILLAR 1 — MarTech & Data Architecture
+       ============================================================ -->
+  <section class="section" id="martech">
+    <div class="container">
+      <div class="grid grid--2" style="gap:var(--space-16);align-items:start;">
+        <div class="reveal">
+          <span class="label">Pillar 01</span>
+          <h2 style="margin:var(--space-4) 0 var(--space-6);">MarTech &<br>Data Architecture</h2>
+          <p style="margin-bottom:var(--space-6);">Your manufacturing ERP shouldn't exist in a different universe than your online store. We bridge legacy systems to modern storefronts, tame massive product catalogs, and eliminate the SaaS chaos that's costing you six figures a year.</p>
+          <p>Whether you're stuck in a failing software migration, drowning in duplicate SKU data, or trying to figure out how to get your 50,000-SKU catalog onto Wayfair — this is what we do.</p>
+        </div>
+        <div class="accordion reveal reveal--delay-1">
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-erp">
+              <span>ERP-to-E-Commerce Integrations</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Bridge legacy manufacturing ERPs — Acumatica, NetSuite, MS Business Central — to modern storefronts like Magento, Shopify Plus, and BigCommerce. Real-time inventory sync, order routing, and pricing logic.</p>
+                <span class="tag">Deliverable: Integration Architecture & Deployment</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-pim">
+              <span>Enterprise PIM Setup & Taxonomy Strategy</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Build massive, multi-variant SKU catalogs using Pimberly, Salsify, or Akeneo. Establish complex cross-sell/up-sell logic matrices. Clean your data nightmare into a competitive advantage.</p>
+                <span class="tag">Deliverable: PIM Architecture & Data Model</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-syndication">
+              <span>Omnichannel Catalog Syndication</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Automate live product data, pricing, and 3D asset feeds to national retail partners — Wayfair, Amazon, big-box retailers. One source of truth, infinite channels.</p>
+                <span class="tag">Deliverable: Syndication Pipeline & Feed Automation</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-b2b">
+              <span>B2B Wholesale Portal Development</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Build locked-down, tiered-pricing ordering portals for B2B dealer networks. Account-specific catalogs, volume breaks, and order history.</p>
+                <span class="tag">Deliverable: Custom B2B Portal</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-audit-martech">
+              <span>MarTech Stack Audits & Turnarounds</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Rescue failing software migrations. Eliminate redundant SaaS subscriptions. Securely offboard hostile vendors without data loss. We've seen it all — and fixed it.</p>
+                <span class="tag">Deliverable: Audit Report & Remediation Roadmap</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-headless">
+              <span>Headless Commerce Consulting</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Transition legacy monolithic websites into fast, modern Next.js/React decoupled architectures. Keep your backend, upgrade your frontend, dramatically improve page speed.</p>
+                <span class="tag">Deliverable: Architecture Blueprint & Migration Plan</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider divider--glow container">
+
+  <!-- ============================================================
+       PILLAR 2 — 3D Commerce & Spatial Computing
+       ============================================================ -->
+  <section class="section" id="3d">
+    <div class="container">
+      <div class="grid grid--2" style="gap:var(--space-16);align-items:start;">
+        <div class="reveal">
+          <span class="label">Pillar 02</span>
+          <h2 style="margin:var(--space-4) 0 var(--space-6);">3D Commerce &<br>Spatial Computing</h2>
+          <p style="margin-bottom:var(--space-6);">This is the highest-ticket differentiator. Traditional agencies outsource this. We do it in-house. Browser-based 3D configurators, AR experiences, photoshoot-replacement pipelines, and physical retail kiosk deployments.</p>
+          <p>If you're still paying $800 per product photoshoot setup when a 3D render costs $50 — we need to talk.</p>
+        </div>
+        <div class="accordion reveal reveal--delay-1">
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-webgl">
+              <span>Custom WebGL 3D Product Configurators</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Browser-based interactive visualizers built with Three.js/WebGL for highly customized physical products. Customers configure materials, colors, and dimensions in real-time 3D — no app download required.</p>
+                <span class="tag">Deliverable: Production 3D Configurator</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-pipeline">
+              <span>Physical-to-3D Pipeline Conversion</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Completely eliminate expensive physical photoshoots in favor of scalable 3D/CGI PBR rendering pipelines. Save 60-70% in visual asset production costs.</p>
+                <span class="tag">Deliverable: 3D Asset Pipeline & ROI Model</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-kiosk">
+              <span>Interactive Retail Kiosk Deployment</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>End-to-end physical in-store displays — sourcing APU hardware, speccing displays, and designing locked-down UI/UX software. From concept to the showroom floor.</p>
+                <span class="tag">Deliverable: Hardware Spec + Software + Deployment</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-twins">
+              <span>Digital Twins & Virtual Showrooms</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Create explorable digital retail environments using Gaussian Splatting and WebGL. Let customers walk through your showroom from anywhere in the world.</p>
+                <span class="tag">Deliverable: Virtual Showroom Experience</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-ar">
+              <span>Augmented Reality (AR) App Development</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Native iOS AR features built with Swift/RoomPlan allowing customers to "try-before-you-buy" in their own living rooms. Spatial awareness meets commerce.</p>
+                <span class="tag">Deliverable: Native iOS AR Application</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider divider--glow container">
+
+  <!-- ============================================================
+       PILLAR 3 — RevOps & Data Intelligence
+       ============================================================ -->
+  <section class="section" id="revops">
+    <div class="container">
+      <div class="grid grid--2" style="gap:var(--space-16);align-items:start;">
+        <div class="reveal">
+          <span class="label">Pillar 03</span>
+          <h2 style="margin:var(--space-4) 0 var(--space-6);">Revenue Ops &<br>Data Intelligence</h2>
+          <p style="margin-bottom:var(--space-6);">This pillar speaks directly to CEOs and CFOs because it actively stops you from losing money. We run the numbers your sales team won't. We find the revenue hiding in your CRM. We expose the wholesale accounts that cost more to service than they pay.</p>
+          <p>The Whale Curve analysis alone has saved our clients from carrying hundreds of thousands in unprofitable dealer relationships.</p>
+        </div>
+        <div class="accordion reveal reveal--delay-1">
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-whale">
+              <span>Dealer Rationalization ("The Whale Curve")</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Activity-Based Costing and Cost-to-Serve workshops that definitively expose unprofitable wholesale accounts. Enforce minimum purchasing thresholds based on data, not gut feel.</p>
+                <span class="tag">Deliverable: Whale Curve Analysis & Dealer Scorecard</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-funnel">
+              <span>Leaky Funnel & Lost Revenue Audits</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Deep-dive CRM analysis to identify missed upsells, dormant leads, and un-contacted pipeline opportunities. We find the money you're leaving on the table.</p>
+                <span class="tag">Deliverable: Revenue Audit Report</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-leadgen">
+              <span>Automated Lead Generation Architecture</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Closed-loop systems: capture web leads, score them, route to localized retail dealers with automated follow-ups. No lead falls through the cracks.</p>
+                <span class="tag">Deliverable: Lead Gen Pipeline & Automation</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-crm">
+              <span>CRM Deployment & Lifecycle Automation</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Klaviyo/HubSpot ecosystems, VIP loyalty logic, abandoned configurator recovery, automated retargeting. The full lifecycle, automated.</p>
+                <span class="tag">Deliverable: CRM Architecture & Flow Library</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-enablement">
+              <span>B2B Sales Enablement Strategy</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Technical sales training, operational playbooks, and dealer compliance scorecards. Arm your team with the right tools and data.</p>
+                <span class="tag">Deliverable: Sales Playbook & Training Materials</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-roi">
+              <span>Tech Hardware ROI Modeling</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Break-even financial models linking B2B account volume to tech/hardware entitlements. Know exactly when a kiosk, showroom, or portal pays for itself.</p>
+                <span class="tag">Deliverable: ROI Model & Entitlement Framework</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider divider--glow container">
+
+  <!-- ============================================================
+       PILLAR 4 — Applied AI & Custom Automation
+       ============================================================ -->
+  <section class="section" id="ai">
+    <div class="container">
+      <div class="grid grid--2" style="gap:var(--space-16);align-items:start;">
+        <div class="reveal">
+          <span class="label">Pillar 04</span>
+          <h2 style="margin:var(--space-4) 0 var(--space-6);">Applied AI &<br>Custom Automation</h2>
+          <p style="margin-bottom:var(--space-6);">We don't sell "AI" as a buzzword. We build tools that eliminate headcount costs, remove agency bloat, and automate the repetitive work your marketing department wastes 20 hours a week on.</p>
+          <p>From private LLMs trained on your product catalog to web scrapers that reverse-engineer your competitors — this is practical AI with measurable ROI.</p>
+        </div>
+        <div class="accordion reveal reveal--delay-1">
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-copilot">
+              <span>Custom Brand AI "Copilots"</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Train private LLMs on your proprietary data, tone of voice, and product catalogs. Instantly generate on-brand copy, product descriptions, and marketing assets. No generic ChatGPT outputs — this knows your brand.</p>
+                <span class="tag">Deliverable: Custom AI Model & Interface</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-intel">
+              <span>Automated Competitive Intelligence</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Custom web scrapers built with Puppeteer/Node.js to autonomously reverse-engineer competitor pricing, configurator logic, and extract 3D assets. Know what they're doing before they launch it.</p>
+                <span class="tag">Deliverable: Competitor Intel Dashboard</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-mcp">
+              <span>Agentic Workflow Orchestration</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Build Model Context Protocol (MCP) servers connecting disparate cloud tools. AI agents execute multi-step marketing and reporting tasks autonomously — from data pull to formatted report.</p>
+                <span class="tag">Deliverable: MCP Server Architecture & Agent Flows</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-automation">
+              <span>Internal Workflow Automation</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Python/API scripts that eliminate manual data entry in marketing departments. Auto-formatting PIM data, automated image resizing pipelines, report generation — the boring work, done instantly.</p>
+                <span class="tag">Deliverable: Automation Scripts & Documentation</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider divider--glow container">
+
+  <!-- ============================================================
+       PILLAR 5 — Brand Strategy & Creative Production
+       ============================================================ -->
+  <section class="section" id="brand">
+    <div class="container">
+      <div class="grid grid--2" style="gap:var(--space-16);align-items:start;">
+        <div class="reveal">
+          <span class="label">Pillar 05</span>
+          <h2 style="margin:var(--space-4) 0 var(--space-6);">Brand Strategy &<br>Creative Production</h2>
+          <p style="margin-bottom:var(--space-6);">The traditional agency services — but elevated by deep technical literacy and a data-driven approach. We don't guess what will work. We build the measurement system first, then design the creative around what the data says will convert.</p>
+          <p>From trade show activations to 4K product video — we're the aesthetic and technical visionary that legacy brands need to become premium powerhouses.</p>
+        </div>
+        <div class="accordion reveal reveal--delay-1">
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-fractional">
+              <span>Fractional CMO / CDO Retainers</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Act as the aesthetic and technical visionary to modernize "old-school" legacy manufacturing brands into premium powerhouses. Full C-suite participation, part-time cost.</p>
+                <span class="tag">Deliverable: Monthly Strategy & Execution</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-tradeshow">
+              <span>Trade Show & Experiential Activations</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Complete creative direction for massive industry events. Physical booth design, large-format digital signage, fleet/trailer wraps, and interactive experiences that stop foot traffic.</p>
+                <span class="tag">Deliverable: Full Event Creative Package</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-media">
+              <span>High-End Media Production</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Commercial product photography, live 4K promotional videography, dynamic social media content loops, and digital ad design. Premium visuals that match a premium brand.</p>
+                <span class="tag">Deliverable: Media Asset Library</span>
+              </div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger" id="acc-product-strategy">
+              <span>Data-Driven Physical Product Strategy</span>
+              <span class="accordion__icon">+</span>
+            </button>
+            <div class="accordion__body">
+              <div class="accordion__content">
+                <p>Use search trends, digital configurator analytics, and competitor market share to tell your industrial design teams what physical products they should manufacture next. Marketing informs manufacturing.</p>
+                <span class="tag">Deliverable: Product Strategy Report</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-banner section" id="services-cta">
+    <div class="container">
+      <div class="reveal">
+        <span class="label" style="display:block;margin-bottom:var(--space-6);">Where to Begin</span>
+        <h2>Every system starts with a diagnosis.</h2>
+        <p>Our Audit maps your entire revenue architecture — the tools, the data flows, the leaks — and delivers a strategic roadmap in 2–4 weeks.</p>
+        <a href="/contact.html" class="btn btn--primary btn--lg" id="services-bottom-cta">Start with an Audit</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER PARTIAL — Site footer
+       ============================================================ -->
+  <footer class="footer" id="site-footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="/index.html" class="nav__logo" style="font-size: var(--text-2xl);">
+            <span>[</span>[AGENCY]<span>]</span>
+          </a>
+          <p>Digital Transformation & Revenue Operations for legacy B2B, manufacturing, and heavy-inventory retail.</p>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Services</h4>
+          <ul class="footer__links">
+            <li><a href="/services.html#martech">MarTech & Data</a></li>
+            <li><a href="/services.html#3d">3D Commerce</a></li>
+            <li><a href="/services.html#revops">Revenue Ops</a></li>
+            <li><a href="/services.html#ai">Applied AI</a></li>
+            <li><a href="/services.html#brand">Brand Strategy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Company</h4>
+          <ul class="footer__links">
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/case-studies.html">Case Studies</a></li>
+            <li><a href="/engagement.html">How We Work</a></li>
+            <li><a href="/insights.html">Insights</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer__col-title">Connect</h4>
+          <ul class="footer__links">
+            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li>
+            <li><a href="mailto:hello@agency.com">hello@agency.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2026 [AGENCY]. All rights reserved.</p>
+        <p>Built with precision. <a href="/portfolio.html" style="font-size: 11px; font-family: monospace; color: inherit; opacity: 0.4; text-decoration: none; margin-left: 12px; transition: opacity 0.2s;">[ portfolio.exe ]</a> <a href="/portfolio-v2.html" style="font-size: 11px; font-family: monospace; color: inherit; opacity: 0.4; text-decoration: none; margin-left: 8px; transition: opacity 0.2s;">[ portfolio.v2 ]</a></p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

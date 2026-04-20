@@ -368,8 +368,8 @@ export function OfficeScene({
 
           {/* WebGL Projection Mesh Map */}
           {texture && (
-            <mesh>
-              <planeGeometry args={[640 * htmlScale, 480 * htmlScale]} />
+            <mesh scale={[htmlScale * 30, htmlScale * 30, htmlScale * 30]}>
+              <planeGeometry args={[1.3333, 1]} />
               <meshBasicMaterial 
                 map={texture} 
                 color="red" // Debug Visibility 

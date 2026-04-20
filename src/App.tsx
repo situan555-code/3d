@@ -92,7 +92,7 @@ function App() {
         <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
           Scale: 
           <input type="number" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{width: '60px'}} />
-          <input type="range" min="0.001" max="0.10" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{width: '90px'}} />
+          <input type="range" min="0.001" max="5.0" step="0.001" value={debugScale} onChange={e => setDebugScale(parseFloat(e.target.value))} style={{width: '90px'}} />
           <button onClick={() => setDebugScale(0.0210)} style={{padding: '0 5px'}}>↺</button>
         </div>
         <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>

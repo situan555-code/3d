@@ -19,6 +19,7 @@ export function OfficeScene({
   ...props 
 }: OfficeSceneProps & { planeConfig?: any }) {
   const { scene } = useGLTF('/office_desk.glb') as any
+  const { materials } = useGLTF('/office_assets-transformed.glb') as any
   const computerRef = useRef<THREE.Mesh>(null)
 
   const screenTextureRef = useRef<THREE.CanvasTexture | null>(null)
@@ -39,6 +40,15 @@ export function OfficeScene({
         child.castShadow = true
         child.receiveShadow = true
         
+        // Restore the original high-quality PBR materials for the office objects
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material = child.material.map((mat: any) => materials[mat.name] || mat)
+          } else if (child.material.name && materials[child.material.name]) {
+            child.material = materials[child.material.name]
+          }
+        }
+        
         // Hide the glass so it doesn't occlude our HTML plane
         if (child.name === 'Monitor_ScreenGlass') {
           child.visible = false
@@ -50,7 +60,7 @@ export function OfficeScene({
         }
       }
     })
-  }, [scene])
+  }, [scene, materials])
 
   useFrame((state) => {
     try {
@@ -144,3 +154,4 @@ export function OfficeScene({
 }
 
 useGLTF.preload('/office_desk.glb')
+useGLTF.preload('/office_assets-transformed.glb')

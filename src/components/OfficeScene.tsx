@@ -22,6 +22,8 @@ export function OfficeScene({
   const { scene: mainScene } = useGLTF('/office_assets-transformed.glb') as any
   // Only load the new Blender export to extract the new custom picture frames
   const { scene: newScene } = useGLTF('/office_desk.glb') as any
+  // Load the extracted high-quality parts for the Computer and Tape Recorder
+  const { scene: hqScene } = useGLTF('/office_assets_hq.glb') as any
   
   const computerRef = useRef<THREE.Mesh>(null)
 
@@ -43,11 +45,32 @@ export function OfficeScene({
         child.castShadow = true
         child.receiveShadow = true
         
-        // Find the computer chassis to save the ref for zooming
-        // In the transformed GLB, the computer is Object_10
-        if (child.name === 'Object_10') {
-          computerRef.current = child
+        // Hide the heavily compressed computer and tape recorder from the transformed GLB
+        if (child.name === 'Object_10' || child.name === 'Object_70' || child.name === 'Object_71') {
+          child.visible = false
         }
+      }
+    })
+    
+    const hqNodes: THREE.Object3D[] = []
+    hqScene.traverse((child: any) => {
+      if (child.name === 'Object_10' || child.name === 'Object_70' || child.name === 'Object_71') {
+        hqNodes.push(child.clone())
+      }
+    })
+    
+    hqNodes.forEach(node => {
+      node.traverse((child: any) => {
+        if (child.isMesh) {
+          child.castShadow = true
+          child.receiveShadow = true
+        }
+      })
+      mainScene.add(node)
+      
+      // Save ref for zooming onto the HQ computer
+      if (node.name === 'Object_10') {
+        computerRef.current = node as THREE.Mesh
       }
     })
     
@@ -65,7 +88,7 @@ export function OfficeScene({
       mainScene.add(frame)
     })
     
-  }, [mainScene, newScene])
+  }, [mainScene, newScene, hqScene])
 
   useFrame((state) => {
     try {
@@ -160,3 +183,4 @@ export function OfficeScene({
 
 useGLTF.preload('/office_desk.glb')
 useGLTF.preload('/office_assets-transformed.glb')
+useGLTF.preload('/office_assets_hq.glb')

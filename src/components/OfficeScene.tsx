@@ -40,11 +40,16 @@ export function OfficeScene({
         child.castShadow = true
         child.receiveShadow = true
         
-        // Restore the original high-quality PBR materials for the office objects
+        // Restore the original high-quality PBR materials for specific broken objects (like the lamp and cactus pot)
+        // We EXCLUDE the Computer and Tape Recorder because their geometry/UVs differ and they look perfect natively
+        const preserveMaterials = ['M_Computer_2048', 'M_TapeRecorder_1024', 'M_TapeRecorder_Tape_Rotors_Glass_1024'];
         if (child.material) {
           if (Array.isArray(child.material)) {
-            child.material = child.material.map((mat: any) => materials[mat.name] || mat)
-          } else if (child.material.name && materials[child.material.name]) {
+            child.material = child.material.map((mat: any) => {
+              if (preserveMaterials.includes(mat.name)) return mat;
+              return materials[mat.name] || mat;
+            })
+          } else if (child.material.name && materials[child.material.name] && !preserveMaterials.includes(child.material.name)) {
             child.material = materials[child.material.name]
           }
         }

@@ -18,8 +18,11 @@ export function OfficeScene({
   planeConfig,
   ...props 
 }: OfficeSceneProps & { planeConfig?: any }) {
-  const { scene } = useGLTF('/office_desk.glb') as any
-  const { materials } = useGLTF('/office_assets-transformed.glb') as any
+  // Use the original highly-optimized transformed GLB as the base scene to guarantee perfect textures
+  const { scene: mainScene } = useGLTF('/office_assets-transformed.glb') as any
+  // Only load the new Blender export to extract the new custom picture frames
+  const { scene: newScene } = useGLTF('/office_desk.glb') as any
+  
   const computerRef = useRef<THREE.Mesh>(null)
 
   const screenTextureRef = useRef<THREE.CanvasTexture | null>(null)
@@ -34,38 +37,35 @@ export function OfficeScene({
   }, [captureCanvas])
 
   useEffect(() => {
-    // Traverse the scene once on load to configure shadows and references
-    scene.traverse((child: any) => {
+    // Traverse the main scene to configure shadows
+    mainScene.traverse((child: any) => {
       if (child.isMesh) {
         child.castShadow = true
         child.receiveShadow = true
         
-        // Restore the original high-quality PBR materials for specific broken objects (like the lamp and cactus pot)
-        // We EXCLUDE the Computer and Tape Recorder because their geometry/UVs differ and they look perfect natively
-        const preserveMaterials = ['M_Computer_2048', 'M_TapeRecorder_1024', 'M_TapeRecorder_Tape_Rotors_Glass_1024'];
-        if (child.material) {
-          if (Array.isArray(child.material)) {
-            child.material = child.material.map((mat: any) => {
-              if (preserveMaterials.includes(mat.name)) return mat;
-              return materials[mat.name] || mat;
-            })
-          } else if (child.material.name && materials[child.material.name] && !preserveMaterials.includes(child.material.name)) {
-            child.material = materials[child.material.name]
-          }
-        }
-        
-        // Hide the glass so it doesn't occlude our HTML plane
-        if (child.name === 'Monitor_ScreenGlass') {
-          child.visible = false
-        }
-        
-        // Save ref for raycasting/zooming
-        if (child.name === 'Monitor_Chassis') {
+        // Find the computer chassis to save the ref for zooming
+        // In the transformed GLB, the computer is Object_10
+        if (child.name === 'Object_10') {
           computerRef.current = child
         }
       }
     })
-  }, [scene, materials])
+    
+    // Extract new frames from newScene and add them to mainScene
+    const newFrames: THREE.Object3D[] = []
+    newScene.traverse((child: any) => {
+      if (child.name && child.name.includes('hanging_picture_frame')) {
+        newFrames.push(child.clone())
+      }
+    })
+    
+    newFrames.forEach(frame => {
+      frame.castShadow = true
+      frame.receiveShadow = true
+      mainScene.add(frame)
+    })
+    
+  }, [mainScene, newScene])
 
   useFrame((state) => {
     try {
@@ -113,24 +113,24 @@ export function OfficeScene({
   return (
     <group {...props} dispose={null}>
       <primitive 
-        object={scene} 
+        object={mainScene} 
         onClick={(e: any) => {
-          const name = e.object.name?.toLowerCase() || ''
-          if (name.includes('monitor') || name.includes('chassis') || name.includes('screen')) {
+          const name = e.object.name
+          if (name === 'Object_10') {
             e.stopPropagation()
             handleMonitorClick()
           }
         }}
         onPointerOver={(e: any) => {
-          const name = e.object.name?.toLowerCase() || ''
-          if (name.includes('monitor') || name.includes('chassis') || name.includes('screen')) {
+          const name = e.object.name || ''
+          if (name === 'Object_10') {
             e.stopPropagation()
             document.body.style.cursor = 'pointer'
           }
         }}
         onPointerOut={(e: any) => {
-          const name = e.object.name?.toLowerCase() || ''
-          if (name.includes('monitor') || name.includes('chassis') || name.includes('screen')) {
+          const name = e.object.name || ''
+          if (name === 'Object_10') {
             e.stopPropagation()
             document.body.style.cursor = 'auto'
           }

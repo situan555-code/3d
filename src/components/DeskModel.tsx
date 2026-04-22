@@ -15,11 +15,11 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
   const clonedScene = useMemo(() => scene.clone(), [scene]);
 
   // After first render, traverse the loaded scene to enable shadows
-  // Nodes to hide (cigarettes, ashtray, ash)
+  // Nodes to hide (cigarettes, ashtray, ash, and the occluding screen glass)
   const hiddenNodes = [
     'cigarette_normal', 'cigarettepack_blue', 'ashtray_27', 
     'cigarette_stub_bent', 'cigarette_stub_straight', 'ashtray_ash',
-    'cigarettepack_brown',
+    'cigarettepack_brown', 'monitor_screenglass'
   ];
 
   useEffect(() => {
@@ -49,11 +49,21 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
     clonedScene.traverse((obj: THREE.Object3D) => {
       // @ts-ignore
       if (obj.isMesh) {
+        // Check for the perfectly isolated M_ScreenGlass material we exported from Blender
+        const mat = (obj as THREE.Mesh).material;
+        if (mat) {
+          const hasScreenMat = Array.isArray(mat) 
+            ? mat.some(m => m.name === 'M_ScreenGlass')
+            : mat.name === 'M_ScreenGlass';
+            
+          if (hasScreenMat) {
+            screenMesh = obj as THREE.Mesh;
+          }
+        }
+        
+        // Fallbacks
         const name = obj.name.toLowerCase();
-        // Look specifically for screen glass surfaces by material/mesh name
-        // office_desk: MI_Object_67 is the screen glass
-        // office_assets: Object_16 is the monitor screen mesh (child of Monitor_6)
-        if (name.includes('object_67') || name.includes('object_16') || name.includes('screen')) {
+        if (!screenMesh && (name.includes('object_67') || name.includes('object_16') || name.includes('screen'))) {
           screenMesh = obj as THREE.Mesh;
         }
         // Fallback: if we haven't found a specific screen mesh, try monitor meshes

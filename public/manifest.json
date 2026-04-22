@@ -1,0 +1,21 @@
+{
+  "name": "Nautis Neff | Creative Technologist",
+  "short_name": "Nautis",
+  "description": "Creative technologist portfolio — spatial computing, AI orchestration, 3D commerce, and digital product design.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#008080",
+  "theme_color": "#008080",
+  "icons": [
+    {
+      "src": "/kiosk_icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/kiosk_icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

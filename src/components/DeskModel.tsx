@@ -17,7 +17,7 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
   // After first render, traverse the loaded scene to enable shadows
   // Nodes to hide (cigarettes, ashtray, ash, and the occluding screen glass)
   const hiddenNodes = [
-    'cigarette_normal', 'cigarettepack_blue', 'ashtray_27', 
+    'cigarette_normal', 'cigarettepack_blue', 'ashtray_27',
     'cigarette_stub_bent', 'cigarette_stub_straight', 'ashtray_ash',
     'cigarettepack_brown', 'monitor_screenglass'
   ];
@@ -29,7 +29,7 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
         obj.castShadow = true;
         obj.receiveShadow = true;
       }
-      
+
       // Hide cigarettes, ashtray, and ash
       const name = obj.name.toLowerCase();
       if (hiddenNodes.some(h => name.includes(h))) {
@@ -52,15 +52,15 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
         // Check for the perfectly isolated M_ScreenGlass material we exported from Blender
         const mat = (obj as THREE.Mesh).material;
         if (mat) {
-          const hasScreenMat = Array.isArray(mat) 
+          const hasScreenMat = Array.isArray(mat)
             ? mat.some(m => m.name === 'M_ScreenGlass')
             : mat.name === 'M_ScreenGlass';
-            
+
           if (hasScreenMat) {
             screenMesh = obj as THREE.Mesh;
           }
         }
-        
+
         // Fallbacks
         const name = obj.name.toLowerCase();
         if (!screenMesh && (name.includes('object_67') || name.includes('object_16') || name.includes('screen'))) {
@@ -96,19 +96,19 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
     // Camera-direction approach: the screen faces the default camera
     // This works for flat panels, CRTs, and any arbitrary orientation
     const cameraDefault = new THREE.Vector3(0, 1.5, 4);
-    
+
     // Direction from monitor center toward the camera (in world space)
     const toCamera = cameraDefault.clone().sub(worldCenter).normalize();
-    
+
     // Project this direction onto the 3 cardinal axes to find which face is "front"
     const absX = Math.abs(toCamera.x);
     const absY = Math.abs(toCamera.y);
     const absZ = Math.abs(toCamera.z);
-    
+
     // The normal is the cardinal axis most aligned with the camera direction
     const normal = new THREE.Vector3();
     let screenWidth: number, screenHeight: number;
-    
+
     if (absX >= absY && absX >= absZ) {
       // Screen faces along X
       normal.set(Math.sign(toCamera.x), 0, 0);
@@ -125,13 +125,13 @@ export default function DeskModel({ modelPath, onMeshClick, isZoomed }: DeskMode
       screenWidth = worldSize.x;
       screenHeight = worldSize.z;
     }
-    
+
     // Place the iframe on the face of the bounding box closest to camera
     // Offset slightly outward so it sits in front of the surface
     const halfExtent = new THREE.Vector3(worldSize.x / 2, worldSize.y / 2, worldSize.z / 2);
     const faceOffset = normal.clone().multiply(halfExtent).length();
     const facePos = worldCenter.clone().add(normal.clone().multiplyScalar(faceOffset + 0.01));
-    
+
     // Shrink screen dimensions to ~70% to account for monitor bezel
     screenWidth *= 0.55;
     screenHeight *= 0.55;

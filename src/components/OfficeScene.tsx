@@ -61,7 +61,7 @@ export function OfficeScene({
   planeConfig,
   ...props 
 }: OfficeSceneProps & { planeConfig?: any }) {
-  const { nodes, materials } = useGLTF('/office_assets-transformed.glb') as unknown as GLTFResult
+  const { nodes, materials } = useGLTF('/office_desk.glb') as unknown as GLTFResult
   const computerRef = useRef<THREE.Mesh>(null)
 
   const screenTextureRef = useRef<THREE.CanvasTexture | null>(null)
@@ -125,7 +125,7 @@ export function OfficeScene({
       <group position={[0.488, 0.743, 0.925]} rotation={[0, 0.168, 0]}>
         <mesh
           ref={computerRef}
-          geometry={nodes.Object_10.geometry}
+          geometry={nodes.Monitor_Chassis ? nodes.Monitor_Chassis.geometry : (nodes as any).Object_10?.geometry}
           material={materials.M_Computer_2048}
           castShadow
           receiveShadow
@@ -167,8 +167,14 @@ export function OfficeScene({
       <mesh geometry={nodes.Object_101.geometry} material={materials.M_Clipboard_Notepad_1024} position={[0.996, 0.565, 0.619]} rotation={[-3.126, -1.002, -1.576]} castShadow receiveShadow />
       <mesh geometry={nodes.Object_107.geometry} material={materials.M_OfficeStool_Bin_2048} position={[0.923, 0.008, 0.77]} rotation={[-Math.PI, -0.416, -Math.PI]} scale={[1.235, 1, 1.235]} castShadow receiveShadow />
       <mesh geometry={nodes.Object_109.geometry} material={materials['M_Lamps_CCTV_2048.001']} position={[-0.039, 0.743, 1.563]} rotation={[0, 0.454, 0]} castShadow receiveShadow />
+
+      {/* NEW ENVIRONMENT AND PICTURE FRAME */}
+      {nodes.HouseFloor && <primitive object={nodes.HouseFloor} castShadow receiveShadow />}
+      {nodes.HouseWall_Back && <primitive object={nodes.HouseWall_Back} castShadow receiveShadow />}
+      {nodes.Baseboard_Back && <primitive object={nodes.Baseboard_Back} castShadow receiveShadow />}
+      {nodes.hanging_picture_frame_01 && <primitive object={nodes.hanging_picture_frame_01} castShadow receiveShadow />}
     </group>
   )
 }
 
-useGLTF.preload('/office_assets-transformed.glb')
+useGLTF.preload('/office_desk.glb')

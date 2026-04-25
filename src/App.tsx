@@ -33,93 +33,102 @@ function useWICGTexture(): THREE.CanvasTexture | null {
   const [texture, setTexture] = useState<THREE.CanvasTexture | null>(null)
 
   useEffect(() => {
-    const canvas = document.getElementById('proxy-canvas') as HTMLCanvasElement
-    if (!canvas) {
-      console.warn('[WICG] proxy-canvas not found in DOM')
-      return
-    }
+    let cleanup: (() => void) | null = null
 
-    // Bridge guard: prevent double-initialization (HMR protection)
-    if ((canvas as any).__wicgBridgeActive) {
-      console.warn('[WICG] Bridge already initialized — skipping duplicate mount')
-      return
-    }
-    ;(canvas as any).__wicgBridgeActive = true
+    const initBridge = (canvas: HTMLCanvasElement) => {
+      // Bridge guard: prevent double-initialization (HMR protection)
+      if ((canvas as any).__wicgBridgeActive) return
+      ;(canvas as any).__wicgBridgeActive = true
 
-    // 1. Force the layoutsubtree attribute natively (bypass React)
-    canvas.setAttribute('layoutsubtree', '')
+      // Force layoutsubtree natively
+      canvas.setAttribute('layoutsubtree', '')
 
-    // 2. Setup Three.js Texture
-    const ctx = canvas.getContext('2d')
-    if (!ctx) {
-      console.warn('[WICG] Could not get 2d context')
-      return
-    }
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        console.warn('[WICG] Could not get 2d context')
+        return
+      }
 
-    const tex = new THREE.CanvasTexture(canvas)
-    tex.flipY = false
-    tex.colorSpace = THREE.SRGBColorSpace
-    tex.minFilter = THREE.LinearFilter
-    tex.magFilter = THREE.LinearFilter
+      const tex = new THREE.CanvasTexture(canvas)
+      tex.flipY = false
+      tex.colorSpace = THREE.SRGBColorSpace
+      tex.minFilter = THREE.LinearFilter
+      tex.magFilter = THREE.LinearFilter
 
-    // 3. The Native Paint Event (Replaces rAF completely)
-    //    Fires ONLY when the child DOM visually updates —
-    //    no desync, no console spam, no race conditions.
-    let paintCount = 0
+      let paintCount = 0
 
-    const handlePaint = () => {
-      // Keep the React Virtual DOM bypass — use native DOM traversal
-      const nativeDirectChild = canvas.firstElementChild
-      if (!nativeDirectChild) return
+      const handlePaint = () => {
+        const nativeDirectChild = canvas.firstElementChild
+        if (!nativeDirectChild) return
 
-      try {
-        ;(ctx as any).reset()
+        try {
+          ;(ctx as any).reset()
 
-        // Feature detect (Chrome renames this periodically)
-        if (typeof (ctx as any).drawElementImage === 'function') {
-          ;(ctx as any).drawElementImage(nativeDirectChild, 0, 0)
-        } else if (typeof (ctx as any).drawElement === 'function') {
-          ;(ctx as any).drawElement(nativeDirectChild, 0, 0)
+          if (typeof (ctx as any).drawElementImage === 'function') {
+            ;(ctx as any).drawElementImage(nativeDirectChild, 0, 0)
+          } else if (typeof (ctx as any).drawElement === 'function') {
+            ;(ctx as any).drawElement(nativeDirectChild, 0, 0)
+          }
+
+          tex.needsUpdate = true
+
+          if (paintCount === 0) {
+            const el = nativeDirectChild as HTMLElement
+            console.log(`[WICG] ✅ First paint! Source: <${el.tagName}> id="${el.id}" ${el.offsetWidth}x${el.offsetHeight}`)
+            const d = ctx.getImageData(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2), 1, 1).data
+            console.log(`[WICG] Center pixel: rgba(${d[0]},${d[1]},${d[2]},${d[3]})`)
+          }
+          paintCount++
+        } catch (error: any) {
+          console.debug('[WICG] Awaiting layout snapshot...', error.message)
         }
+      }
 
-        tex.needsUpdate = true
+      canvas.addEventListener('paint', handlePaint)
+      console.log('[WICG] Paint event listener attached')
 
-        if (paintCount === 0) {
-          const el = nativeDirectChild as HTMLElement
-          console.log(`[WICG] ✅ First paint! Source: <${el.tagName}> id="${el.id}" ${el.offsetWidth}x${el.offsetHeight}`)
-          const d = ctx.getImageData(320, 240, 1, 1).data
-          console.log(`[WICG] Center pixel: rgba(${d[0]},${d[1]},${d[2]},${d[3]})`)
+      // Kickstart after React mount
+      const timer = setTimeout(() => {
+        if (typeof (canvas as any).requestPaint === 'function') {
+          ;(canvas as any).requestPaint()
+          console.log('[WICG] requestPaint() called')
         }
-        paintCount++
-      } catch (error: any) {
-        // Gracefully ignore initial snapshot errors
-        console.debug('[WICG] Awaiting layout snapshot...', error.message)
+        // Also force a DOM mutation to trigger a second paint
+        const ui = canvas.querySelector('#os-ui') as HTMLElement
+        if (ui) ui.style.transform = 'translateZ(0.1px)'
+      }, 500)
+
+      setTexture(tex)
+      console.log('[WICG] Texture bridge initialized')
+
+      cleanup = () => {
+        canvas.removeEventListener('paint', handlePaint)
+        clearTimeout(timer)
+        ;(canvas as any).__wicgBridgeActive = false
+        tex.dispose()
       }
     }
 
-    // Listen to the native paint event
-    canvas.addEventListener('paint', handlePaint)
-    console.log('[WICG] Paint event listener attached')
-
-    // 4. Kickstart the first render safely (after React mount)
-    const timer = setTimeout(() => {
-      if (typeof (canvas as any).requestPaint === 'function') {
-        ;(canvas as any).requestPaint()
-        console.log('[WICG] requestPaint() called — awaiting first paint event')
-      } else {
-        console.warn('[WICG] requestPaint not available — paint events may not fire')
-      }
-    }, 100)
-
-    setTexture(tex)
-    console.log('[WICG] Texture bridge initialized — listening for paint events')
-
-    return () => {
-      canvas.removeEventListener('paint', handlePaint)
-      clearTimeout(timer)
-      ;(canvas as any).__wicgBridgeActive = false
-      tex.dispose()
+    // The canvas now lives inside R3F's <Html>, so it may not exist yet.
+    // Try immediately, then observe the DOM for it.
+    const existing = document.getElementById('proxy-canvas') as HTMLCanvasElement
+    if (existing) {
+      initBridge(existing)
+    } else {
+      console.log('[WICG] Waiting for proxy-canvas to enter DOM...')
+      const observer = new MutationObserver(() => {
+        const el = document.getElementById('proxy-canvas') as HTMLCanvasElement
+        if (el) {
+          observer.disconnect()
+          console.log('[WICG] proxy-canvas found in DOM')
+          initBridge(el)
+        }
+      })
+      observer.observe(document.body, { childList: true, subtree: true })
+      cleanup = () => observer.disconnect()
     }
+
+    return () => { cleanup?.() }
   }, [])
 
   return texture
@@ -129,16 +138,6 @@ function App() {
   const [isZoomed, setIsZoomed] = useState(false)
   const cameraControlRef = useRef<CameraControls>(null)
   const screenTexture = useWICGTexture()
-
-  // Secondary paint trigger — force a DOM mutation after React mount
-  // to guarantee the paint event fires with fully-styled content
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const ui = document.getElementById('os-ui')
-      if (ui) ui.style.transform = 'translateZ(0.1px)'
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [])
 
   const handleBack = () => {
     if (cameraControlRef.current) {

@@ -17,30 +17,7 @@ canvas {
   touch-action: none;
 }
 
-/* WICG Proxy Canvas — holds PortfolioApp for texture capture.
-   CRITICAL: Do NOT use opacity:0 or off-screen positioning —
-   the drawElementImage rasterizer skips elements not in the viewport.
-   clip-path: inset(100%) makes it invisible to the user but
-   keeps it "on-screen" for the GPU rasterizer. */
-#proxy-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 640px;
-  height: 480px;
-  clip-path: inset(100%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Ensure os-ui fills the proxy canvas for proper layout */
-#os-ui {
-  width: 640px;
-  height: 480px;
-  overflow: hidden;
-  background-color: #008080;  /* Solid teal — prevents transparent/black capture */
-  opacity: 1;
-}
+/* proxy-canvas and os-ui styles are now inline in OfficeScene.tsx */
 
 #overlay-ui {
   position: absolute;

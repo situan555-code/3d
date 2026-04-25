@@ -1,7 +1,6 @@
 import * as THREE from 'three'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useGLTF, Html } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
 import type CameraControls from 'camera-controls'
 import PortfolioApp from '../portfolio/App.jsx'
 
@@ -16,16 +15,16 @@ type OfficeSceneProps = {
  * OfficeScene — WICG HTML-in-Canvas Dual-Layer Architecture
  *
  * Layer 1 (Visual):  WICG drawElementImage → CanvasTexture → Monitor_HTML mesh
- * Layer 2 (Hitbox):  Drei <Html transform> with red debug box for alignment
+ * Layer 2 (Hitbox):  Drei <Html transform> NESTED inside Monitor_HTML mesh
+ *                    Auto-inherits position, rotation, scale — no math needed.
  *
  * Monitor_HTML has raycast={() => null} so pointer events pass through
- * the WebGL glass and reach the DOM hitbox layer.
+ * the WebGL glass and reach the DOM hitbox layer underneath.
  */
 
-// ─── Reusable math objects (never allocate in useFrame) ───
-const _worldQuat = new THREE.Quaternion()
-const _euler = new THREE.Euler()
-const _vec3 = new THREE.Vector3()
+// 1 WebGL Unit mapped to CSS pixels via this scale factor
+// User tweaks this to make the red debug box match the curved screen
+const SCREEN_SCALE = 0.00022
 
 export function OfficeScene({
   isZoomed,
@@ -38,13 +37,6 @@ export function OfficeScene({
 
   const monitorHTMLRef = useRef<THREE.Mesh>(null)
   const materialApplied = useRef(false)
-
-  // Screen anchor state (computed once from Monitor_HTML geometry)
-  const [screenAnchor, setScreenAnchor] = useState<{
-    pos: [number, number, number]
-    rot: [number, number, number]
-    distFactor: number
-  } | null>(null)
 
   // ─── Scene traversal: capture refs + shadows + raycast bypass ───
   useEffect(() => {
@@ -69,11 +61,9 @@ export function OfficeScene({
 
     const mesh = monitorHTMLRef.current
 
-    // CRITICAL texture properties per architecture spec
     screenTexture.flipY = false
     screenTexture.colorSpace = THREE.SRGBColorSpace
 
-    // Glowing CRT material — emissive fullbright
     const mat = new THREE.MeshStandardMaterial({
       map: screenTexture,
       emissiveMap: screenTexture,
@@ -94,66 +84,7 @@ export function OfficeScene({
     }
   }, [screenTexture])
 
-  // ─── Compute screen anchor from Monitor_HTML geometry (runs once) ───
-  useFrame(() => {
-    if (screenAnchor) return
-    if (!monitorHTMLRef.current) return
-
-    const mesh = monitorHTMLRef.current
-    mesh.updateWorldMatrix(true, true)
-
-    // World rotation
-    mesh.getWorldQuaternion(_worldQuat)
-    _euler.setFromQuaternion(_worldQuat, 'YXZ')
-
-    // World bounding box for centroid + dimensions
-    const geom = mesh.geometry
-    if (!geom) return
-    const posAttr = geom.getAttribute('position')
-    if (!posAttr) return
-
-    const wm = mesh.matrixWorld
-    const min = new THREE.Vector3(Infinity, Infinity, Infinity)
-    const max = new THREE.Vector3(-Infinity, -Infinity, -Infinity)
-
-    for (let i = 0; i < posAttr.count; i++) {
-      _vec3.fromBufferAttribute(posAttr, i).applyMatrix4(wm)
-      min.min(_vec3)
-      max.max(_vec3)
-    }
-
-    const centroid = min.clone().add(max).multiplyScalar(0.5)
-    const size = max.clone().sub(min)
-
-    const spans = [
-      { axis: 'x', val: size.x },
-      { axis: 'y', val: size.y },
-      { axis: 'z', val: size.z },
-    ].sort((a, b) => a.val - b.val)
-
-    const screenW = spans[2].val
-    const screenH = spans[1].val
-
-    // distanceFactor: maps world-space width to CSS pixel width
-    const df = screenW / 640 * 350
-
-    // Nudge outward from the screen surface to prevent z-fighting
-    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(_worldQuat).normalize()
-    const pos = centroid.clone()
-    pos.addScaledVector(forward, 0.008)
-
-    console.log(`[OfficeScene] Monitor_HTML anchor: [${pos.x.toFixed(4)}, ${pos.y.toFixed(4)}, ${pos.z.toFixed(4)}]`)
-    console.log(`[OfficeScene] Size: ${screenW.toFixed(4)} × ${screenH.toFixed(4)}, distFactor: ${df.toFixed(4)}`)
-    console.log(`[OfficeScene] Euler: [${_euler.x.toFixed(3)}, ${_euler.y.toFixed(3)}, ${_euler.z.toFixed(3)}]`)
-
-    setScreenAnchor({
-      pos: pos.toArray() as [number, number, number],
-      rot: [_euler.x, _euler.y, _euler.z],
-      distFactor: df,
-    })
-  })
-
-  // ─── STEP 2: Camera focus via CameraControls ───
+  // ─── Camera focus via CameraControls ───
   const handleFocus = (e: any) => {
     e.stopPropagation()
     if (!controlsRef.current || !monitorHTMLRef.current) return
@@ -165,16 +96,13 @@ export function OfficeScene({
     const screenQuat = new THREE.Quaternion()
     screenNode.getWorldQuaternion(screenQuat)
 
-    // Calculate forward vector from screen normal
     const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(screenQuat).normalize()
-
-    // Position camera 0.6 units in front of screen, perfectly centered
     const camPos = targetPos.clone().add(forward.multiplyScalar(0.6))
 
     controlsRef.current.setLookAt(
       camPos.x, camPos.y, camPos.z,
       targetPos.x, targetPos.y, targetPos.z,
-      true  // Animate smoothly
+      true
     )
     setIsZoomed(true)
   }
@@ -186,7 +114,6 @@ export function OfficeScene({
         onClick={(e: any) => {
           let current = e.object;
           while (current) {
-            // Only bezel/chassis triggers camera focus (NOT screen glass)
             if (current.name === 'Monitor_Chassis') {
               handleFocus(e)
               return;
@@ -219,38 +146,53 @@ export function OfficeScene({
       />
 
       {/* ─── Layer 2: Interactive DOM Hitbox ───────────────────────────
-       *  Drei <Html transform> renders the REAL <PortfolioApp /> at the
-       *  monitor's position. Red debug background for alignment tuning.
-       *  Monitor_HTML has raycast=null so clicks pass through to this.
+       *  Nested inside Monitor_HTML mesh → auto-inherits transform.
+       *  No useFrame math. No distanceFactor. Static SCREEN_SCALE.
+       *  Canvas with layoutsubtree is the WICG texture source.
+       *  🔴 RED DEBUG BOX — remove border/background after alignment confirmed.
        */}
-      {screenAnchor && (
-        <group position={screenAnchor.pos} rotation={screenAnchor.rot}>
+      {monitorHTMLRef.current && (
+        <mesh
+          geometry={monitorHTMLRef.current.geometry}
+          position={monitorHTMLRef.current.position}
+          rotation={monitorHTMLRef.current.rotation}
+          raycast={() => null}
+          visible={false} // Hidden — the primitive already renders this mesh
+        >
           <Html
             transform
-            distanceFactor={screenAnchor.distFactor}
-            position={[0, 0, 0.02]}   // Push slightly forward (adjust to -0.02 if behind)
-            style={{
-              width: '640px',
-              height: '480px',
-              overflow: 'hidden',
-              // 🔴 RED DEBUG BOX — remove after alignment is confirmed
-              border: '2px solid red',
-              backgroundColor: 'rgba(255, 0, 0, 0.4)',
-            }}
-            pointerEvents="auto"
+            position={[0, 0, 0.015]}
+            scale={[SCREEN_SCALE, SCREEN_SCALE, SCREEN_SCALE]}
+            zIndexRange={[100, 0]}
           >
-            <div
-              className="screen-hitbox"
+            <canvas
+              id="proxy-canvas"
+              width={1024}
+              height={768}
+              // @ts-ignore — layoutsubtree is a WICG experimental attribute
+              layoutsubtree=""
               style={{
-                width: '640px',
-                height: '480px',
+                width: '1024px',
+                height: '768px',
+                border: '4px solid red',
                 pointerEvents: 'auto',
               }}
             >
-              <PortfolioApp />
-            </div>
+              <div
+                id="os-ui"
+                style={{
+                  width: '1024px',
+                  height: '768px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  backgroundColor: '#008080',
+                }}
+              >
+                <PortfolioApp />
+              </div>
+            </canvas>
           </Html>
-        </group>
+        </mesh>
       )}
     </group>
   )

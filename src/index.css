@@ -18,25 +18,22 @@ canvas {
 }
 
 /* WICG Proxy Canvas — holds PortfolioApp for texture capture.
-   The <canvas layoutsubtree> parent is required by WICG drawElementImage.
-   The RaycastInteractionManager positions #os-ui over the WebGL canvas
-   using CSS translate, so the proxy canvas must not clip/hide it.
-   Ref: repalash/three-html-render — RaycastInteractionManager pattern. */
+   STAYS FULLY HIDDEN — interaction is via synthetic event dispatch.
+   The OfficeScene RaycastInteractionManager temporarily un-clips this
+   for elementFromPoint(), then re-clips. No visual flash. */
 #proxy-canvas {
   position: fixed;
   top: 0;
   left: 0;
   width: 1024px;
   height: 768px;
-  /* Do NOT clip — #os-ui must be visible for interaction.
-     The RaycastInteractionManager parks it off-screen when not hovered. */
+  clip-path: inset(100%);
   pointer-events: none;
-  z-index: 20;
-  overflow: visible;
+  z-index: -1;
 }
 
 /* os-ui fills the proxy canvas — solid bg prevents transparent/black capture.
-   RaycastInteractionManager sets position/transform dynamically. */
+   Full opacity required for WICG drawElementImage to capture content. */
 #os-ui {
   width: 1024px;
   height: 768px;
@@ -44,8 +41,6 @@ canvas {
   background-color: #008080;
   opacity: 1;
   pointer-events: auto;
-  /* Initial state: parked off-screen until RaycastInteractionManager positions it */
-  transform: translate(-99999px, 0);
 }
 
 #overlay-ui {

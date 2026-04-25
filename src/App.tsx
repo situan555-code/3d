@@ -64,12 +64,9 @@ function useWICGTexture(): THREE.CanvasTexture | null {
       return
     }
 
-    // Use CanvasTexture with the proxy-canvas itself as the initial source.
-    // This guarantees three.js always has a valid ImageSource for texSubImage2D,
-    // even before the first paint event fires.
-    // Bridge canvas: captureElementImage returns an ElementImage (not HTMLCanvasElement).
-    // WebGL's texSubImage2D doesn't accept ElementImage — we must draw it
-    // onto a standard canvas first, then use that as the texture source.
+    // Bridge canvas: we draw onto this, then Three.js uploads it to the GPU.
+    // This avoids the ElementImage problem entirely — drawElementImage() renders
+    // directly onto a standard canvas bitmap that WebGL accepts.
     const bridgeCanvas = document.createElement('canvas')
     bridgeCanvas.width = canvas.width
     bridgeCanvas.height = canvas.height
@@ -85,27 +82,50 @@ function useWICGTexture(): THREE.CanvasTexture | null {
 
     let paintCount = 0
 
-    const handlePaint = () => {
+    const handlePaint = async () => {
       try {
-        if (canvas.captureElementImage) {
-          // captureElementImage → ElementImage → draw onto bridge canvas → texture
-          const elementImage = canvas.captureElementImage(element)
+        // Get the proxy canvas 2D context — this has the WICG drawElementImage extension
+        const proxyCtx = canvas.getContext('2d')
+        if (!proxyCtx) return
+
+        // STRATEGY: Use drawElementImage() on the proxy canvas's 2D context.
+        // This renders the DOM element directly onto the canvas bitmap —
+        // no intermediary ElementImage object, no type incompatibility.
+        let drew = false
+
+        if (typeof (proxyCtx as any).drawElementImage === 'function') {
+          ;(proxyCtx as any).drawElementImage(element, 0, 0, canvas.width, canvas.height)
+          drew = true
+        } else if (typeof (proxyCtx as any).drawElement === 'function') {
+          ;(proxyCtx as any).drawElement(element, 0, 0, canvas.width, canvas.height)
+          drew = true
+        }
+
+        if (drew) {
+          // Copy proxy canvas → bridge canvas (standard HTMLCanvasElement → WebGL safe)
           bridgeCtx.clearRect(0, 0, bridgeCanvas.width, bridgeCanvas.height)
-          bridgeCtx.drawImage(elementImage as any, 0, 0)
+          bridgeCtx.drawImage(canvas, 0, 0)
           tex.needsUpdate = true
-        } else {
-          // FALLBACK: draw directly via drawElementImage onto proxy canvas
-          const ctx = canvas.getContext('2d')
-          if (ctx) {
-            ;(ctx as any).reset?.()
-            if (typeof (ctx as any).drawElementImage === 'function') {
-              ;(ctx as any).drawElementImage(element, 0, 0)
-            } else if (typeof (ctx as any).drawElement === 'function') {
-              ;(ctx as any).drawElement(element, 0, 0)
-            }
-            // Copy proxy canvas → bridge canvas for texture upload
+        } else if (canvas.captureElementImage) {
+          // FALLBACK: captureElementImage returns ElementImage.
+          // Convert via createImageBitmap (async) before drawing.
+          const elementImage = canvas.captureElementImage(element)
+
+          if (paintCount === 0) {
+            console.dir(elementImage, { depth: 2 })
+          }
+
+          try {
+            // createImageBitmap can convert ElementImage → ImageBitmap
+            const bitmap = await createImageBitmap(elementImage as any)
             bridgeCtx.clearRect(0, 0, bridgeCanvas.width, bridgeCanvas.height)
-            bridgeCtx.drawImage(canvas, 0, 0)
+            bridgeCtx.drawImage(bitmap, 0, 0)
+            bitmap.close()
+            tex.needsUpdate = true
+          } catch {
+            // Last resort: try feeding directly (might work in future browsers)
+            bridgeCtx.clearRect(0, 0, bridgeCanvas.width, bridgeCanvas.height)
+            bridgeCtx.drawImage(elementImage as any, 0, 0)
             tex.needsUpdate = true
           }
         }
@@ -115,7 +135,7 @@ function useWICGTexture(): THREE.CanvasTexture | null {
           // Sample center pixel from bridge canvas to verify actual content
           const d = bridgeCtx.getImageData(Math.floor(bridgeCanvas.width / 2), Math.floor(bridgeCanvas.height / 2), 1, 1).data
           console.log(`[WICG] Center pixel: rgba(${d[0]},${d[1]},${d[2]},${d[3]})`)
-          console.log(`[WICG] tex.image: ${tex.image?.constructor?.name}, bridge: ${bridgeCanvas.width}x${bridgeCanvas.height}`)
+          console.log(`[WICG] Method: ${drew ? 'drawElementImage' : 'captureElementImage+createImageBitmap'}`)
         }
         paintCount++
       } catch (error: any) {

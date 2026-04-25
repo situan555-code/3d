@@ -130,14 +130,15 @@ function App() {
   const cameraControlRef = useRef<CameraControls>(null)
   const screenTexture = useWICGTexture()
 
-  const handleMonitorClick = (pos: THREE.Vector3, normal: THREE.Vector3) => {
-    if (cameraControlRef.current) {
-      const viewPos = pos.clone().add(normal.multiplyScalar(0.7))
-      viewPos.y += 0.1
-      cameraControlRef.current.setLookAt(viewPos.x, viewPos.y, viewPos.z, pos.x, pos.y, pos.z, true)
-      setIsZoomed(true)
-    }
-  }
+  // Secondary paint trigger — force a DOM mutation after React mount
+  // to guarantee the paint event fires with fully-styled content
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const ui = document.getElementById('os-ui')
+      if (ui) ui.style.transform = 'translateZ(0.1px)'
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleBack = () => {
     if (cameraControlRef.current) {
@@ -163,9 +164,7 @@ function App() {
           <Environment preset="city" />
           <CameraControls ref={cameraControlRef} makeDefault minDistance={0.3} maxDistance={6} />
 
-          {/* RectAreaLight — casts CRT screen glow onto the desk surface.
-              Positioned just below Monitor_HTML (anchor: [0.44, 1.42, 0.89]),
-              pointing downward (-Y) to illuminate the desk. */}
+          {/* RectAreaLight — casts CRT screen glow onto the desk surface */}
           <rectAreaLight
             width={0.25}
             height={0.20}
@@ -178,14 +177,12 @@ function App() {
           <Suspense fallback={null}>
             <OfficeScene
               isZoomed={isZoomed}
-              onMonitorClick={handleMonitorClick}
+              setIsZoomed={setIsZoomed}
               screenTexture={screenTexture}
+              controlsRef={cameraControlRef}
             />
           </Suspense>
 
-          {/* Post-processing: Bloom for CRT screen glow.
-              High threshold ensures only the emissive screen blooms,
-              not stray bright meshes. */}
           <EffectComposer>
             <Bloom
               intensity={0.4}

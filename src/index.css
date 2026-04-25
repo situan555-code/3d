@@ -38,6 +38,8 @@ canvas {
   width: 640px;
   height: 480px;
   overflow: hidden;
+  background-color: #008080;  /* Solid teal — prevents transparent/black capture */
+  opacity: 1;
 }
 
 #overlay-ui {

@@ -33,182 +33,91 @@ function useWICGTexture(): THREE.CanvasTexture | null {
   const [texture, setTexture] = useState<THREE.CanvasTexture | null>(null)
 
   useEffect(() => {
-    const proxyCanvas = document.getElementById('proxy-canvas') as HTMLCanvasElement
-    if (!proxyCanvas) {
+    const canvas = document.getElementById('proxy-canvas') as HTMLCanvasElement
+    if (!canvas) {
       console.warn('[WICG] proxy-canvas not found in DOM')
       return
     }
 
-    // Bridge guard: prevent double-initialization (HMR / StrictMode protection)
-    if ((proxyCanvas as any).__wicgBridgeActive) {
+    // Bridge guard: prevent double-initialization (HMR protection)
+    if ((canvas as any).__wicgBridgeActive) {
       console.warn('[WICG] Bridge already initialized — skipping duplicate mount')
       return
     }
-    ;(proxyCanvas as any).__wicgBridgeActive = true
+    ;(canvas as any).__wicgBridgeActive = true
 
-    // Force the layoutsubtree attribute natively via JS
-    // (HTML attribute may be stripped by parser in some Canary builds)
-    proxyCanvas.setAttribute('layoutsubtree', '')
+    // 1. Force the layoutsubtree attribute natively (bypass React)
+    canvas.setAttribute('layoutsubtree', '')
 
-    // 🛑 CRITICAL: Use canvas.firstElementChild, NOT getElementById.
-    // The WICG API enforces: element.parentNode === canvas.
-    const nativeDirectChild = proxyCanvas.firstElementChild as HTMLElement | null
-    if (!nativeDirectChild) {
-      console.warn('[WICG] No direct child element found inside proxy-canvas')
-      return
-    }
-
-    // Log diagnostic info for GPU debugging
-    const computedWidth = getComputedStyle(nativeDirectChild).width
-    console.log(`[WICG] Direct child: <${nativeDirectChild.tagName}> id="${nativeDirectChild.id}" computedWidth=${computedWidth}`)
-
-    // Use willReadFrequently for pixel-sampling performance
-    const ctx = proxyCanvas.getContext('2d', { willReadFrequently: true })
+    // 2. Setup Three.js Texture
+    const ctx = canvas.getContext('2d')
     if (!ctx) {
-      console.warn('[WICG] Could not get 2d context from proxy-canvas')
+      console.warn('[WICG] Could not get 2d context')
       return
     }
 
-    // Detect the available draw function name (drawElementImage or drawElement)
-    const drawFn: ((el: Element, x: number, y: number) => void) | null =
-      typeof (ctx as any).drawElementImage === 'function'
-        ? (el, x, y) => (ctx as any).drawElementImage(el, x, y)
-        : typeof (ctx as any).drawElement === 'function'
-          ? (el, x, y) => (ctx as any).drawElement(el, x, y)
-          : null
-
-    const hasDrawAPI = drawFn !== null
-    console.log(`[WICG] Draw API available: ${hasDrawAPI}`)
-
-    // Draw the fallback placeholder (teal CRT screen)
-    const drawFallback = (message?: string) => {
-      ctx.fillStyle = '#008080'
-      ctx.fillRect(0, 0, 640, 480)
-      ctx.fillStyle = '#ffffff'
-      ctx.font = '16px monospace'
-      ctx.fillText(message || 'WICG API not available', 160, 220)
-      ctx.fillText('Use Chrome Canary with flag:', 150, 248)
-      ctx.font = '13px monospace'
-      ctx.fillText('--enable-blink-features=CanvasDrawElement', 110, 276)
-      ctx.font = '11px monospace'
-      ctx.fillStyle = '#aaffaa'
-      ctx.fillText('Texture pipeline is working!', 210, 310)
-      ctx.fillText('The monitor IS receiving this texture.', 170, 330)
-    }
-
-    // ALWAYS draw fallback first — this is what the GPU reads on first upload
-    drawFallback(hasDrawAPI ? 'Verifying WICG API...' : 'Draw API not found')
-
-    if (!hasDrawAPI) {
-      console.warn('[WICG] Neither drawElementImage nor drawElement available')
-    }
-
-    // Create the Three.js texture from the proxy canvas
-    const tex = new THREE.CanvasTexture(proxyCanvas)
+    const tex = new THREE.CanvasTexture(canvas)
+    tex.flipY = false
+    tex.colorSpace = THREE.SRGBColorSpace
     tex.minFilter = THREE.LinearFilter
     tex.magFilter = THREE.LinearFilter
-    tex.colorSpace = THREE.SRGBColorSpace
 
-    // State machine for WICG API verification
-    let apiVerified = false
-    let apiFailed = false
+    // 3. The Native Paint Event (Replaces rAF completely)
+    //    Fires ONLY when the child DOM visually updates —
+    //    no desync, no console spam, no race conditions.
+    let paintCount = 0
 
-    // WICG paint event — only used AFTER API is verified working
-    const onPaint = () => {
-      if (!apiVerified || !drawFn) return
+    const handlePaint = () => {
+      // Keep the React Virtual DOM bypass — use native DOM traversal
+      const nativeDirectChild = canvas.firstElementChild
+      if (!nativeDirectChild) return
+
       try {
         ;(ctx as any).reset()
-        drawFn(nativeDirectChild, 0, 0)
-        tex.needsUpdate = true
-      } catch (err) {
-        console.error('[WICG] paint event draw failed:', err)
-      }
-    }
-    proxyCanvas.addEventListener('paint', onPaint)
 
-    if (typeof (proxyCanvas as any).requestPaint === 'function') {
-      ;(proxyCanvas as any).requestPaint()
-    }
-
-    // ─── RAF Loop with Circuit Breaker ───
-    // - errorCount tracks consecutive failures
-    // - After 5 consecutive errors: loop STOPS, fallback locks in
-    // - Only the FIRST error is logged (no 60fps console spam)
-    // - On success: errorCount resets to 0, live mode activates
-    let rafId: number
-    let errorCount = 0
-    let verifyFrames = 0
-
-    const rafLoop = () => {
-      // 🛑 CIRCUIT BREAKER: Kill loop after repeated throw errors
-      if (errorCount > 5) {
-        console.error('🛑 [WICG] Loop aborted — repeated errors. Enable: chrome://flags → experimental-web-platform-features')
-        drawFallback('API errors — enable experimental flag')
-        tex.needsUpdate = true
-        return  // Stop scheduling new frames
-      }
-
-      if (apiVerified && drawFn) {
-        // ── Live mode: API confirmed working ──
-        try {
-          ;(ctx as any).reset()
-          drawFn(nativeDirectChild, 0, 0)
-          tex.needsUpdate = true
-          errorCount = 0
-        } catch (_) {
-          errorCount++
+        // Feature detect (Chrome renames this periodically)
+        if (typeof (ctx as any).drawElementImage === 'function') {
+          ;(ctx as any).drawElementImage(nativeDirectChild, 0, 0)
+        } else if (typeof (ctx as any).drawElement === 'function') {
+          ;(ctx as any).drawElement(nativeDirectChild, 0, 0)
         }
 
-      } else if (hasDrawAPI && drawFn && !apiFailed) {
-        // ── Verification mode: call drawElement continuously ──
-        verifyFrames++
-        try {
-          // Draw on top of existing teal — don't clear first
-          drawFn(nativeDirectChild, 0, 0)
+        tex.needsUpdate = true
 
-          // Sample center pixel — teal is rgb(0,128,128)
+        if (paintCount === 0) {
+          const el = nativeDirectChild as HTMLElement
+          console.log(`[WICG] ✅ First paint! Source: <${el.tagName}> id="${el.id}" ${el.offsetWidth}x${el.offsetHeight}`)
           const d = ctx.getImageData(320, 240, 1, 1).data
-          const isTeal = d[0] === 0 && d[1] === 128 && d[2] === 128
-
-          if (!isTeal && (d[0] > 0 || d[1] > 0 || d[2] > 0 || d[3] > 0)) {
-            // Pixels changed from teal → API is drawing real content!
-            apiVerified = true
-            errorCount = 0
-            console.log('[WICG] ✅ drawElementImage VERIFIED — live DOM rendering to texture!')
-            ;(ctx as any).reset()
-            drawFn(nativeDirectChild, 0, 0)
-            tex.needsUpdate = true
-          } else if (verifyFrames >= 120) {
-            // ~2 seconds of silent no-draw — API exists but isn't rendering
-            apiFailed = true
-            console.warn(`[WICG] ⚠️ drawElement called ${verifyFrames} frames with no output`)
-            console.warn('[WICG] Check: chrome://gpu for "Canvas: Software only" or disabled OOP-R')
-            console.warn('[WICG] Check: #enable-gpu-rasterization and #enable-oop-rasterization flags')
-            drawFallback('drawElement silent — check GPU flags')
-            tex.needsUpdate = true
-          }
-        } catch (err: any) {
-          errorCount++
-          if (errorCount === 1) {
-            console.warn('[WICG] Draw failed:', err.message || err)
-          }
+          console.log(`[WICG] Center pixel: rgba(${d[0]},${d[1]},${d[2]},${d[3]})`)
         }
-      }
-
-      // Only queue next frame if not failed
-      if (errorCount <= 5 && !apiFailed) {
-        rafId = requestAnimationFrame(rafLoop)
+        paintCount++
+      } catch (error: any) {
+        // Gracefully ignore initial snapshot errors
+        console.debug('[WICG] Awaiting layout snapshot...', error.message)
       }
     }
-    rafId = requestAnimationFrame(rafLoop)
+
+    // Listen to the native paint event
+    canvas.addEventListener('paint', handlePaint)
+    console.log('[WICG] Paint event listener attached')
+
+    // 4. Kickstart the first render safely (after React mount)
+    const timer = setTimeout(() => {
+      if (typeof (canvas as any).requestPaint === 'function') {
+        ;(canvas as any).requestPaint()
+        console.log('[WICG] requestPaint() called — awaiting first paint event')
+      } else {
+        console.warn('[WICG] requestPaint not available — paint events may not fire')
+      }
+    }, 100)
 
     setTexture(tex)
-    console.log('[WICG] Texture bridge initialized')
+    console.log('[WICG] Texture bridge initialized — listening for paint events')
 
     return () => {
-      proxyCanvas.removeEventListener('paint', onPaint)
-      cancelAnimationFrame(rafId)
-      ;(proxyCanvas as any).__wicgBridgeActive = false  // Release bridge guard
+      canvas.removeEventListener('paint', handlePaint)
+      clearTimeout(timer)
+      ;(canvas as any).__wicgBridgeActive = false
       tex.dispose()
     }
   }, [])

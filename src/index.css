@@ -17,7 +17,29 @@ canvas {
   touch-action: none;
 }
 
-/* proxy-canvas and os-ui styles are now inline in OfficeScene.tsx */
+/* WICG Proxy Canvas — holds PortfolioApp for texture capture.
+   CRITICAL: clip-path hides visually but keeps GPU rasterization active.
+   Ref: repalash/three-html-render — element must be direct child of
+   <canvas layoutsubtree>. */
+#proxy-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1024px;
+  height: 768px;
+  clip-path: inset(100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* os-ui fills the proxy canvas — solid bg prevents transparent/black capture */
+#os-ui {
+  width: 1024px;
+  height: 768px;
+  overflow: hidden;
+  background-color: #008080;
+  opacity: 1;
+}
 
 #overlay-ui {
   position: absolute;

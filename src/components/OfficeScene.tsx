@@ -2,28 +2,26 @@ import * as THREE from 'three'
 import { useEffect, useRef } from 'react'
 import { useGLTF, Html } from '@react-three/drei'
 import type CameraControls from 'camera-controls'
-import PortfolioApp from '../portfolio/App.jsx'
 
 type OfficeSceneProps = {
   isZoomed: boolean
   setIsZoomed: (v: boolean) => void
-  screenTexture: THREE.CanvasTexture | null
+  screenTexture: THREE.Texture | null
   controlsRef: React.RefObject<CameraControls | null>
 }
 
 /**
  * OfficeScene — WICG HTML-in-Canvas Dual-Layer Architecture
  *
- * Layer 1 (Visual):  WICG drawElementImage → CanvasTexture → Monitor_HTML mesh
- * Layer 2 (Hitbox):  Drei <Html transform> NESTED inside Monitor_HTML mesh
- *                    Auto-inherits position, rotation, scale — no math needed.
+ * Layer 1 (Visual):  WICG captureElementImage → Texture → Monitor_HTML mesh material
+ * Layer 2 (Hitbox):  Drei <Html transform> nested inside Monitor_HTML mesh
+ *                    auto-inherits position/rotation — no useFrame math.
  *
- * Monitor_HTML has raycast={() => null} so pointer events pass through
- * the WebGL glass and reach the DOM hitbox layer underneath.
+ * Ref: repalash/three-html-render — HTMLTextureFallback pattern.
+ * The proxy canvas lives in index.html (main DOM), not inside R3F.
  */
 
-// 1 WebGL Unit mapped to CSS pixels via this scale factor
-// User tweaks this to make the red debug box match the curved screen
+// 1 WebGL Unit mapped to CSS pixels. Tweak this to fit the red debug box to screen.
 const SCREEN_SCALE = 0.00022
 
 export function OfficeScene({
@@ -48,7 +46,7 @@ export function OfficeScene({
       if (child.name === 'Monitor_HTML') {
         monitorHTMLRef.current = child
         child.visible = true
-        // 🛑 Disable raycasting on the screen glass so pointer events
+        // Disable raycasting on the screen glass so pointer events
         // pass through to the DOM hitbox layer underneath
         child.raycast = () => null
       }
@@ -61,8 +59,12 @@ export function OfficeScene({
 
     const mesh = monitorHTMLRef.current
 
-    screenTexture.flipY = false
-    screenTexture.colorSpace = THREE.SRGBColorSpace
+    // three-html-render sets flipY=false on the Texture class,
+    // but for CanvasTexture/fallback canvas the default is usually true.
+    // Match whatever produces correct orientation.
+    if (screenTexture instanceof THREE.CanvasTexture) {
+      screenTexture.flipY = false
+    }
 
     const mat = new THREE.MeshStandardMaterial({
       map: screenTexture,
@@ -145,11 +147,11 @@ export function OfficeScene({
         }}
       />
 
-      {/* ─── Layer 2: Interactive DOM Hitbox ───────────────────────────
+      {/* ─── Layer 2: Interactive DOM Hitbox ─────────────────────────
        *  Nested inside Monitor_HTML mesh → auto-inherits transform.
-       *  No useFrame math. No distanceFactor. Static SCREEN_SCALE.
-       *  Canvas with layoutsubtree is the WICG texture source.
-       *  🔴 RED DEBUG BOX — remove border/background after alignment confirmed.
+       *  This is a transparent overlay for pointer interaction only.
+       *  The actual visual is the WICG texture on the mesh (Layer 1).
+       *  🔴 RED DEBUG BOX — remove after alignment confirmed.
        */}
       {monitorHTMLRef.current && (
         <mesh
@@ -157,7 +159,7 @@ export function OfficeScene({
           position={monitorHTMLRef.current.position}
           rotation={monitorHTMLRef.current.rotation}
           raycast={() => null}
-          visible={false} // Hidden — the primitive already renders this mesh
+          visible={false}
         >
           <Html
             transform
@@ -165,32 +167,15 @@ export function OfficeScene({
             scale={[SCREEN_SCALE, SCREEN_SCALE, SCREEN_SCALE]}
             zIndexRange={[100, 0]}
           >
-            <canvas
-              id="proxy-canvas"
-              width={1024}
-              height={768}
-              // @ts-ignore — layoutsubtree is a WICG experimental attribute
-              layoutsubtree=""
+            <div
               style={{
                 width: '1024px',
                 height: '768px',
                 border: '4px solid red',
                 pointerEvents: 'auto',
+                background: 'rgba(255, 0, 0, 0.15)',
               }}
-            >
-              <div
-                id="os-ui"
-                style={{
-                  width: '1024px',
-                  height: '768px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  backgroundColor: '#008080',
-                }}
-              >
-                <PortfolioApp />
-              </div>
-            </canvas>
+            />
           </Html>
         </mesh>
       )}

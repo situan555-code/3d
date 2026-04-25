@@ -8,6 +8,12 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- WICG HTML-in-Canvas: Proxy canvas for CRT screen texture -->
+    <canvas id="proxy-canvas" width="640" height="480" layoutsubtree="true">
+      <div id="os-ui"></div>
+    </canvas>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

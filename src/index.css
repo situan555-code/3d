@@ -17,6 +17,28 @@ canvas {
   touch-action: none;
 }
 
+/* WICG Proxy Canvas — holds PortfolioApp for texture capture.
+   CRITICAL: Do NOT use opacity:0 or visibility:hidden — the drawElement
+   API requires the element to be "visible" to the GPU rasterizer.
+   Instead, position off-screen so it's hidden from the user but the
+   browser still rasterizes it for texture capture. */
+#proxy-canvas {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  width: 640px;
+  height: 480px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Ensure os-ui fills the proxy canvas for proper layout */
+#os-ui {
+  width: 640px;
+  height: 480px;
+  overflow: hidden;
+}
+
 #overlay-ui {
   position: absolute;
   top: 0;

@@ -67,7 +67,15 @@ function useWICGTexture(): THREE.CanvasTexture | null {
     // Use CanvasTexture with the proxy-canvas itself as the initial source.
     // This guarantees three.js always has a valid ImageSource for texSubImage2D,
     // even before the first paint event fires.
-    const tex = new THREE.CanvasTexture(canvas)
+    // Bridge canvas: captureElementImage returns an ElementImage (not HTMLCanvasElement).
+    // WebGL's texSubImage2D doesn't accept ElementImage — we must draw it
+    // onto a standard canvas first, then use that as the texture source.
+    const bridgeCanvas = document.createElement('canvas')
+    bridgeCanvas.width = canvas.width
+    bridgeCanvas.height = canvas.height
+    const bridgeCtx = bridgeCanvas.getContext('2d')!
+
+    const tex = new THREE.CanvasTexture(bridgeCanvas)
     tex.generateMipmaps = false
     tex.flipY = false
     tex.colorSpace = THREE.SRGBColorSpace
@@ -79,14 +87,14 @@ function useWICGTexture(): THREE.CanvasTexture | null {
 
     const handlePaint = () => {
       try {
-        // PRIMARY: three-html-render's captureElementImage pattern.
-        // captureElementImage returns a <canvas> snapshot — valid for texSubImage2D.
         if (canvas.captureElementImage) {
-          const snapshot = canvas.captureElementImage(element)
-          tex.image = snapshot
+          // captureElementImage → ElementImage → draw onto bridge canvas → texture
+          const elementImage = canvas.captureElementImage(element)
+          bridgeCtx.clearRect(0, 0, bridgeCanvas.width, bridgeCanvas.height)
+          bridgeCtx.drawImage(elementImage as any, 0, 0)
           tex.needsUpdate = true
         } else {
-          // FALLBACK: draw directly to the proxy canvas's 2d context.
+          // FALLBACK: draw directly via drawElementImage onto proxy canvas
           const ctx = canvas.getContext('2d')
           if (ctx) {
             ;(ctx as any).reset?.()
@@ -95,14 +103,19 @@ function useWICGTexture(): THREE.CanvasTexture | null {
             } else if (typeof (ctx as any).drawElement === 'function') {
               ;(ctx as any).drawElement(element, 0, 0)
             }
-            // tex.image is already the canvas — just flag for re-upload
+            // Copy proxy canvas → bridge canvas for texture upload
+            bridgeCtx.clearRect(0, 0, bridgeCanvas.width, bridgeCanvas.height)
+            bridgeCtx.drawImage(canvas, 0, 0)
             tex.needsUpdate = true
           }
         }
 
         if (paintCount === 0) {
           console.log(`[WICG] ✅ First paint! Source: <${element.tagName}> id="${element.id}" ${element.offsetWidth}x${element.offsetHeight}`)
-          console.log(`[WICG] captureElementImage: ${!!canvas.captureElementImage}, tex.image:`, tex.image?.constructor?.name)
+          // Sample center pixel from bridge canvas to verify actual content
+          const d = bridgeCtx.getImageData(Math.floor(bridgeCanvas.width / 2), Math.floor(bridgeCanvas.height / 2), 1, 1).data
+          console.log(`[WICG] Center pixel: rgba(${d[0]},${d[1]},${d[2]},${d[3]})`)
+          console.log(`[WICG] tex.image: ${tex.image?.constructor?.name}, bridge: ${bridgeCanvas.width}x${bridgeCanvas.height}`)
         }
         paintCount++
       } catch (error: any) {

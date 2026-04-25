@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { useEffect, useRef } from 'react'
-import { useGLTF, Html } from '@react-three/drei'
+import { useGLTF } from '@react-three/drei'
+import { useThree } from '@react-three/fiber'
 import type CameraControls from 'camera-controls'
 
 type OfficeSceneProps = {
@@ -11,18 +12,17 @@ type OfficeSceneProps = {
 }
 
 /**
- * OfficeScene — WICG HTML-in-Canvas Dual-Layer Architecture
+ * OfficeScene — WICG HTML-in-Canvas with RaycastInteractionManager pattern.
  *
- * Layer 1 (Visual):  WICG captureElementImage → Texture → Monitor_HTML mesh material
- * Layer 2 (Hitbox):  Drei <Html transform> nested inside Monitor_HTML mesh
- *                    auto-inherits position/rotation — no useFrame math.
+ * Interaction model from repalash/three-html-render RaycastInteractionManager:
+ *   1. Listen for pointer events on the WebGL canvas
+ *   2. Raycast into scene → hit Monitor_HTML mesh → get UV
+ *   3. Convert UV to pixel coordinates in #os-ui DOM element
+ *   4. CSS-translate #os-ui so the correct pixel sits under the cursor
+ *   5. Browser native hit-testing handles click/hover/focus/selection
  *
- * Ref: repalash/three-html-render — HTMLTextureFallback pattern.
- * The proxy canvas lives in index.html (main DOM), not inside R3F.
+ * No <Html> component. No red debug box. Just math + CSS.
  */
-
-// 1 WebGL Unit mapped to CSS pixels. Tweak this to fit the red debug box to screen.
-const SCREEN_SCALE = 0.00022
 
 export function OfficeScene({
   isZoomed,
@@ -32,11 +32,15 @@ export function OfficeScene({
   ...props
 }: OfficeSceneProps) {
   const { scene } = useGLTF('/office_desk.glb') as any
+  const { gl, camera } = useThree()
 
   const monitorHTMLRef = useRef<THREE.Mesh>(null)
   const materialApplied = useRef(false)
+  const raycaster = useRef(new THREE.Raycaster())
+  const pointer = useRef(new THREE.Vector2())
+  const interactionActive = useRef(false)
 
-  // ─── Scene traversal: capture refs + shadows + raycast bypass ───
+  // ─── Scene traversal: capture refs + shadows ───
   useEffect(() => {
     scene.traverse((child: any) => {
       if (child.isMesh) {
@@ -46,9 +50,7 @@ export function OfficeScene({
       if (child.name === 'Monitor_HTML') {
         monitorHTMLRef.current = child
         child.visible = true
-        // Disable raycasting on the screen glass so pointer events
-        // pass through to the DOM hitbox layer underneath
-        child.raycast = () => null
+        // IMPORTANT: Do NOT disable raycasting — we need UV hits for interaction!
       }
     })
   }, [scene])
@@ -58,8 +60,6 @@ export function OfficeScene({
     if (!monitorHTMLRef.current || !screenTexture || materialApplied.current) return
 
     const mesh = monitorHTMLRef.current
-
-    // CanvasTexture defaults flipY=true but we need false for WICG captures
     screenTexture.flipY = false
 
     const mat = new THREE.MeshStandardMaterial({
@@ -73,7 +73,6 @@ export function OfficeScene({
 
     mesh.material = mat
     materialApplied.current = true
-
     console.log('[OfficeScene] WICG texture applied to Monitor_HTML')
 
     return () => {
@@ -82,10 +81,83 @@ export function OfficeScene({
     }
   }, [screenTexture])
 
+  // ─── RaycastInteractionManager (from three-html-render) ───
+  // Positions #os-ui under the cursor using UV-based CSS translation
+  useEffect(() => {
+    const canvas = gl.domElement
+    const osUi = document.getElementById('os-ui')
+    if (!canvas || !osUi) return
+
+    // Make os-ui interactive and absolutely positioned over the WebGL canvas
+    osUi.style.position = 'absolute'
+    osUi.style.left = '0'
+    osUi.style.top = '0'
+    osUi.style.transformOrigin = '0 0'
+    osUi.style.pointerEvents = 'auto'
+    osUi.style.zIndex = '10'
+
+    // Park the element off-screen initially
+    osUi.style.transform = 'translate(-99999px, 0)'
+
+    const handlePointer = (e: PointerEvent) => {
+      const mesh = monitorHTMLRef.current
+      if (!mesh || !osUi) return
+
+      const rect = canvas.getBoundingClientRect()
+      pointer.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1
+      pointer.current.y = -((e.clientY - rect.top) / rect.height) * 2 + 1
+
+      raycaster.current.setFromCamera(pointer.current, camera)
+
+      // Only raycast against the monitor screen mesh
+      const hits = raycaster.current.intersectObject(mesh, false)
+      const hit = hits.find(h => !!h.uv)
+
+      if (!hit || !hit.uv) {
+        // Pointer is not over the monitor — park the DOM element off-screen
+        osUi.style.transform = 'translate(-99999px, 0)'
+        interactionActive.current = false
+        return
+      }
+
+      interactionActive.current = true
+
+      // UV → pixel coordinates in the DOM element
+      const elemW = osUi.offsetWidth
+      const elemH = osUi.offsetHeight
+      if (elemW === 0 || elemH === 0) return
+
+      const texX = hit.uv.x * elemW
+      const texY = (1 - hit.uv.y) * elemH
+
+      // Mouse position relative to the WebGL canvas
+      const mouseX = e.clientX - rect.left
+      const mouseY = e.clientY - rect.top
+
+      // Translate so the correct DOM pixel sits under the cursor
+      osUi.style.transform = `translate(${mouseX - texX}px, ${mouseY - texY}px)`
+    }
+
+    canvas.addEventListener('pointermove', handlePointer)
+    canvas.addEventListener('pointerdown', handlePointer)
+    canvas.addEventListener('pointerup', handlePointer)
+
+    console.log('[OfficeScene] RaycastInteractionManager connected')
+
+    return () => {
+      canvas.removeEventListener('pointermove', handlePointer)
+      canvas.removeEventListener('pointerdown', handlePointer)
+      canvas.removeEventListener('pointerup', handlePointer)
+    }
+  }, [gl, camera])
+
   // ─── Camera focus via CameraControls ───
   const handleFocus = (e: any) => {
     e.stopPropagation()
     if (!controlsRef.current || !monitorHTMLRef.current) return
+
+    // Don't zoom if we're clicking on the interactive screen
+    if (interactionActive.current) return
 
     const screenNode = monitorHTMLRef.current
     const targetPos = new THREE.Vector3()
@@ -122,7 +194,7 @@ export function OfficeScene({
         onPointerOver={(e: any) => {
           let current = e.object;
           while (current) {
-            if (current.name === 'Monitor_Chassis') {
+            if (current.name === 'Monitor_Chassis' || current.name === 'Monitor_HTML') {
               e.stopPropagation()
               document.body.style.cursor = 'pointer'
               return;
@@ -133,7 +205,7 @@ export function OfficeScene({
         onPointerOut={(e: any) => {
           let current = e.object;
           while (current) {
-            if (current.name === 'Monitor_Chassis') {
+            if (current.name === 'Monitor_Chassis' || current.name === 'Monitor_HTML') {
               e.stopPropagation()
               document.body.style.cursor = 'auto'
               return;
@@ -142,39 +214,6 @@ export function OfficeScene({
           }
         }}
       />
-
-      {/* ─── Layer 2: Interactive DOM Hitbox ─────────────────────────
-       *  Nested inside Monitor_HTML mesh → auto-inherits transform.
-       *  This is a transparent overlay for pointer interaction only.
-       *  The actual visual is the WICG texture on the mesh (Layer 1).
-       *  🔴 RED DEBUG BOX — remove after alignment confirmed.
-       */}
-      {monitorHTMLRef.current && (
-        <mesh
-          geometry={monitorHTMLRef.current.geometry}
-          position={monitorHTMLRef.current.position}
-          rotation={monitorHTMLRef.current.rotation}
-          raycast={() => null}
-          visible={false}
-        >
-          <Html
-            transform
-            position={[0, 0, 0.015]}
-            scale={[SCREEN_SCALE, SCREEN_SCALE, SCREEN_SCALE]}
-            zIndexRange={[100, 0]}
-          >
-            <div
-              style={{
-                width: '1024px',
-                height: '768px',
-                border: '4px solid red',
-                pointerEvents: 'auto',
-                background: 'rgba(255, 0, 0, 0.15)',
-              }}
-            />
-          </Html>
-        </mesh>
-      )}
     </group>
   )
 }

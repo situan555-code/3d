@@ -32,10 +32,11 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
  *   4. Store snapshot as texture.image, set needsUpdate = true
  *   5. canvas.requestPaint() to kickstart the loop
  *
- * Falls back to ctx.drawElementImage() if captureElementImage isn't available.
+ * IMPORTANT: Uses CanvasTexture(canvas) so three.js has a valid GPU source
+ * from the very first frame — prevents texSubImage2D overload failures.
  */
-function useWICGTexture(): THREE.Texture | null {
-  const [texture, setTexture] = useState<THREE.Texture | null>(null)
+function useWICGTexture(): THREE.CanvasTexture | null {
+  const [texture, setTexture] = useState<THREE.CanvasTexture | null>(null)
 
   useEffect(() => {
     const canvas = document.getElementById('proxy-canvas') as HTMLCanvasElement & {
@@ -63,24 +64,29 @@ function useWICGTexture(): THREE.Texture | null {
       return
     }
 
-    // Create texture — three-html-render uses plain Texture, not CanvasTexture
-    const tex = new THREE.Texture()
+    // Use CanvasTexture with the proxy-canvas itself as the initial source.
+    // This guarantees three.js always has a valid ImageSource for texSubImage2D,
+    // even before the first paint event fires.
+    const tex = new THREE.CanvasTexture(canvas)
     tex.generateMipmaps = false
+    tex.flipY = false
     tex.colorSpace = THREE.SRGBColorSpace
     tex.minFilter = THREE.LinearFilter
     tex.magFilter = THREE.LinearFilter
-    tex.needsUpdate = true
+    // Do NOT set needsUpdate here — let the paint handler trigger it.
 
     let paintCount = 0
 
     const handlePaint = () => {
       try {
-        // PRIMARY: three-html-render's captureElementImage pattern
+        // PRIMARY: three-html-render's captureElementImage pattern.
+        // captureElementImage returns a <canvas> snapshot — valid for texSubImage2D.
         if (canvas.captureElementImage) {
-          tex.image = canvas.captureElementImage(element)
+          const snapshot = canvas.captureElementImage(element)
+          tex.image = snapshot
           tex.needsUpdate = true
         } else {
-          // FALLBACK: direct draw to 2d context
+          // FALLBACK: draw directly to the proxy canvas's 2d context.
           const ctx = canvas.getContext('2d')
           if (ctx) {
             ;(ctx as any).reset?.()
@@ -89,15 +95,14 @@ function useWICGTexture(): THREE.Texture | null {
             } else if (typeof (ctx as any).drawElement === 'function') {
               ;(ctx as any).drawElement(element, 0, 0)
             }
-            // For fallback: use canvas itself as texture source
-            tex.image = canvas
+            // tex.image is already the canvas — just flag for re-upload
             tex.needsUpdate = true
           }
         }
 
         if (paintCount === 0) {
           console.log(`[WICG] ✅ First paint! Source: <${element.tagName}> id="${element.id}" ${element.offsetWidth}x${element.offsetHeight}`)
-          console.log(`[WICG] captureElementImage: ${!!canvas.captureElementImage}, requestPaint: ${!!canvas.requestPaint}`)
+          console.log(`[WICG] captureElementImage: ${!!canvas.captureElementImage}, tex.image:`, tex.image?.constructor?.name)
         }
         paintCount++
       } catch (error: any) {
@@ -109,7 +114,8 @@ function useWICGTexture(): THREE.Texture | null {
     canvas.addEventListener('paint', handlePaint)
     console.log('[WICG] Paint event listener attached')
 
-    // Kickstart — requestPaint fires the first 'paint' event
+    // Kickstart — requestPaint fires the first 'paint' event.
+    // Delay 300ms to let React Root 2 mount PortfolioApp into #os-ui.
     const timer = setTimeout(() => {
       if (canvas.requestPaint) {
         canvas.requestPaint()

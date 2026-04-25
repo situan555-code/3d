@@ -6,7 +6,7 @@ import type CameraControls from 'camera-controls'
 type OfficeSceneProps = {
   isZoomed: boolean
   setIsZoomed: (v: boolean) => void
-  screenTexture: THREE.Texture | null
+  screenTexture: THREE.CanvasTexture | null
   controlsRef: React.RefObject<CameraControls | null>
 }
 
@@ -59,12 +59,8 @@ export function OfficeScene({
 
     const mesh = monitorHTMLRef.current
 
-    // three-html-render sets flipY=false on the Texture class,
-    // but for CanvasTexture/fallback canvas the default is usually true.
-    // Match whatever produces correct orientation.
-    if (screenTexture instanceof THREE.CanvasTexture) {
-      screenTexture.flipY = false
-    }
+    // CanvasTexture defaults flipY=true but we need false for WICG captures
+    screenTexture.flipY = false
 
     const mat = new THREE.MeshStandardMaterial({
       map: screenTexture,

@@ -1,6 +1,6 @@
 import { useRef, useState, useLayoutEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { useFrame, useThree } from '@react-three/fiber';
+import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Helper: Microscopic floating-point errors (e.g., 1.2e-15) break CSS matrix string parsers. 
@@ -83,19 +83,22 @@ export function WicgHitbox({ meshRef, meshWidth = 1, cssWidth = 1024, children }
     objectRef.current.style.transform = `${objMatrixCSS} scale(${scaleFactor})`;
   });
 
-  return createPortal(
-    <div ref={fovContainerRef} style={{ width: '100%', height: '100%' }}>
-      <div ref={cameraRef} style={{ width: '100%', height: '100%', transformStyle: 'preserve-3d' }}>
-        <div ref={objectRef} style={{ position: 'absolute', top: 0, left: 0, transformStyle: 'preserve-3d' }}>
-          
-          {/* Centers the UI on the mesh origin and re-enables pointer events */}
-          <div style={{ position: 'absolute', transform: 'translate(-50%, -50%)', pointerEvents: 'auto' }}>
-            {children}
-          </div>
+  // We use <Html> to bridge the R3F reconciler to the standard React DOM reconciler.
+  // Passing our custom portalNode ensures it is injected natively into the WICG canvas fallback tree.
+  return (
+    <Html portal={{ current: portalNode }}>
+      <div ref={fovContainerRef} style={{ width: '100%', height: '100%' }}>
+        <div ref={cameraRef} style={{ width: '100%', height: '100%', transformStyle: 'preserve-3d' }}>
+          <div ref={objectRef} style={{ position: 'absolute', top: 0, left: 0, transformStyle: 'preserve-3d' }}>
+            
+            {/* Centers the UI on the mesh origin and re-enables pointer events */}
+            <div style={{ position: 'absolute', transform: 'translate(-50%, -50%)', pointerEvents: 'auto' }}>
+              {children}
+            </div>
 
+          </div>
         </div>
       </div>
-    </div>,
-    portalNode 
+    </Html>
   );
 }

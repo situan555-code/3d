@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { Environment, Loader, CameraControls } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import { OfficeScene } from './components/OfficeScene'
-import { Component, type ReactNode } from 'react'
+import { Component } from 'react'
 
 class ErrorBoundary extends Component<any, { hasError: boolean; error: any }> {
   constructor(props: any) {

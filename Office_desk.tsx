@@ -10,16 +10,62 @@ import { GLTF } from 'three-stdlib'
 
 type GLTFResult = GLTF & {
   nodes: {
+    Object_26_Restored_Part_6: THREE.Mesh
+    Object_26_Restored_Part_7: THREE.Mesh
+    Object_26_Restored_Part_8: THREE.Mesh
+    Object_26_Restored_Part_9: THREE.Mesh
+    Object_26_Restored_Part_10: THREE.Mesh
+    Object_26_Restored_Part_11: THREE.Mesh
+    Object_26_Restored_Part_12: THREE.Mesh
+    Object_26_Restored_Part_13: THREE.Mesh
+    Object_26_Restored_Part_14: THREE.Mesh
+    Object_26_Restored_Part_16: THREE.Mesh
+    Object_26_Restored_Part_20: THREE.Mesh
+    Object_26_Restored_Part_21: THREE.Mesh
+    Object_26_Restored_Part_22: THREE.Mesh
+    Object_26_Restored_Part_23: THREE.Mesh
+    Object_26_Restored_Part_24: THREE.Mesh
+    Object_26_Restored_Part_25: THREE.Mesh
+    Object_26_Restored_Part_26: THREE.Mesh
+    Object_26_Restored_Part_27: THREE.Mesh
+    Object_26_Restored_Part_28: THREE.Mesh
+    Object_26_Restored_Part_30: THREE.Mesh
+    Object_26_Restored_Part_31: THREE.Mesh
+    Object_26_Restored_Part_32: THREE.Mesh
+    Object_26_Restored_Part_33: THREE.Mesh
+    Object_26_Restored_Part_34: THREE.Mesh
+    Object_26_Restored_Part_35: THREE.Mesh
+    Object_26_Restored_Part_38: THREE.Mesh
+    Object_26_Restored_Part_39: THREE.Mesh
+    Object_26_Restored_Part_40: THREE.Mesh
+    Object_26_Restored_Part_41: THREE.Mesh
+    Object_26_Restored_Part_42: THREE.Mesh
+    Object_26_Restored_Part_43: THREE.Mesh
+    Object_26_Restored_Part_44: THREE.Mesh
+    Object_26_Restored_Part_45: THREE.Mesh
+    Object_26_Restored_Part_46: THREE.Mesh
+    Object_26_Restored_Part_47: THREE.Mesh
+    Object_26_Restored_Part_48: THREE.Mesh
+    Object_26_Restored_Part_49: THREE.Mesh
+    Object_26_Restored_Part_50: THREE.Mesh
+    Object_26_Restored_Part_51: THREE.Mesh
+    Object_26_Restored_Part_52: THREE.Mesh
+    Object_26_Restored_Part_53: THREE.Mesh
+    Object_26_Restored_Part_54: THREE.Mesh
+    Object_26_Restored_Part_55: THREE.Mesh
+    Object_26_Restored_Part_56: THREE.Mesh
+    Object_26_Restored_Part_57: THREE.Mesh
+    Object_26_Restored_Part_58: THREE.Mesh
+    Object_26_Restored_Part_59: THREE.Mesh
+    Object_26_Restored_Part_60: THREE.Mesh
+    Object_26_Restored_Part_61: THREE.Mesh
+    Object_26_Restored_Part_62: THREE.Mesh
     Object_4: THREE.Mesh
-    Monitor_ScreenGlass: THREE.Mesh
     Object_18: THREE.Mesh
-    Object_26: THREE.Mesh
     Object_68: THREE.Mesh
     Object_70: THREE.Mesh
     Object_71: THREE.Mesh
-    Object_75: THREE.Mesh
     Object_95: THREE.Mesh
-    Object_97: THREE.Mesh
     Object_101: THREE.Mesh
     Object_107: THREE.Mesh
     Object_109: THREE.Mesh
@@ -28,19 +74,39 @@ type GLTFResult = GLTF & {
     Baseboard_Back: THREE.Mesh
     Cube013: THREE.Mesh
     Cube013_1: THREE.Mesh
-    Monitor_Chassis: THREE.Mesh
+    Object_10: THREE.Mesh
+    Monitor_HTML: THREE.Mesh
+    PC_CASE: THREE.Mesh
+    Pinboard_Photo_3: THREE.Mesh
+    Pinboard_Photo_4: THREE.Mesh
+    Pinboard_Envelope: THREE.Mesh
+    Pinboard_Photo_1: THREE.Mesh
+    Pinboard_Photo_2: THREE.Mesh
+    Pinboard_Frame_Left: THREE.Mesh
+    Pinboard_Frame_Top: THREE.Mesh
+    Pinboard_Frame_Right: THREE.Mesh
+    Pinboard_Frame_Bottom: THREE.Mesh
+    Pinboard_Cork: THREE.Mesh
+    Desk_Photo_1: THREE.Mesh
+    Desk_Photo_2: THREE.Mesh
+    Desk_Photo_5: THREE.Mesh
+    Desk_Photo_3: THREE.Mesh
+    Desk_Photo_6: THREE.Mesh
+    Desk_Photo_4: THREE.Mesh
+    Thumbtack_Pinboard_Photo_1: THREE.Mesh
+    Thumbtack_Pinboard_Photo_2: THREE.Mesh
+    Thumbtack_Pinboard_Photo_3: THREE.Mesh
+    Thumbtack_Pinboard_Photo_4: THREE.Mesh
+    Thumbtack_Pinboard_Envelope: THREE.Mesh
   }
   materials: {
+    ['M_Office_PinBoard_Photo_Notepad_1024.008']: THREE.MeshStandardMaterial
     M_Cactus_1024: THREE.MeshStandardMaterial
-    M_ScreenGlass: THREE.MeshStandardMaterial
     M_Filebox_1024: THREE.MeshStandardMaterial
-    M_Office_PinBoard_Photo_Notepad_1024: THREE.MeshStandardMaterial
     M_Table_2048: THREE.MeshStandardMaterial
     M_TapeRecorder_1024: THREE.MeshStandardMaterial
     M_TapeRecorder_Tape_Rotors_Glass_1024: THREE.MeshStandardMaterial
-    M_Vent_1024: THREE.MeshStandardMaterial
     Poster_1024: THREE.MeshStandardMaterial
-    PhotoFrame_20x30_likeA4_512: THREE.MeshStandardMaterial
     M_Clipboard_Notepad_1024: THREE.MeshStandardMaterial
     M_OfficeStool_Bin_2048: THREE.MeshStandardMaterial
     ['M_Lamps_CCTV_2048.001']: THREE.MeshStandardMaterial
@@ -50,6 +116,24 @@ type GLTFResult = GLTF & {
     ['hanging_picture_frame_01_artwork.005']: THREE.MeshStandardMaterial
     ['hanging_picture_frame_01.005']: THREE.MeshStandardMaterial
     M_Computer_2048: THREE.MeshStandardMaterial
+    Mat_Screen: THREE.MeshStandardMaterial
+    M_ScreenGlass: THREE.MeshStandardMaterial
+    Mat_Pinboard_Photo_3: THREE.MeshStandardMaterial
+    Mat_Pinboard_Photo_4: THREE.MeshStandardMaterial
+    Mat_Pinboard_Envelope: THREE.MeshStandardMaterial
+    Mat_Pinboard_Photo_1: THREE.MeshStandardMaterial
+    Mat_Pinboard_Photo_2: THREE.MeshStandardMaterial
+    M_Office_PinBoard_Photo_Notepad_1024: THREE.MeshStandardMaterial
+    Mat_Desk_Photo_1: THREE.MeshStandardMaterial
+    Mat_Desk_Photo_2: THREE.MeshPhysicalMaterial
+    Mat_Desk_Photo_5: THREE.MeshStandardMaterial
+    Mat_Desk_Photo_3: THREE.MeshStandardMaterial
+    Mat_Desk_Photo_6: THREE.MeshStandardMaterial
+    Mat_Desk_Photo_4: THREE.MeshStandardMaterial
+    Pin_Red: THREE.MeshStandardMaterial
+    Pin_Blue: THREE.MeshStandardMaterial
+    Pin_Green: THREE.MeshStandardMaterial
+    Pin_Yellow: THREE.MeshStandardMaterial
   }
   animations: GLTFAction[]
 }
@@ -58,27 +142,97 @@ export function Model(props: JSX.IntrinsicElements['group']) {
   const { nodes, materials } = useGLTF('/office_desk.glb') as GLTFResult
   return (
     <group {...props} dispose={null}>
+      <mesh geometry={nodes.Object_26_Restored_Part_6.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_7.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_8.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_9.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_10.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_11.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_12.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_13.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_14.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_16.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_20.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_21.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_22.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_23.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_24.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_25.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_26.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_27.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_28.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_30.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_31.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_32.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_33.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_34.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_35.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_38.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_39.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_40.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_41.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_42.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_43.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_44.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_45.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_46.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_47.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_48.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_49.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_50.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_51.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_52.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_53.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_54.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_55.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_56.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_57.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_58.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_59.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_60.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_61.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Object_26_Restored_Part_62.geometry} material={materials['M_Office_PinBoard_Photo_Notepad_1024.008']} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
       <mesh geometry={nodes.Object_4.geometry} material={materials.M_Cactus_1024} position={[0.278, 1.169, 1.092]} rotation={[0, -0.736, 0]} scale={0.578} />
-      <mesh geometry={nodes.Monitor_ScreenGlass.geometry} material={materials.M_ScreenGlass} position={[0.589, 1.169, 1.121]} rotation={[0, 0.168, 0]} scale={0.578} />
       <mesh geometry={nodes.Object_18.geometry} material={materials.M_Filebox_1024} position={[0.259, 1.169, 1.328]} rotation={[0, 1.531, 0]} scale={[0.634, 0.578, 0.578]} />
-      <mesh geometry={nodes.Object_26.geometry} material={materials.M_Office_PinBoard_Photo_Notepad_1024} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
       <mesh geometry={nodes.Object_68.geometry} material={materials.M_Table_2048} position={[0.431, 0.742, 1.263]} scale={0.578} />
       <mesh geometry={nodes.Object_70.geometry} material={materials.M_TapeRecorder_1024} position={[0.327, 1.169, 1.686]} rotation={[-Math.PI, 1.358, -Math.PI]} scale={0.578} />
       <mesh geometry={nodes.Object_71.geometry} material={materials.M_TapeRecorder_Tape_Rotors_Glass_1024} position={[0.327, 1.169, 1.686]} rotation={[-Math.PI, 1.358, -Math.PI]} scale={0.578} />
-      <mesh geometry={nodes.Object_75.geometry} material={materials.M_Vent_1024} position={[0.18, 1.9, 1.8]} scale={0.578} />
       <mesh geometry={nodes.Object_95.geometry} material={materials.Poster_1024} position={[0.165, 1.645, 1.347]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[0.358, 0.179, 0.358]} />
-      <mesh geometry={nodes.Object_97.geometry} material={materials.PhotoFrame_20x30_likeA4_512} position={[0.168, 1.473, 0.53]} rotation={[0, -1.571, 0]} scale={[0.574, 0.574, 0.646]} />
       <mesh geometry={nodes.Object_101.geometry} material={materials.M_Clipboard_Notepad_1024} position={[0.883, 1.066, 0.944]} rotation={[-3.126, -1.002, -1.576]} scale={0.578} />
       <mesh geometry={nodes.Object_107.geometry} material={materials.M_OfficeStool_Bin_2048} position={[0.841, 0.744, 1.031]} rotation={[Math.PI, -0.416, Math.PI]} scale={[0.714, 0.578, 0.714]} />
       <mesh geometry={nodes.Object_109.geometry} material={materials['M_Lamps_CCTV_2048.001']} position={[0.285, 1.169, 1.49]} rotation={[0, 0.454, 0]} scale={0.578} />
-      <mesh geometry={nodes.HouseFloor.geometry} material={materials.M_HouseFloor} position={[0.308, 0.739, 1.164]} scale={0.578} />
-      <mesh geometry={nodes.HouseWall_Back.geometry} material={materials.M_HouseWall} position={[0.163, 6.521, 1.164]} rotation={[0, 0, -Math.PI / 2]} scale={0.578} />
+      <mesh geometry={nodes.HouseFloor.geometry} material={materials.M_HouseFloor} position={[0.316, 0.559, 0.999]} scale={0.578} />
+      <mesh geometry={nodes.HouseWall_Back.geometry} material={materials.M_HouseWall} position={[0.163, 6.521, 1.247]} rotation={[0, 0, -Math.PI / 2]} scale={0.578} />
       <mesh geometry={nodes.Baseboard_Back.geometry} material={materials.M_Baseboard} position={[0.175, 0.768, 1.164]} scale={[0.012, 0.058, 11.564]} />
       <group position={[0.175, 1.5, 0.276]} rotation={[0, Math.PI / 2, 0]} scale={0.3}>
         <mesh geometry={nodes.Cube013.geometry} material={materials['hanging_picture_frame_01_artwork.005']} />
         <mesh geometry={nodes.Cube013_1.geometry} material={materials['hanging_picture_frame_01.005']} />
       </group>
-      <mesh geometry={nodes.Monitor_Chassis.geometry} material={materials.M_Computer_2048} position={[0.589, 1.169, 1.121]} rotation={[0, 0.168, 0]} scale={0.578} />
+      <mesh geometry={nodes.Object_10.geometry} material={materials.M_Computer_2048} position={[0.589, 1.169, 1.121]} rotation={[0, 0.168, 0]} scale={0.578}>
+        <mesh geometry={nodes.Monitor_HTML.geometry} material={materials.Mat_Screen} />
+        <mesh geometry={nodes.PC_CASE.geometry} material={materials.M_ScreenGlass} />
+      </mesh>
+      <mesh geometry={nodes.Pinboard_Photo_3.geometry} material={materials.Mat_Pinboard_Photo_3} />
+      <mesh geometry={nodes.Pinboard_Photo_4.geometry} material={materials.Mat_Pinboard_Photo_4} />
+      <mesh geometry={nodes.Pinboard_Envelope.geometry} material={materials.Mat_Pinboard_Envelope} />
+      <mesh geometry={nodes.Pinboard_Photo_1.geometry} material={materials.Mat_Pinboard_Photo_1} />
+      <mesh geometry={nodes.Pinboard_Photo_2.geometry} material={materials.Mat_Pinboard_Photo_2} />
+      <mesh geometry={nodes.Pinboard_Frame_Left.geometry} material={materials.M_Office_PinBoard_Photo_Notepad_1024} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Pinboard_Frame_Top.geometry} material={materials.M_Office_PinBoard_Photo_Notepad_1024} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Pinboard_Frame_Right.geometry} material={materials.M_Office_PinBoard_Photo_Notepad_1024} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Pinboard_Frame_Bottom.geometry} material={materials.M_Office_PinBoard_Photo_Notepad_1024} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Pinboard_Cork.geometry} material={materials.M_Office_PinBoard_Photo_Notepad_1024} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Desk_Photo_1.geometry} material={materials.Mat_Desk_Photo_1} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Desk_Photo_2.geometry} material={materials.Mat_Desk_Photo_2} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Desk_Photo_5.geometry} material={materials.Mat_Desk_Photo_5} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Desk_Photo_3.geometry} material={materials.Mat_Desk_Photo_3} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Desk_Photo_6.geometry} material={materials.Mat_Desk_Photo_6} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Desk_Photo_4.geometry} material={materials.Mat_Desk_Photo_4} position={[0.517, 1.169, 1.593]} rotation={[-0.005, 1.388, 0.005]} scale={[0.22, 0.079, 0.22]} />
+      <mesh geometry={nodes.Thumbtack_Pinboard_Photo_1.geometry} material={materials.Pin_Red} position={[0.181, 1.513, 1.978]} />
+      <mesh geometry={nodes.Thumbtack_Pinboard_Photo_2.geometry} material={materials.Pin_Blue} position={[0.181, 1.583, 1.765]} />
+      <mesh geometry={nodes.Thumbtack_Pinboard_Photo_3.geometry} material={materials.Pin_Green} position={[0.181, 1.605, 2.035]} />
+      <mesh geometry={nodes.Thumbtack_Pinboard_Photo_4.geometry} material={materials.Pin_Yellow} position={[0.181, 1.463, 1.79]} />
+      <mesh geometry={nodes.Thumbtack_Pinboard_Envelope.geometry} material={materials.Pin_Red} position={[0.181, 1.602, 1.918]} />
     </group>
   )
 }

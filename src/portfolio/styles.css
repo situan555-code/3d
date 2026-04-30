@@ -80,11 +80,11 @@
   display: flex;
   flex-direction: column;
   width: 600px; /* Default spawn size */
+  height: 450px; /* Default spawn height */
   min-width: 300px;
+  min-height: 200px;
   max-width: 90%;
   max-height: 80%;
-  resize: both;
-  overflow: hidden;
 }
 
 .win-titlebar {
@@ -135,9 +135,14 @@
   background-color: var(--os-white);
   border: 2px inset var(--os-gray);
   margin: 4px;
-  overflow-y: auto;
   color: var(--os-black);
   font-size: 18px;
+  overflow: hidden; /* Hide overflow to allow JS translateY scrolling without GPU layers */
+  position: relative;
+}
+
+.win-inner-content {
+  position: relative;
 }
 
 /* Taskbar */
@@ -753,7 +758,6 @@
 .clippy-img {
   width: 220px;
   height: auto;
-  filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
   transform-origin: bottom right;
 }
 
@@ -832,7 +836,6 @@
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
   border-top: 12px solid #ffffcc;
-  filter: drop-shadow(1px 1px 0px #000);
 }
 
 @keyframes speechPop {

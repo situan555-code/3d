@@ -261,16 +261,18 @@ const Paint = () => {
           {/* Ghost Stamp Overlay */}
           {activeTool === 'stamp' && isHovering && STAMPS[activeStamp] && (
             STAMPS[activeStamp].type === 'image' ? (
-              <img
-                src={STAMPS[activeStamp].src}
-                alt="ghost"
+              <div
                 style={{
+                  backgroundImage: `url(${STAMPS[activeStamp].src})`,
+                  backgroundSize: 'contain',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
                   position: 'absolute',
                   top: cursorPos.y,
                   left: cursorPos.x,
                   transform: 'translate(-50%, -50%)',
-                  maxWidth: '120px',
-                  maxHeight: '120px',
+                  width: '120px',
+                  height: '120px',
                   opacity: 0.4,
                   pointerEvents: 'none',
                   zIndex: 20
@@ -306,7 +308,16 @@ const Paint = () => {
               title={stamp.label}
             >
               {stamp.type === 'image' ? (
-                <img src={stamp.src} alt={stamp.label} style={{ width: '22px', height: '22px', objectFit: 'contain' }} />
+                <div 
+                  style={{ 
+                    backgroundImage: `url(${stamp.src})`,
+                    backgroundSize: 'contain',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    width: '22px', 
+                    height: '22px' 
+                  }} 
+                />
               ) : (
                 stamp.emoji
               )}

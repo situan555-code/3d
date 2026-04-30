@@ -1,4 +1,4 @@
-import { Suspense, useState, useRef } from 'react'
+import { Suspense, useState, useRef, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Environment, Loader, CameraControls } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
@@ -31,6 +31,38 @@ function App() {
       setIsZoomed(false)
     }
   }
+
+  // Handle camera lock and Escape key exit
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isZoomed) {
+        handleBack()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+
+    if (cameraControlRef.current) {
+      if (isZoomed) {
+        cameraControlRef.current.mouseButtons.left = 0
+        cameraControlRef.current.mouseButtons.right = 0
+        cameraControlRef.current.mouseButtons.wheel = 0
+        cameraControlRef.current.mouseButtons.middle = 0
+        cameraControlRef.current.touches.one = 0
+        cameraControlRef.current.touches.two = 0
+        cameraControlRef.current.touches.three = 0
+      } else {
+        cameraControlRef.current.mouseButtons.left = 1
+        cameraControlRef.current.mouseButtons.right = 2
+        cameraControlRef.current.mouseButtons.wheel = 8
+        cameraControlRef.current.mouseButtons.middle = 8
+        cameraControlRef.current.touches.one = 32
+        cameraControlRef.current.touches.two = 64
+        cameraControlRef.current.touches.three = 64
+      }
+    }
+
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isZoomed])
 
   return (
     <>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const Taskbar = ({ windows, toggleMinimize, bringToFront, onStartClick, isStartMenuOpen }) => {
+const Taskbar = ({ windows, toggleMinimize, bringToFront, onStartClick }) => {
   const [time, setTime] = useState('');
 
   useEffect(() => {
@@ -16,14 +16,11 @@ const Taskbar = ({ windows, toggleMinimize, bringToFront, onStartClick, isStartM
   return (
     <div className="taskbar bevel-outset">
       <button 
-        className={`start-btn ${isStartMenuOpen ? 'bevel-inset' : 'bevel-outset'}`} 
+        className="start-btn bevel-outset" 
         style={{ marginRight: '16px' }}
         onClick={onStartClick}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span style={{ fontSize: '14px', filter: 'grayscale(100%)' }}>🏁</span>
-          <span style={{ fontWeight: 'bold', color: '#000' }}>Start</span>
-        </div>
+        <span style={{ marginRight: '6px', whiteSpace: 'nowrap', color: '#000' }}>Get to the point!</span>
       </button>
 
       <div style={{ display: 'flex', flexGrow: 1, gap: '4px' }}>

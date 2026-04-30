@@ -3,14 +3,12 @@ import Desktop from './components/Desktop';
 import Taskbar from './components/Taskbar';
 import FolderView from './components/FolderView';
 import CaseStudyViewer from './components/CaseStudyViewer';
-import StartMenu from './components/StartMenu';
 import BootScreen from './components/BootScreen';
 import { fileSystem } from './os/fileSystem';
 
 const App = () => {
   const [clippyVisible, setClippyVisible] = useState(false);
   const [clippyPhase, setClippyPhase] = useState(0); // 0=hidden, 1=speech bubble, 2=smack, 3=done
-  const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [isBooted, setIsBooted] = useState(false);
   
   // Define all windows in the OS recursively mapped from the OS file system registry.
@@ -147,21 +145,13 @@ const App = () => {
             bringToFront={bringToFront} 
             injectPropsToContent={injectPropsToContent}
           />
-          {startMenuOpen && (
-            <StartMenu 
-              openWindow={openWindow} 
-              closeMenu={() => setStartMenuOpen(false)} 
-              onEasterEggClick={handleStartClick} 
-            />
-          )}
           <Taskbar 
             windows={windows} 
             toggleMinimize={toggleMinimize} 
             bringToFront={bringToFront} 
-            onStartClick={() => setStartMenuOpen(!startMenuOpen)}
-            isStartMenuOpen={startMenuOpen}
+            onStartClick={handleStartClick}
           />
-
+        
           {/* Clippy Easter Egg Overlay */}
           {clippyVisible && (
             <div className="clippy-overlay">
@@ -174,14 +164,18 @@ const App = () => {
               )}
               
               {/* Clippy himself */}
-              <img 
-                src="/clippy_new.png" 
-                alt="Clippy"
+              <div 
                 className={`clippy-img ${
                   clippyPhase === 1 ? 'clippy-enter' : 
                   clippyPhase === 2 ? 'clippy-smack' : 
                   clippyPhase === 3 ? 'clippy-exit' : ''
                 }`}
+                style={{
+                  backgroundImage: `url(/clippy_new.png)`,
+                  backgroundSize: 'contain',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'bottom right'
+                }}
               />
             </div>
           )}

@@ -1,104 +1,161 @@
-import { useRef, useState, useLayoutEffect } from 'react';
+import { useState, useLayoutEffect, useEffect, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
+import { createRoot, Root } from 'react-dom/client';
 import * as THREE from 'three';
-
-// Helper: Microscopic floating-point errors (e.g., 1.2e-15) break CSS matrix string parsers. 
-const epsilon = (v: number) => (Math.abs(v) < 1e-10 ? 0 : v);
-
-// Replicates CSS3DRenderer's Camera View Matrix math (Inverting Y-axis for DOM space)
-function getCameraCSSMatrix(matrix: THREE.Matrix4) {
-  const e = matrix.elements;
-  return `matrix3d(
-    ${epsilon(e[0])}, ${epsilon(-e[1])}, ${epsilon(e[2])}, ${epsilon(e[3])},
-    ${epsilon(e[4])}, ${epsilon(-e[5])}, ${epsilon(e[6])}, ${epsilon(e[7])},
-    ${epsilon(e[8])}, ${epsilon(-e[9])}, ${epsilon(e[10])}, ${epsilon(e[11])},
-    ${epsilon(e[12])}, ${epsilon(-e[13])}, ${epsilon(e[14])}, ${epsilon(e[15])}
-  )`;
-}
-
-// Replicates CSS3DRenderer's Object Matrix math
-function getObjectCSSMatrix(matrix: THREE.Matrix4) {
-  const e = matrix.elements;
-  return `matrix3d(
-    ${epsilon(e[0])}, ${epsilon(e[1])}, ${epsilon(e[2])}, ${epsilon(e[3])},
-    ${epsilon(-e[4])}, ${epsilon(-e[5])}, ${epsilon(-e[6])}, ${epsilon(-e[7])},
-    ${epsilon(e[8])}, ${epsilon(e[9])}, ${epsilon(e[10])}, ${epsilon(e[11])},
-    ${epsilon(e[12])}, ${epsilon(e[13])}, ${epsilon(e[14])}, ${epsilon(e[15])}
-  )`;
-}
+import { GlobalOverlayContext } from '../portfolio/contexts/OverlayContexts';
 
 interface WicgHitboxProps {
   meshRef: import('react').RefObject<THREE.Mesh | null>;
   meshWidth: number; // The unscaled 3D physical width of your Monitor_ScreenGlass geometry
   cssWidth: number;  // The pixel width of your UI layout (e.g., 1024)
+  onProvidePortal?: (element: HTMLElement) => void;
   children: import('react').ReactNode;
 }
 
-export function WicgHitbox({ meshRef, meshWidth = 1, cssWidth = 1024, children }: WicgHitboxProps) {
+export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children }: WicgHitboxProps) {
   const { gl, camera, size } = useThree();
-  
-  const fovContainerRef = useRef<HTMLDivElement>(null);
-  const cameraRef = useRef<HTMLDivElement>(null);
-  const objectRef = useRef<HTMLDivElement>(null);
+
+  // Matrices for InteractionManager math
+  const _pixelToLocal = useMemo(() => new THREE.Matrix4(), []);
+  const _mvp = useMemo(() => new THREE.Matrix4(), []);
+  const _viewport = useMemo(() => new THREE.Matrix4(), []);
+  const _size = useMemo(() => new THREE.Vector3(), []);
 
   // Mount a container directly inside the WebGL <canvas> tag natively
   const [portalNode] = useState(() => {
     const div = document.createElement('div');
+    // It must be styled to match the UI resolution
     div.style.position = 'absolute';
     div.style.top = '0';
     div.style.left = '0';
-    div.style.width = '100%';
-    div.style.height = '100%';
+    div.style.width = `${cssWidth}px`;
+    div.style.height = `${cssWidth * (768/1024)}px`; // Adjust if ratio changes
     div.style.overflow = 'hidden';
-    div.style.pointerEvents = 'none'; // Pass unhandled clicks through to OrbitControls
+    div.style.pointerEvents = 'auto'; // Receive clicks!
+    div.style.transformOrigin = '0 0'; // Set origin to top-left for easier transform chaining
+    
+    // CRITICAL: WICG fallback DOM might be invisible by default,
+    // or if it overlays, we can hide it via opacity if it doesn't affect texElementImage2D.
+    // However, if texElementImage2D captures opacity, setting it to 0.0001 breaks the texture.
+    // Let's rely on standard rendering.
     return div;
   });
 
-  useLayoutEffect(() => {
-    // CRITICAL: The WICG API actively ignores the canvas fallback tree unless 
-    // it specifically has this layoutsubtree attribute.
-    gl.domElement.setAttribute('layoutsubtree', '');
-    gl.domElement.appendChild(portalNode);
-    return () => { 
-        if (portalNode.parentNode) portalNode.parentNode.removeChild(portalNode); 
-    };
-  }, [gl, portalNode]);
-
-  useFrame(() => {
-    if (!meshRef.current || !cameraRef.current || !objectRef.current || !fovContainerRef.current) return;
-
-    // 1. Calculate CSS Perspective Depth based on the WebGL Camera FOV
-    const fov = camera.projectionMatrix.elements[5] * (size.height / 2);
-    fovContainerRef.current.style.perspective = `${fov}px`;
-
-    // 2. Format Camera View Matrix
-    const camMatrixCSS = getCameraCSSMatrix(camera.matrixWorldInverse);
-    cameraRef.current.style.transform = `translateZ(${fov}px) ${camMatrixCSS} translate(${size.width / 2}px, ${size.height / 2}px)`;
-
-    // 3. Format Object World Matrix and apply the compression scale
-    const objMatrixCSS = getObjectCSSMatrix(meshRef.current.matrixWorld);
-    const scaleFactor = meshWidth / cssWidth;
-    
-    objectRef.current.style.transform = `${objMatrixCSS} scale(${scaleFactor})`;
+  // Create an identical shadow node OUTSIDE the WICG canvas for video embeds
+  const [overlayNode] = useState(() => {
+    const div = document.createElement('div');
+    div.style.position = 'absolute';
+    div.style.top = '0';
+    div.style.left = '0';
+    div.style.width = `${cssWidth}px`;
+    div.style.height = `${cssWidth * (768/1024)}px`;
+    div.style.overflow = 'hidden';
+    div.style.pointerEvents = 'none'; // Critical: must not block WebGL raycaster
+    div.style.transformOrigin = '0 0';
+    return div;
   });
 
-  // We use <Html> to bridge the R3F reconciler to the standard React DOM reconciler.
-  // Passing our custom portalNode ensures it is injected natively into the WICG canvas fallback tree.
-  return (
-    <Html portal={{ current: portalNode }}>
-      <div ref={fovContainerRef} style={{ width: '100%', height: '100%' }}>
-        <div ref={cameraRef} style={{ width: '100%', height: '100%', transformStyle: 'preserve-3d' }}>
-          <div ref={objectRef} style={{ position: 'absolute', top: 0, left: 0, transformStyle: 'preserve-3d' }}>
-            
-            {/* Centers the UI on the mesh origin and re-enables pointer events */}
-            <div style={{ position: 'absolute', transform: 'translate(-50%, -50%)', pointerEvents: 'auto' }}>
-              {children}
-            </div>
+  const [reactRoot, setReactRoot] = useState<Root | null>(null);
 
-          </div>
-        </div>
-      </div>
-    </Html>
-  );
+  useLayoutEffect(() => {
+    // CRITICAL: WICG texElementImage2D REQUIRES the canvas to have the layoutsubtree attribute
+    gl.domElement.setAttribute('layoutsubtree', '');
+
+    // CRITICAL: WICG texElementImage2D REQUIRES the element to be an immediate 
+    // child of the <canvas> element (fallback content).
+    gl.domElement.appendChild(portalNode);
+    
+    // Append the overlayNode safely outside the WICG sandbox (to parent or body)
+    if (gl.domElement.parentElement) {
+      gl.domElement.parentElement.appendChild(overlayNode);
+    } else {
+      document.body.appendChild(overlayNode);
+    }
+
+    const root = createRoot(portalNode);
+    setReactRoot(root);
+
+    if (onProvidePortal) {
+      onProvidePortal(portalNode);
+    }
+    
+    return () => { 
+      root.unmount();
+      if (portalNode.parentNode) portalNode.parentNode.removeChild(portalNode); 
+      if (overlayNode.parentNode) overlayNode.parentNode.removeChild(overlayNode);
+    };
+  }, [gl, portalNode, overlayNode, onProvidePortal]);
+
+  useEffect(() => {
+    if (reactRoot) {
+      reactRoot.render(
+        <GlobalOverlayContext.Provider value={overlayNode}>
+          {children}
+        </GlobalOverlayContext.Provider>
+      );
+    }
+  }, [reactRoot, children, overlayNode]);
+
+  useFrame(() => {
+    if (!meshRef.current) return;
+    const object = meshRef.current;
+    const element = portalNode;
+
+    const cssW = size.width; // The actual CSS pixel width of the canvas
+    const cssH = size.height;
+
+    const elemW = cssWidth;
+    const elemH = cssWidth * (768/1024);
+
+    const geometry = object.geometry;
+    if (!geometry.boundingBox) geometry.computeBoundingBox();
+    geometry.boundingBox!.getSize(_size);
+
+    // Viewport: NDC (-1,1) to canvas CSS pixels, Y flipped.
+    _viewport.set(
+      cssW / 2, 0, 0, cssW / 2,
+      0, -cssH / 2, 0, cssH / 2,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    );
+
+    const bb = geometry.boundingBox!;
+    bb.getSize(_size);
+
+    const dx = _size.x;
+    const dz = _size.z;
+    const trueWidth = Math.sqrt(dx * dx + dz * dz);
+
+    const center = new THREE.Vector3();
+    bb.getCenter(center);
+
+    const translation = new THREE.Matrix4().makeTranslation(center.x, center.y, center.z);
+    
+    // Angle to rotate flat UI to face the diagonal screen
+    const angle = Math.atan2(dz, dx);
+    const rotation = new THREE.Matrix4().makeRotationY(angle);
+    
+    const pixelScale = new THREE.Matrix4().makeScale(trueWidth / elemW, -_size.y / elemH, 1);
+    const pixelTranslate = new THREE.Matrix4().makeTranslation(-elemW / 2, -elemH / 2, 0);
+
+    // Map element pixel coords (0,0)-(elemW,elemH) to mesh local coords.
+    _pixelToLocal.copy(translation)
+      .multiply(rotation)
+      .multiply(pixelScale)
+      .multiply(pixelTranslate);
+
+    // Model-View-Projection
+    _mvp.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+    _mvp.multiply(object.matrixWorld);
+    _mvp.multiply(_pixelToLocal);
+
+    // Apply viewport
+    _mvp.premultiply(_viewport);
+
+    // Apply the matrix3d!
+    element.style.transform = `matrix3d(${_mvp.elements.join(',')})`;
+    overlayNode.style.transform = `matrix3d(${_mvp.elements.join(',')})`;
+  });
+
+  return null;
 }

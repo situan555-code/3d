@@ -1,6 +1,54 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useLayoutEffect, useContext } from 'react';
+import { createPortal } from 'react-dom';
 import STLViewer from './STLViewer';
 import PLYViewer from './PLYViewer';
+import { WindowOverlayContext } from '../contexts/OverlayContexts';
+
+const HolePunchVideo = ({ block }) => {
+  const overlayTarget = useContext(WindowOverlayContext);
+  const placeholderRef = useRef(null);
+  const [rect, setRect] = useState(null);
+
+  useLayoutEffect(() => {
+    if (placeholderRef.current) {
+      let top = 0;
+      let left = 0;
+      let current = placeholderRef.current;
+      while (current && !current.classList.contains('win-inner-content')) {
+        top += current.offsetTop;
+        left += current.offsetLeft;
+        current = current.offsetParent;
+      }
+      setRect({
+        top,
+        left,
+        width: placeholderRef.current.offsetWidth,
+        height: placeholderRef.current.offsetHeight
+      });
+    }
+  }, [block]);
+
+  return (
+    <>
+      <div 
+        ref={placeholderRef} 
+        style={{ width: '100%', aspectRatio: block.aspectRatio || '16/9', backgroundColor: 'transparent' }} 
+      />
+      {overlayTarget && rect && createPortal(
+        <video 
+          src={block.src} 
+          controls 
+          autoPlay
+          muted
+          loop
+          crossOrigin="anonymous" 
+          style={{ position: 'absolute', top: rect.top, left: rect.left, width: rect.width, height: rect.height, pointerEvents: 'auto', objectFit: 'contain' }} 
+        />,
+        overlayTarget
+      )}
+    </>
+  );
+};
 
 const VideoBlock = ({ block, index, isActive }) => {
   const videoRef = useRef(null);
@@ -136,7 +184,17 @@ const CaseStudyViewer = ({ title, subtitle, role, timeline, blocks, autoScroll, 
           } else if (block.type === 'image') {
             return (
               <figure key={index} style={{ margin: 0, padding: '16px', backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}>
-                <img src={block.src} alt={block.caption || 'Case Study Visual'} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                <div 
+                  style={{ 
+                    backgroundImage: `url(${block.src})`, 
+                    backgroundSize: 'contain',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    width: '100%', 
+                    height: '400px', 
+                    display: 'block' 
+                  }} 
+                />
                 {block.caption && (
                   <figcaption style={{ marginTop: '8px', fontSize: '12px', fontFamily: 'monospace', textAlign: 'center', color: '#666' }}>
                     {block.caption}
@@ -145,34 +203,9 @@ const CaseStudyViewer = ({ title, subtitle, role, timeline, blocks, autoScroll, 
               </figure>
             );
           } else if (block.type === 'video') {
-            return <VideoBlock key={index} block={block} index={index} isActive={isActive} />;
-          } else if (block.type === 'stl' || block.type === 'ply') {
-            const isPLY = block.src.toLowerCase().endsWith('.ply');
             return (
-              <figure key={index} style={{ margin: 0, padding: '16px', backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}>
-                {isActive ? (
-                  isPLY ? (
-                    <PLYViewer url={block.src} aspectRatio={block.aspectRatio || '4/3'} />
-                  ) : (
-                    <STLViewer url={block.src} aspectRatio={block.aspectRatio || '4/3'} />
-                  )
-                ) : (
-                  <div style={{
-                    width: '100%', 
-                    aspectRatio: block.aspectRatio || '4/3', 
-                    backgroundColor: '#e0e0e0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '1px dashed #999',
-                    fontFamily: 'monospace',
-                    color: '#666',
-                    textAlign: 'center',
-                    padding: '16px'
-                  }}>
-                    [3D Viewer Paused] <br/><br/> Focus this window to interact.
-                  </div>
-                )}
+              <figure key={index} style={{ margin: 0, padding: '0 0 16px 0', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <HolePunchVideo block={block} />
                 {block.caption && (
                   <figcaption style={{ marginTop: '8px', fontSize: '12px', fontFamily: 'monospace', textAlign: 'center', color: '#666' }}>
                     {block.caption}
@@ -180,15 +213,28 @@ const CaseStudyViewer = ({ title, subtitle, role, timeline, blocks, autoScroll, 
                 )}
               </figure>
             );
-          } else if (block.type === 'iframe') {
+          } else if (block.type === 'stl' || block.type === 'ply' || block.type === 'iframe') {
             return (
               <figure key={index} style={{ margin: 0, padding: '16px', backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}>
-                <iframe
-                  src={block.src}
-                  title={block.caption || 'Interactive embed'}
-                  style={{ width: '100%', aspectRatio: block.aspectRatio || '4 / 3', border: 'none', display: 'block' }}
-                  allow="accelerometer; gyroscope"
-                />
+                <div style={{
+                  width: '100%', 
+                  aspectRatio: block.aspectRatio || '16/9', 
+                  backgroundColor: '#e0e0e0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px dashed #999',
+                  fontFamily: 'monospace',
+                  color: '#666',
+                  textAlign: 'center',
+                  padding: '16px',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <strong>[ Interactive Media Placeholder ]</strong>
+                  <span>{block.type.toUpperCase()} content is disabled in the 3D monitor view.</span>
+                  {block.src && <a href={block.src} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--os-navy)' }}>Open in new tab</a>}
+                </div>
                 {block.caption && (
                   <figcaption style={{ marginTop: '8px', fontSize: '12px', fontFamily: 'monospace', textAlign: 'center', color: '#666' }}>
                     {block.caption}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <canvas id="c" width="400" height="400" layoutsubtree></canvas>
+  <div id="target" style="width: 200px; height: 200px; background: red;">Test</div>
+  <script>
+    async function test() {
+      const logs = [];
+      const log = (msg) => { logs.push(msg); console.log(msg); };
+      try {
+        const c = document.getElementById('c');
+        const ctx = c.getContext('2d');
+        const target = document.getElementById('target');
+        
+        c.appendChild(target);
+        
+        log("Testing drawElementImage");
+        if (typeof ctx.drawElementImage === 'function') {
+            log("drawElementImage exists!");
+            try {
+                ctx.drawElementImage(target, 0, 0, 200, 200);
+                log("drawElementImage succeeded!");
+            } catch (e) {
+                log("drawElementImage threw: " + e.message);
+            }
+        } else {
+            log("drawElementImage is NOT a function");
+        }
+        
+        log("Testing drawElement");
+        if (typeof ctx.drawElement === 'function') {
+            log("drawElement exists!");
+        } else {
+            log("drawElement is NOT a function");
+        }
+        
+        log("Testing captureElementImage");
+        if (typeof c.captureElementImage === 'function') {
+            log("captureElementImage exists!");
+        } else {
+            log("captureElementImage is NOT a function");
+        }
+
+      } catch (e) {
+        log("Fatal error: " + e.message);
+      }
+      
+      // Send logs to backend
+      fetch('/log', { method: 'POST', body: logs.join('\n') }).catch(()=>{});
+    }
+    
+    test();
+  </script>
+</body>
+</html>

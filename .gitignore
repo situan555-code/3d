@@ -10,3 +10,6 @@ public/office_-_assets.glb
 dump_scene.mjs
 dump_meshes.mjs
 ._*
+.vercel
+public/office_desk.glb
+public/._office_desk.glb

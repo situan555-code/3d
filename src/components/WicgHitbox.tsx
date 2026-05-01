@@ -1,6 +1,5 @@
 import { useState, useLayoutEffect, useEffect, useRef } from 'react';
 import { useThree } from '@react-three/fiber';
-import { createPortal } from 'react-dom';
 import * as THREE from 'three';
 import { GlobalOverlayContext } from '../portfolio/contexts/OverlayContexts';
 
@@ -177,10 +176,24 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
     };
   }, [gl, camera, meshRef, portalNode, cssWidth]);
 
-  return createPortal(
-    <GlobalOverlayContext.Provider value={overlayNode}>
-      {children}
-    </GlobalOverlayContext.Provider>,
-    portalNode
-  );
+  const [reactRoot, setReactRoot] = useState<import('react-dom/client').Root | null>(null);
+
+  useEffect(() => {
+    import('react-dom/client').then(({ createRoot }) => {
+      const root = createRoot(portalNode);
+      setReactRoot(root);
+    });
+  }, [portalNode]);
+
+  useEffect(() => {
+    if (reactRoot) {
+      reactRoot.render(
+        <GlobalOverlayContext.Provider value={overlayNode}>
+          {children}
+        </GlobalOverlayContext.Provider>
+      );
+    }
+  }, [reactRoot, children, overlayNode]);
+
+  return null;
 }

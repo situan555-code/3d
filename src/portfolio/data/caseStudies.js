@@ -70,11 +70,7 @@ export const caseStudies = {
         heading: 'spatial computing & 3d automation',
         content: 'my foundation in 3d visualization has naturally evolved into spatial computing. i actively build prototypes that merge the physical world with digital environments:\n\nzero-shot 3d worlds: integrating advanced apis like world labs to instantly process single 2d images or physical lidar scans into fully explorable, interactive 3d gaussian splat environments directly in the browser.\n\nwebar & lidar mesh processing: developing experimental webgl/three.js frameworks that extract physical room meshes via ios hardware and apply real-time, physics-based displacement shaders for browser-based augmented reality.\n\nautomated 3d asset extraction: orchestrating headless browser automation to reverse-engineer proprietary web configurators, automatically extracting and compiling massive libraries of production-ready 3d assets for enterprise use.'
       },
-      {
-        type: 'text',
-        heading: 'hardware-optimized edge computing (apple silicon)',
-        content: 'to bypass the limitations, privacy concerns, and latency of traditional cloud computing, i architect highly specialized machine learning pipelines optimized entirely for local hardware. by leveraging node-based interfaces and highly compressed local models, i am able to run incredibly advanced ai media generation — including complex text-to-video rendering and high-fidelity visual workflows — entirely locally. this bypasses traditional rendering bottlenecks and ensures maximum data security.'
-      },
+
       {
         type: 'text',
         heading: 'deep research & autonomous business logic',

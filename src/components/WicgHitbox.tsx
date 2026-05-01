@@ -19,7 +19,6 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
   const _pixelToLocal = useMemo(() => new THREE.Matrix4(), []);
   const _mvp = useMemo(() => new THREE.Matrix4(), []);
   const _viewport = useMemo(() => new THREE.Matrix4(), []);
-  const _size = useMemo(() => new THREE.Vector3(), []);
 
   // Mount a container directly inside the WebGL <canvas> tag natively
   const [portalNode] = useState(() => {

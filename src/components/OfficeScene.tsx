@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { useEffect, useRef, useState } from 'react'
-import { useGLTF } from '@react-three/drei'
+import { useGLTF, useTexture } from '@react-three/drei'
 import { ThreeEvent } from '@react-three/fiber'
 import type CameraControls from 'camera-controls'
 import { useControls } from 'leva'
@@ -30,15 +30,51 @@ export function OfficeScene({
   // Initialize the WICG texture hook and pass it the ref of the div to be captured
   const screenTexture = useWICGTexture(uiSourceElement)
 
-  // ─── Scene traversal: capture refs + shadows ───
+  // Load custom poster textures
+  const tigerTex = useTexture('/textures/tiger.webp')
+  const rabbitTex = useTexture('/textures/rabbit.webp')
+
+  // ─── Scene traversal: capture refs + shadows + apply posters ───
   useEffect(() => {
     console.log('[OfficeScene] Traversing scene...')
+    
+    // Setup poster textures
+    tigerTex.flipY = false
+    tigerTex.colorSpace = THREE.SRGBColorSpace
+    rabbitTex.flipY = false
+    rabbitTex.colorSpace = THREE.SRGBColorSpace
+
     let htmlFound = false;
     scene.traverse((child: any) => {
       if (child.isMesh) {
         child.castShadow = true
         child.receiveShadow = true
       }
+      
+      // Inject Rabbit Poster
+      if (child.name === 'Object_95' && child.material) {
+        child.material.map = rabbitTex
+        child.material.emissiveMap = rabbitTex
+        child.material.needsUpdate = true
+      }
+      
+      // Inject Tiger Poster
+      if (child.name === 'hanging_picture_frame_01' && child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach((mat: any) => {
+            if (mat.name.includes('artwork')) {
+              mat.map = tigerTex
+              mat.emissiveMap = tigerTex
+              mat.needsUpdate = true
+            }
+          })
+        } else {
+          child.material.map = tigerTex
+          child.material.emissiveMap = tigerTex
+          child.material.needsUpdate = true
+        }
+      }
+
       if (child.name === 'Monitor_HTML') {
         monitorHTMLRef.current = child
         child.visible = true
@@ -48,7 +84,7 @@ export function OfficeScene({
       }
     })
     console.log('[OfficeScene] Traverse complete. htmlFound:', htmlFound)
-  }, [scene])
+  }, [scene, tigerTex, rabbitTex])
 
   // ─── Apply WICG texture to Monitor_HTML ───
   useEffect(() => {

@@ -30,7 +30,7 @@ export function OfficeScene({
   // Initialize the WICG texture hook and pass it the ref of the div to be captured
   const screenTexture = useWICGTexture(uiSourceElement)
 
-  // ─── Scene traversal: capture refs + shadows ───
+  // ─── Scene traversal: capture refs + shadows + apply textures ───
   useEffect(() => {
     console.log('[OfficeScene] Traversing scene...')
     let htmlFound = false;
@@ -48,6 +48,43 @@ export function OfficeScene({
       }
     })
     console.log('[OfficeScene] Traverse complete. htmlFound:', htmlFound)
+
+    // Load and map art textures asynchronously so we don't block Suspense boundaries
+    const textureMap: Record<string, string> = {
+      Desk_Photo_1: '/textures/Photo_Desk_Photo_1.png',
+      Desk_Photo_2: '/textures/Photo_Desk_Photo_2.png',
+      Desk_Photo_3: '/textures/Photo_Desk_Photo_3.png',
+      Desk_Photo_4: '/textures/Photo_Desk_Photo_4.png',
+      Desk_Photo_5: '/textures/Photo_Desk_Photo_5.png',
+      Desk_Photo_6: '/textures/Photo_Desk_Photo_6.png',
+      Pinboard_Photo_1: '/textures/Photo_Pinboard_Photo_1.png',
+      Pinboard_Photo_2: '/textures/Photo_Pinboard_Photo_2.png',
+      Pinboard_Photo_3: '/textures/Photo_Pinboard_Photo_3.png',
+      Pinboard_Photo_4: '/textures/Photo_Pinboard_Photo_4.png',
+      Pinboard_Envelope: '/textures/Photo_Pinboard_Envelope.png',
+      Object_95: '/textures/Poster_Atlas_Image_27.jpg'
+    }
+
+    const loader = new THREE.TextureLoader()
+    Object.entries(textureMap).forEach(([nodeName, path]) => {
+      loader.load(path, (texture) => {
+        texture.flipY = false
+        texture.colorSpace = THREE.SRGBColorSpace
+        
+        scene.traverse((child: any) => {
+          if (child.isMesh && child.name === nodeName) {
+            // Clone material first so we don't accidentally override shared materials
+            if (!child.userData.materialCloned) {
+              child.material = child.material.clone()
+              child.userData.materialCloned = true
+            }
+            child.material.map = texture
+            child.material.needsUpdate = true
+          }
+        })
+      })
+    })
+
   }, [scene])
 
   // ─── Apply WICG texture to Monitor_HTML ───

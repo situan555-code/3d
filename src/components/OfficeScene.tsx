@@ -188,16 +188,23 @@ export function OfficeScene({
     const screenQuat = new THREE.Quaternion()
     screenNode.getWorldQuaternion(screenQuat)
 
-    // Calculate true average normal from geometry vertices
-    const normalAttr = screenNode.geometry.attributes.normal as THREE.BufferAttribute
+    // Calculate true average normal from geometry vertices (safely)
+    const normalAttr = screenNode.geometry.attributes.normal as THREE.BufferAttribute | undefined
     let nx = 0, ny = 0, nz = 0
-    for(let i=0; i<normalAttr.count; i++) {
-      nx += normalAttr.getX(i)
-      ny += normalAttr.getY(i)
-      nz += normalAttr.getZ(i)
+    if (normalAttr) {
+      for(let i=0; i<normalAttr.count; i++) {
+        nx += normalAttr.getX(i)
+        ny += normalAttr.getY(i)
+        nz += normalAttr.getZ(i)
+      }
+      const len = Math.sqrt(nx*nx + ny*ny + nz*nz)
+      if (len > 0) {
+        nx /= len; ny /= len; nz /= len;
+      }
+    } else {
+      nz = 1; // Default local forward if no normals exist
     }
-    const len = Math.sqrt(nx*nx + ny*ny + nz*nz)
-    const localForward = new THREE.Vector3(nx/len, ny/len, nz/len)
+    const localForward = new THREE.Vector3(nx, ny, nz)
     
     const forward = localForward.applyQuaternion(screenQuat).normalize()
 

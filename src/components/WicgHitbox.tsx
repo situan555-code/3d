@@ -8,11 +8,12 @@ interface WicgHitboxProps {
   meshRef: import('react').RefObject<THREE.Mesh | null>;
   meshWidth: number; // The unscaled 3D physical width of your Monitor_ScreenGlass geometry
   cssWidth: number;  // The pixel width of your UI layout (e.g., 1024)
+  isZoomed?: boolean;
   onProvidePortal?: (element: HTMLElement) => void;
   children: import('react').ReactNode;
 }
 
-export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children }: WicgHitboxProps) {
+export function WicgHitbox({ meshRef, cssWidth = 1024, isZoomed = false, onProvidePortal, children }: WicgHitboxProps) {
   const { gl, camera, size } = useThree();
 
   // Matrices for InteractionManager math
@@ -60,10 +61,6 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
     // CRITICAL: WICG texElementImage2D REQUIRES the canvas to have the layoutsubtree attribute
     gl.domElement.setAttribute('layoutsubtree', '');
 
-    // CRITICAL: WICG texElementImage2D REQUIRES the element to be an immediate 
-    // child of the <canvas> element (fallback content).
-    gl.domElement.appendChild(portalNode);
-    
     // Append the overlayNode safely outside the WICG sandbox (to parent or body)
     if (gl.domElement.parentElement) {
       gl.domElement.parentElement.appendChild(overlayNode);
@@ -84,6 +81,21 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
       if (overlayNode.parentNode) overlayNode.parentNode.removeChild(overlayNode);
     };
   }, [gl, portalNode, overlayNode, onProvidePortal]);
+
+  // Dynamically move portalNode inside/outside canvas based on zoom
+  useEffect(() => {
+    if (isZoomed) {
+      // Move OUTSIDE canvas to receive hit-testing/pointer events
+      if (gl.domElement.parentElement) {
+        gl.domElement.parentElement.appendChild(portalNode);
+      } else {
+        document.body.appendChild(portalNode);
+      }
+    } else {
+      // Move INSIDE canvas (fallback content) so WICG texture captures it
+      gl.domElement.appendChild(portalNode);
+    }
+  }, [isZoomed, gl, portalNode]);
 
   useEffect(() => {
     if (reactRoot) {

@@ -228,7 +228,7 @@ export function OfficeScene({
         }}
       />
 
-      <WicgHitbox meshRef={monitorHTMLRef} meshWidth={0.53} cssWidth={1024} isZoomed={isZoomed} onProvidePortal={setUiSourceElement}>
+      <WicgHitbox meshRef={monitorHTMLRef} meshWidth={0.53} cssWidth={1024} onProvidePortal={setUiSourceElement}>
         <div id="os-ui" className="windows-ui-root" style={{ width: 1024, height: 768, backgroundColor: '#008080', overflow: 'hidden', position: 'relative' }}>
           <PortfolioApp />
         </div>

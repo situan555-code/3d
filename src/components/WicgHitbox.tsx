@@ -1,6 +1,6 @@
-import { useState, useLayoutEffect, useEffect, useMemo } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
-import { createRoot, Root } from 'react-dom/client';
+import { useState, useLayoutEffect, useEffect, useRef } from 'react';
+import { useThree } from '@react-three/fiber';
+import { createPortal } from 'react-dom';
 import * as THREE from 'three';
 import { GlobalOverlayContext } from '../portfolio/contexts/OverlayContexts';
 
@@ -8,18 +8,12 @@ interface WicgHitboxProps {
   meshRef: import('react').RefObject<THREE.Mesh | null>;
   meshWidth: number; // The unscaled 3D physical width of your Monitor_ScreenGlass geometry
   cssWidth: number;  // The pixel width of your UI layout (e.g., 1024)
-  isZoomed?: boolean;
   onProvidePortal?: (element: HTMLElement) => void;
   children: import('react').ReactNode;
 }
 
-export function WicgHitbox({ meshRef, cssWidth = 1024, isZoomed = false, onProvidePortal, children }: WicgHitboxProps) {
-  const { gl, camera, size } = useThree();
-
-  // Matrices for InteractionManager math
-  const _pixelToLocal = useMemo(() => new THREE.Matrix4(), []);
-  const _mvp = useMemo(() => new THREE.Matrix4(), []);
-  const _viewport = useMemo(() => new THREE.Matrix4(), []);
+export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children }: WicgHitboxProps) {
+  const { gl, camera } = useThree();
 
   // Mount a container directly inside the WebGL <canvas> tag natively
   const [portalNode] = useState(() => {
@@ -32,14 +26,15 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, isZoomed = false, onProvi
     div.style.height = `${cssWidth * (768/1024)}px`; // Adjust if ratio changes
     div.style.overflow = 'hidden';
     div.style.pointerEvents = 'auto'; // Receive clicks!
-    div.style.transformOrigin = '0 0'; // Set origin to top-left for easier transform chaining
+    // Set origin to top-left for easier positioning
+    div.style.transformOrigin = '0 0'; 
+    div.style.opacity = '1';
     
-    // CRITICAL: WICG fallback DOM might be invisible by default,
-    // or if it overlays, we can hide it via opacity if it doesn't affect texElementImage2D.
-    // However, if texElementImage2D captures opacity, setting it to 0.0001 breaks the texture.
-    // Let's rely on standard rendering.
     return div;
   });
+
+  const raycaster = useRef(new THREE.Raycaster());
+  const pointer = useRef(new THREE.Vector2());
 
   // Create an identical shadow node OUTSIDE the WICG canvas for video embeds
   const [overlayNode] = useState(() => {
@@ -55,11 +50,12 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, isZoomed = false, onProvi
     return div;
   });
 
-  const [reactRoot, setReactRoot] = useState<Root | null>(null);
-
   useLayoutEffect(() => {
     // CRITICAL: WICG texElementImage2D REQUIRES the canvas to have the layoutsubtree attribute
     gl.domElement.setAttribute('layoutsubtree', '');
+
+    // Append the portalNode INSIDE the WICG sandbox (fallback content) so it can be captured
+    gl.domElement.appendChild(portalNode);
 
     // Append the overlayNode safely outside the WICG sandbox (to parent or body)
     if (gl.domElement.parentElement) {
@@ -68,99 +64,123 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, isZoomed = false, onProvi
       document.body.appendChild(overlayNode);
     }
 
-    const root = createRoot(portalNode);
-    setReactRoot(root);
-
     if (onProvidePortal) {
       onProvidePortal(portalNode);
     }
     
     return () => { 
-      root.unmount();
       if (portalNode.parentNode) portalNode.parentNode.removeChild(portalNode); 
       if (overlayNode.parentNode) overlayNode.parentNode.removeChild(overlayNode);
     };
   }, [gl, portalNode, overlayNode, onProvidePortal]);
 
-  // Dynamically move portalNode inside/outside canvas based on zoom
+  // ─── Synthetic Event Dispatcher ───
+  // Raycasts the monitor mesh → UV → pixel coords → dispatches to hidden portalNode
   useEffect(() => {
-    if (isZoomed) {
-      // Move OUTSIDE canvas to receive hit-testing/pointer events
-      if (gl.domElement.parentElement) {
-        gl.domElement.parentElement.appendChild(portalNode);
-      } else {
-        document.body.appendChild(portalNode);
+    const canvas = gl.domElement;
+    const mesh = meshRef.current;
+    if (!canvas || !mesh) return;
+
+    const dispatchToUI = (e: PointerEvent | MouseEvent, eventType?: string) => {
+      const rect = canvas.getBoundingClientRect();
+      pointer.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.current.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.current.setFromCamera(pointer.current, camera);
+      const hits = raycaster.current.intersectObject(mesh, false);
+      const hit = hits.find(h => !!h.uv);
+
+      if (!hit || !hit.uv) {
+        return false;
       }
-    } else {
-      // Move INSIDE canvas (fallback content) so WICG texture captures it
-      gl.domElement.appendChild(portalNode);
-    }
-  }, [isZoomed, gl, portalNode]);
 
-  useEffect(() => {
-    if (reactRoot) {
-      reactRoot.render(
-        <GlobalOverlayContext.Provider value={overlayNode}>
-          {children}
-        </GlobalOverlayContext.Provider>
-      );
-    }
-  }, [reactRoot, children, overlayNode]);
+      // We hit the monitor glass! Convert UV to pixel coords.
+      const elemW = cssWidth;
+      const elemH = cssWidth * (768/1024);
+      const texX = hit.uv.x * elemW;
+      
+      // UV.y is usually bottom-to-top (0 at bottom, 1 at top).
+      // We mapped it top-to-bottom in OfficeScene: v = (maxY - y) / height.
+      // So v=0 is the TOP of the monitor.
+      // Therefore, pixel Y is just hit.uv.y * elemH.
+      const texY = hit.uv.y * elemH; 
 
-  useFrame(() => {
-    if (!meshRef.current) return;
-    const object = meshRef.current;
-    const element = portalNode;
+      // Temporarily pull the portalNode out of the canvas fallback tree to the document body
+      // and position it at (0,0) so elementFromPoint works accurately.
+      const originalParent = portalNode.parentElement;
+      const savedTransform = portalNode.style.transform;
+      const savedPos = portalNode.style.position;
+      const savedTop = portalNode.style.top;
+      const savedLeft = portalNode.style.left;
+      const savedZ = portalNode.style.zIndex;
+      const savedPointer = portalNode.style.pointerEvents;
 
-    const cssW = size.width; // The actual CSS pixel width of the canvas
-    const cssH = size.height;
+      document.body.appendChild(portalNode);
+      portalNode.style.transform = 'none';
+      portalNode.style.position = 'fixed';
+      portalNode.style.top = '0px';
+      portalNode.style.left = '0px';
+      portalNode.style.zIndex = '999999';
+      portalNode.style.pointerEvents = 'auto';
 
-    const elemW = cssWidth;
-    const elemH = cssWidth * (768/1024);
+      const target = document.elementFromPoint(texX, texY);
 
-    const geometry = object.geometry;
-    if (!geometry.boundingBox) geometry.computeBoundingBox();
-    
-    const bb = geometry.boundingBox!;
-    const localSize = new THREE.Vector3();
-    bb.getSize(localSize);
-    
-    const localCenter = new THREE.Vector3();
-    bb.getCenter(localCenter);
+      // Restore perfectly (synchronous execution ensures no visual repaint)
+      if (originalParent) originalParent.appendChild(portalNode);
+      portalNode.style.transform = savedTransform;
+      portalNode.style.position = savedPos;
+      portalNode.style.top = savedTop;
+      portalNode.style.left = savedLeft;
+      portalNode.style.zIndex = savedZ;
+      portalNode.style.pointerEvents = savedPointer;
 
-    const width = localSize.x;
-    const height = width * (768 / 1024);
+      if (target && target !== document.documentElement && target !== document.body) {
+        const type = eventType || e.type;
+        const syntheticEvent = new MouseEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          clientX: texX,
+          clientY: texY,
+          button: e.button,
+          buttons: e.buttons,
+        });
+        target.dispatchEvent(syntheticEvent);
 
-    const scaleX = width / elemW;
-    const scaleY = height / elemH;
+        // Update cursor based on target type
+        const isClickable = target.tagName === 'A' || target.tagName === 'BUTTON' ||
+          target.closest('a') || target.closest('button') ||
+          window.getComputedStyle(target).cursor === 'pointer';
+        
+        document.body.style.cursor = isClickable ? 'pointer' : 'default';
+        return true;
+      }
 
-    // Map (0,0) [top-left] to (localCenter.x - width/2, localCenter.y + height/2) in local space
-    _pixelToLocal.set(
-      scaleX, 0, 0, localCenter.x - width / 2,
-      0, -scaleY, 0, localCenter.y + height / 2,
-      0, 0, 1, 0,
-      0, 0, 0, 1
-    );
+      document.body.style.cursor = 'default';
+      return true;
+    };
 
-    // Viewport matrix: NDC (-1,1) to Canvas CSS Pixels
-    _viewport.set(
-      cssW / 2, 0, 0, cssW / 2,
-      0, -cssH / 2, 0, cssH / 2,
-      0, 0, 1, 0,
-      0, 0, 0, 1
-    );
+    const onPointerMove = (e: PointerEvent) => dispatchToUI(e, 'mousemove');
+    const onPointerDown = (e: PointerEvent) => dispatchToUI(e, 'mousedown');
+    const onPointerUp = (e: PointerEvent) => dispatchToUI(e, 'mouseup');
+    const onClick = (e: MouseEvent) => dispatchToUI(e, 'click');
 
-    // Final MVP = Viewport * Projection * View * Model * Local
-    _mvp.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-    _mvp.multiply(object.matrixWorld);
-    _mvp.multiply(_pixelToLocal);
-    _mvp.premultiply(_viewport);
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointerup', onPointerUp);
+    canvas.addEventListener('click', onClick);
 
-    // Apply the matrix3d!
-    const matrixStr = `matrix3d(${_mvp.elements.map(v => Math.abs(v) < 1e-10 ? 0 : v).join(',')})`;
-    element.style.transform = matrixStr;
-    overlayNode.style.transform = matrixStr;
-  });
+    return () => {
+      canvas.removeEventListener('pointermove', onPointerMove);
+      canvas.removeEventListener('pointerdown', onPointerDown);
+      canvas.removeEventListener('pointerup', onPointerUp);
+      canvas.removeEventListener('click', onClick);
+    };
+  }, [gl, camera, meshRef, portalNode, cssWidth]);
 
-  return null;
+  return createPortal(
+    <GlobalOverlayContext.Provider value={overlayNode}>
+      {children}
+    </GlobalOverlayContext.Provider>,
+    portalNode
+  );
 }

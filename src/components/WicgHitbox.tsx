@@ -81,6 +81,9 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
     if (!canvas || !mesh) return;
 
     const dispatchToUI = (e: PointerEvent | MouseEvent, eventType?: string) => {
+      // CRITICAL: Prevent infinite loops from synthetic events bubbling back to the canvas
+      if (!e.isTrusted) return false;
+
       const rect = canvas.getBoundingClientRect();
       pointer.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       pointer.current.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -104,8 +107,10 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
       // Therefore, pixel Y is just hit.uv.y * elemH.
       const texY = hit.uv.y * elemH; 
 
-      // Temporarily pull the portalNode out of the canvas fallback tree to the document body
-      // and position it at (0,0) so elementFromPoint works accurately.
+      // Temporarily pull the portalNode out of the canvas fallback tree to the document body.
+      // We shift the node so that the exact pixel we want to test (texX, texY) lands
+      // exactly at viewport coordinate (10, 10). This guarantees elementFromPoint never
+      // fails due to the viewport being smaller than the UI bounds!
       const originalParent = portalNode.parentElement;
       const savedTransform = portalNode.style.transform;
       const savedPos = portalNode.style.position;
@@ -117,12 +122,12 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
       document.body.appendChild(portalNode);
       portalNode.style.transform = 'none';
       portalNode.style.position = 'fixed';
-      portalNode.style.top = '0px';
-      portalNode.style.left = '0px';
-      portalNode.style.zIndex = '999999';
+      portalNode.style.left = `${10 - texX}px`;
+      portalNode.style.top = `${10 - texY}px`;
+      portalNode.style.zIndex = '2147483647'; // Max z-index to ensure it's on top
       portalNode.style.pointerEvents = 'auto';
 
-      const target = document.elementFromPoint(texX, texY);
+      const target = document.elementFromPoint(10, 10);
 
       // Restore perfectly (synchronous execution ensures no visual repaint)
       if (originalParent) originalParent.appendChild(portalNode);
@@ -135,15 +140,25 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
 
       if (target && target !== document.documentElement && target !== document.body) {
         const type = eventType || e.type;
-        const syntheticEvent = new MouseEvent(type, {
-          bubbles: true,
-          cancelable: true,
-          clientX: texX,
-          clientY: texY,
-          button: e.button,
-          buttons: e.buttons,
-        });
-        target.dispatchEvent(syntheticEvent);
+        
+        if (type === 'click' && typeof (target as HTMLElement).click === 'function') {
+          (target as HTMLElement).click();
+        } else {
+          const EventConstructor = window.PointerEvent && type.startsWith('pointer') ? PointerEvent : MouseEvent;
+          const syntheticEvent = new EventConstructor(type, {
+            bubbles: true,
+            cancelable: true,
+            clientX: texX,
+            clientY: texY,
+            button: e.button,
+            buttons: e.buttons,
+            view: window,
+            pointerId: (e as any).pointerId || 1,
+            pointerType: (e as any).pointerType || 'mouse',
+            isPrimary: (e as any).isPrimary ?? true,
+          });
+          target.dispatchEvent(syntheticEvent);
+        }
 
         // Update cursor based on target type
         const isClickable = target.tagName === 'A' || target.tagName === 'BUTTON' ||
@@ -158,9 +173,9 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
       return true;
     };
 
-    const onPointerMove = (e: PointerEvent) => dispatchToUI(e, 'mousemove');
-    const onPointerDown = (e: PointerEvent) => dispatchToUI(e, 'mousedown');
-    const onPointerUp = (e: PointerEvent) => dispatchToUI(e, 'mouseup');
+    const onPointerMove = (e: PointerEvent) => dispatchToUI(e, 'pointermove');
+    const onPointerDown = (e: PointerEvent) => dispatchToUI(e, 'pointerdown');
+    const onPointerUp = (e: PointerEvent) => dispatchToUI(e, 'pointerup');
     const onClick = (e: MouseEvent) => dispatchToUI(e, 'click');
 
     canvas.addEventListener('pointermove', onPointerMove);

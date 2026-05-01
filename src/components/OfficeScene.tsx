@@ -249,7 +249,7 @@ export function OfficeScene({
         onClick={(e: ThreeEvent<MouseEvent>) => {
           let current: THREE.Object3D | null = e.object
           while (current) {
-            if (current.name && current.name.includes('Monitor')) {
+            if ((current.name && current.name.includes('Monitor')) || (current.name && current.name.includes('Object_26_Restored_Part'))) {
               handleFocus(e)
               return
             }
@@ -259,7 +259,7 @@ export function OfficeScene({
         onPointerOver={(e: ThreeEvent<PointerEvent>) => {
           let current: THREE.Object3D | null = e.object
           while (current) {
-            if (current.name && current.name.includes('Monitor')) {
+            if ((current.name && current.name.includes('Monitor')) || (current.name && current.name.includes('Object_26_Restored_Part'))) {
               e.stopPropagation()
               document.body.style.cursor = 'pointer'
               return

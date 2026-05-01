@@ -109,9 +109,29 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
 
     const geometry = object.geometry;
     if (!geometry.boundingBox) geometry.computeBoundingBox();
-    geometry.boundingBox!.getSize(_size);
+    
+    const bb = geometry.boundingBox!;
+    const localSize = new THREE.Vector3();
+    bb.getSize(localSize);
+    
+    const localCenter = new THREE.Vector3();
+    bb.getCenter(localCenter);
 
-    // Viewport: NDC (-1,1) to canvas CSS pixels, Y flipped.
+    const width = localSize.x;
+    const height = width * (768 / 1024);
+
+    const scaleX = width / elemW;
+    const scaleY = height / elemH;
+
+    // Map (0,0) [top-left] to (localCenter.x - width/2, localCenter.y + height/2) in local space
+    _pixelToLocal.set(
+      scaleX, 0, 0, localCenter.x - width / 2,
+      0, -scaleY, 0, localCenter.y + height / 2,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    );
+
+    // Viewport matrix: NDC (-1,1) to Canvas CSS Pixels
     _viewport.set(
       cssW / 2, 0, 0, cssW / 2,
       0, -cssH / 2, 0, cssH / 2,
@@ -119,42 +139,16 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
       0, 0, 0, 1
     );
 
-    const bb = geometry.boundingBox!;
-    bb.getSize(_size);
-
-    const dx = _size.x;
-    const dz = _size.z;
-    const trueWidth = Math.sqrt(dx * dx + dz * dz);
-
-    const center = new THREE.Vector3();
-    bb.getCenter(center);
-
-    const translation = new THREE.Matrix4().makeTranslation(center.x, center.y, center.z);
-    
-    // Angle to rotate flat UI to face the diagonal screen
-    const angle = Math.atan2(dz, dx);
-    const rotation = new THREE.Matrix4().makeRotationY(angle);
-    
-    const pixelScale = new THREE.Matrix4().makeScale(trueWidth / elemW, -_size.y / elemH, 1);
-    const pixelTranslate = new THREE.Matrix4().makeTranslation(-elemW / 2, -elemH / 2, 0);
-
-    // Map element pixel coords (0,0)-(elemW,elemH) to mesh local coords.
-    _pixelToLocal.copy(translation)
-      .multiply(rotation)
-      .multiply(pixelScale)
-      .multiply(pixelTranslate);
-
-    // Model-View-Projection
+    // Final MVP = Viewport * Projection * View * Model * Local
     _mvp.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
     _mvp.multiply(object.matrixWorld);
     _mvp.multiply(_pixelToLocal);
-
-    // Apply viewport
     _mvp.premultiply(_viewport);
 
     // Apply the matrix3d!
-    element.style.transform = `matrix3d(${_mvp.elements.join(',')})`;
-    overlayNode.style.transform = `matrix3d(${_mvp.elements.join(',')})`;
+    const matrixStr = `matrix3d(${_mvp.elements.map(v => Math.abs(v) < 1e-10 ? 0 : v).join(',')})`;
+    element.style.transform = matrixStr;
+    overlayNode.style.transform = matrixStr;
   });
 
   return null;

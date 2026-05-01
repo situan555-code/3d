@@ -1,7 +1,7 @@
 import React, { useRef, useState, useContext, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import useDraggable from '../hooks/useDraggable';
-import { GlobalOverlayContext, WindowOverlayContext } from '../contexts/OverlayContexts';
+import { GlobalOverlayContext, WindowOverlayContext } from '../contexts/OverlayState';
 
 const Window = ({ id, title, content, position, zIndex, isActive, updatePosition, closeWindow, bringToFront }) => {
   const windowRef = useRef(null);
@@ -11,6 +11,7 @@ const Window = ({ id, title, content, position, zIndex, isActive, updatePosition
   const [overlayTarget, setOverlayTarget] = useState(null);
   const [contentRect, setContentRect] = useState({ top: 0, left: 0, width: 0, height: 0 });
   const [innerRect, setInnerRect] = useState({ top: 0, left: 0, width: 0, height: 0 });
+  const [windowRect, setWindowRect] = useState({ top: 0, left: 0 });
 
   const globalOverlayNode = useContext(GlobalOverlayContext);
   const { handlePointerDown } = useDraggable(id, position, updatePosition);
@@ -18,8 +19,11 @@ const Window = ({ id, title, content, position, zIndex, isActive, updatePosition
   useLayoutEffect(() => {
     if (outerRef.current && windowRef.current && innerRef.current) {
       // getBoundingClientRect is warped by 3D matrix, so we use precise DOM offsets.
-      // element.offsetTop measures from the padding-box of the offsetParent.
-      // We must add the offsetParent's border width (clientTop/clientLeft) to get the distance from the border-box!
+      setWindowRect({
+        top: windowRef.current.offsetTop,
+        left: windowRef.current.offsetLeft
+      });
+
       setContentRect({
         top: outerRef.current.offsetTop + windowRef.current.clientTop,
         left: outerRef.current.offsetLeft + windowRef.current.clientLeft,
@@ -101,7 +105,7 @@ const Window = ({ id, title, content, position, zIndex, isActive, updatePosition
       </div>
 
       {globalOverlayNode && windowRef.current && createPortal(
-        <div style={{ position: 'absolute', left: position.x, top: position.y, zIndex: zIndex, width: windowRef.current.offsetWidth, height: windowRef.current.offsetHeight, pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', left: windowRect.left, top: windowRect.top, zIndex: zIndex, width: windowRef.current.offsetWidth, height: windowRef.current.offsetHeight, pointerEvents: 'none' }}>
           <div style={{ position: 'absolute', top: contentRect.top, left: contentRect.left, width: contentRect.width, height: contentRect.height, overflow: 'hidden' }}>
             <div 
               ref={setOverlayTarget}

@@ -1,8 +1,7 @@
 import { useState, useLayoutEffect, useEffect, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { createRoot, Root } from 'react-dom/client';
 import * as THREE from 'three';
-import { GlobalOverlayContext } from '../portfolio/contexts/OverlayContexts';
+import { portalState } from './PortalBridge';
 
 interface WicgHitboxProps {
   meshRef: import('react').RefObject<THREE.Mesh | null>;
@@ -32,11 +31,6 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
     div.style.overflow = 'hidden';
     div.style.pointerEvents = 'auto'; // Receive clicks!
     div.style.transformOrigin = '0 0'; // Set origin to top-left for easier transform chaining
-    
-    // CRITICAL: WICG fallback DOM might be invisible by default,
-    // or if it overlays, we can hide it via opacity if it doesn't affect texElementImage2D.
-    // However, if texElementImage2D captures opacity, setting it to 0.0001 breaks the texture.
-    // Let's rely on standard rendering.
     return div;
   });
 
@@ -54,8 +48,6 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
     return div;
   });
 
-  const [reactRoot, setReactRoot] = useState<Root | null>(null);
-
   useLayoutEffect(() => {
     // CRITICAL: WICG texElementImage2D REQUIRES the canvas to have the layoutsubtree attribute
     gl.domElement.setAttribute('layoutsubtree', '');
@@ -71,29 +63,23 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
       document.body.appendChild(overlayNode);
     }
 
-    const root = createRoot(portalNode);
-    setReactRoot(root);
-
     if (onProvidePortal) {
       onProvidePortal(portalNode);
     }
     
     return () => { 
-      root.unmount();
       if (portalNode.parentNode) portalNode.parentNode.removeChild(portalNode); 
       if (overlayNode.parentNode) overlayNode.parentNode.removeChild(overlayNode);
     };
   }, [gl, portalNode, overlayNode, onProvidePortal]);
 
+  // Set the portal state so the App renderer can bridge contexts across the React root boundary
   useEffect(() => {
-    if (reactRoot) {
-      reactRoot.render(
-        <GlobalOverlayContext.Provider value={overlayNode}>
-          {children}
-        </GlobalOverlayContext.Provider>
-      );
-    }
-  }, [reactRoot, children, overlayNode]);
+    portalState.set(portalNode, overlayNode, children);
+    return () => {
+      portalState.set(null, null, null);
+    };
+  }, [portalNode, overlayNode, children]);
 
   useFrame(() => {
     if (!meshRef.current) return;

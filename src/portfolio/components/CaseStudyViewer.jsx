@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useLayoutEffect, useContext } from 
 import { createPortal } from 'react-dom';
 import STLViewer from './STLViewer';
 import PLYViewer from './PLYViewer';
-import { WindowOverlayContext } from '../contexts/OverlayContexts';
+import { WindowOverlayContext } from '../contexts/OverlayState';
 
 const HolePunchVideo = ({ block }) => {
   const overlayTarget = useContext(WindowOverlayContext);

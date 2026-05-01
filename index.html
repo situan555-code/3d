@@ -14,3 +14,13 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+<script>
+  window.addEventListener('error', function(e) {
+    document.body.innerHTML += '<div style="color:red; font-size: 20px; z-index:9999; position:absolute; top:0;">' + e.message + '<br/>' + e.filename + ':' + e.lineno + '</div>';
+  });
+  const origError = console.error;
+  console.error = function(...args) {
+    document.body.innerHTML += '<div style="color:red; font-size: 20px; z-index:9999; position:absolute; top:50px;">' + args.join(' ') + '</div>';
+    origError.apply(console, args);
+  };
+</script>

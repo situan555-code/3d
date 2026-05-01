@@ -179,8 +179,8 @@ export function OfficeScene({
     const center = new THREE.Vector3()
     screenNode.geometry.boundingBox!.getCenter(center)
     
-    // Position target right at the front face of the screen
-    center.z = screenNode.geometry.boundingBox!.max.z
+    // Do NOT set center.z = max.z; the bounding box encapsulates the rotated monitor,
+    // so the center is the truest center of the physical glass!
 
     const targetPos = center.clone()
     screenNode.localToWorld(targetPos)
@@ -208,9 +208,10 @@ export function OfficeScene({
     
     const forward = localForward.applyQuaternion(screenQuat).normalize()
 
-    // Determine up and right vectors based on the screen's rotation
-    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(screenQuat).normalize()
-    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(screenQuat).normalize()
+    // Create a perfectly orthogonal basis for the camera, irrespective of object scale/skew
+    const globalUp = new THREE.Vector3(0, 1, 0)
+    const right = new THREE.Vector3().crossVectors(globalUp, forward).normalize()
+    const up = new THREE.Vector3().crossVectors(forward, right).normalize()
 
     // Apply target offsets
     targetPos.add(right.clone().multiplyScalar(targetOffsetX))

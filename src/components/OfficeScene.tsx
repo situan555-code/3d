@@ -116,9 +116,64 @@ export function OfficeScene({
     }
   }, [screenTexture])
 
+  // ─── Camera auto-focus calculation ───
+  const updateFocusPosition = (transition = true) => {
+    if (!controlsRef.current || !monitorHTMLRef.current) return
+
+    const screenNode = monitorHTMLRef.current
+    const center = new THREE.Vector3()
+    screenNode.geometry.boundingBox!.getCenter(center)
+    
+    // Position target right at the front face of the screen
+    center.z = screenNode.geometry.boundingBox!.max.z
+
+    const targetPos = center.clone()
+    screenNode.localToWorld(targetPos)
+
+    const screenQuat = new THREE.Quaternion()
+    screenNode.getWorldQuaternion(screenQuat)
+
+    // Calculate true average normal from geometry vertices
+    const normalAttr = screenNode.geometry.attributes.normal as THREE.BufferAttribute
+    let nx = 0, ny = 0, nz = 0
+    if (normalAttr) {
+      for(let i=0; i<normalAttr.count; i++) {
+        nx += normalAttr.getX(i)
+        ny += normalAttr.getY(i)
+        nz += normalAttr.getZ(i)
+      }
+      const len = Math.sqrt(nx*nx + ny*ny + nz*nz)
+      if (len > 0) {
+        nx /= len; ny /= len; nz /= len;
+      }
+    } else {
+      nz = 1; // Default local forward if no normals exist
+    }
+    const localForward = new THREE.Vector3(nx, ny, nz)
+    
+    const forward = localForward.applyQuaternion(screenQuat).normalize()
+
+    // Place camera 0.55 units in front
+    const camPos = targetPos.clone().add(forward.clone().multiplyScalar(0.55))
+
+    controlsRef.current.setLookAt(
+      camPos.x, camPos.y, camPos.z,
+      targetPos.x, targetPos.y, targetPos.z,
+      transition
+    )
+  }
+
+  // ─── Live update camera if already zoomed ───
+  useEffect(() => {
+    if (isZoomed) {
+      updateFocusPosition(false) // false = no transition, instant update
+    }
+  }, [isZoomed])
+
   // ─── Triggered on click ───
   const handleFocus = (e: any) => {
     e.stopPropagation()
+    updateFocusPosition(true)
     setIsZoomed(true)
   }
 

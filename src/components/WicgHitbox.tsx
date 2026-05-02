@@ -117,7 +117,7 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
         
         // Convert UV (0-1) to UI pixel coordinates
         const clientX = uv.x * cssWidth;
-        const clientY = (1 - uv.y) * cssH;
+        const clientY = uv.y * cssH;
 
         // Temporarily mount to body as 'fixed' to query exact element at coordinate
         const oldParent = portalNode.parentElement;

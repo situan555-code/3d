@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { ThreeEvent } from '@react-three/fiber'
 import type CameraControls from 'camera-controls'
-import { useControls } from 'leva'
 import { WicgHitbox } from './WicgHitbox'
 import { useWICGTexture } from '../hooks/useWICGTexture'
 // @ts-ignore
@@ -124,77 +123,9 @@ export function OfficeScene({
     }
   }, [screenTexture])
 
-  // ─── Camera tuning via Leva ───
-  const { camDist, camOffsetX, camOffsetY, targetOffsetX, targetOffsetY } = useControls('Camera Focus', {
-    camDist: { value: 0.35, min: 0.1, max: 1.0, step: 0.01 },
-    camOffsetX: { value: 0, min: -0.5, max: 0.5, step: 0.01 },
-    camOffsetY: { value: 0, min: -0.5, max: 0.5, step: 0.01 },
-    targetOffsetX: { value: 0, min: -0.5, max: 0.5, step: 0.01 },
-    targetOffsetY: { value: 0, min: -0.5, max: 0.5, step: 0.01 }
-  })
-
-  const updateFocusPosition = (transition = true) => {
-    if (!controlsRef.current || !monitorHTMLRef.current) return
-
-    const screenNode = monitorHTMLRef.current
-    if (!screenNode.geometry.boundingBox) screenNode.geometry.computeBoundingBox()
-
-    const center = new THREE.Vector3()
-    screenNode.geometry.boundingBox!.getCenter(center)
-    
-    // Position target right at the front face of the screen
-    center.z = screenNode.geometry.boundingBox!.max.z
-
-    const targetPos = center.clone()
-    screenNode.localToWorld(targetPos)
-
-    const screenQuat = new THREE.Quaternion()
-    screenNode.getWorldQuaternion(screenQuat)
-
-    // Calculate true average normal from geometry vertices
-    const normalAttr = screenNode.geometry.attributes.normal as THREE.BufferAttribute
-    let nx = 0, ny = 0, nz = 0
-    for(let i=0; i<normalAttr.count; i++) {
-      nx += normalAttr.getX(i)
-      ny += normalAttr.getY(i)
-      nz += normalAttr.getZ(i)
-    }
-    const len = Math.sqrt(nx*nx + ny*ny + nz*nz)
-    const localForward = new THREE.Vector3(nx/len, ny/len, nz/len)
-    
-    const forward = localForward.applyQuaternion(screenQuat).normalize()
-
-    // Determine up and right vectors based on the screen's rotation
-    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(screenQuat).normalize()
-    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(screenQuat).normalize()
-
-    // Apply target offsets
-    targetPos.add(right.clone().multiplyScalar(targetOffsetX))
-    targetPos.add(up.clone().multiplyScalar(targetOffsetY))
-
-    // Place camera 'camDist' units in front, plus apply camera offsets
-    const camPos = targetPos.clone().add(forward.clone().multiplyScalar(camDist))
-    camPos.add(right.clone().multiplyScalar(camOffsetX))
-    camPos.add(up.clone().multiplyScalar(camOffsetY))
-
-    controlsRef.current.setLookAt(
-      camPos.x, camPos.y, camPos.z,
-      targetPos.x, targetPos.y, targetPos.z,
-      transition
-    )
-  }
-
-  // ─── Live update camera if already zoomed ───
-  useEffect(() => {
-    if (isZoomed) {
-      updateFocusPosition(false) // false = no transition, instant update
-    }
-  }, [camDist, camOffsetX, camOffsetY, targetOffsetX, targetOffsetY, isZoomed])
-
   // ─── Triggered on click ───
   const handleFocus = (e: any) => {
     e.stopPropagation()
-    updateFocusPosition(true)
     setIsZoomed(true)
   }
 

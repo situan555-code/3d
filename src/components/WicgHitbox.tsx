@@ -13,7 +13,7 @@ interface WicgHitboxProps {
 }
 
 export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children }: WicgHitboxProps) {
-  const { gl, camera, size } = useThree();
+  const { gl, camera, size, pointer, raycaster } = useThree();
 
   // Matrices for InteractionManager math
   const _pixelToLocal = useMemo(() => new THREE.Matrix4(), []);
@@ -94,6 +94,92 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
       );
     }
   }, [reactRoot, children, overlayNode]);
+
+  // SYNTHETIC EVENT DISPATCHER
+  // Bridges 3D raycast UV coordinates to 2D browser events on the WICG portalNode
+  useEffect(() => {
+    const handleEvent = (e: Event) => {
+      const pointerEvent = e as PointerEvent | MouseEvent;
+      if (!meshRef.current) return;
+      
+      // Ignore if event already originated from inside our UI
+      if (portalNode.contains(pointerEvent.target as Node) || overlayNode.contains(pointerEvent.target as Node)) {
+        return;
+      }
+
+      // Update raycaster using the current R3F pointer and camera
+      raycaster.setFromCamera(pointer, camera);
+      const intersects = raycaster.intersectObject(meshRef.current);
+      
+      if (intersects.length > 0 && intersects[0].uv) {
+        const uv = intersects[0].uv;
+        const cssH = cssWidth * (768/1024);
+        
+        // Convert UV (0-1) to UI pixel coordinates
+        const clientX = uv.x * cssWidth;
+        const clientY = (1 - uv.y) * cssH;
+
+        // Temporarily mount to body as 'fixed' to query exact element at coordinate
+        const oldParent = portalNode.parentElement;
+        const oldTransform = portalNode.style.transform;
+        const oldPosition = portalNode.style.position;
+        const oldPointerEvents = portalNode.style.pointerEvents;
+        
+        document.body.appendChild(portalNode);
+        portalNode.style.transform = 'none';
+        portalNode.style.position = 'fixed';
+        portalNode.style.top = '0px';
+        portalNode.style.left = '0px';
+        // We must briefly enable pointerEvents on the portal itself if it was changed
+        portalNode.style.pointerEvents = 'auto';
+        
+        const targetElement = document.elementFromPoint(clientX, clientY);
+        
+        // Restore portalNode back to its proper canvas fallback location
+        if (oldParent) oldParent.appendChild(portalNode);
+        portalNode.style.transform = oldTransform;
+        portalNode.style.position = oldPosition;
+        portalNode.style.pointerEvents = oldPointerEvents;
+
+        if (targetElement && targetElement !== document.body && targetElement !== portalNode) {
+          // Re-dispatch a clone of the event targeting the exact UI element
+          let syntheticEvent;
+          if (window.PointerEvent && pointerEvent instanceof PointerEvent) {
+             syntheticEvent = new PointerEvent(pointerEvent.type, {
+               ...pointerEvent,
+               clientX, clientY,
+               bubbles: true, cancelable: true, view: window
+             });
+          } else {
+             syntheticEvent = new MouseEvent(pointerEvent.type, {
+               ...pointerEvent,
+               clientX, clientY,
+               bubbles: true, cancelable: true, view: window
+             });
+          }
+          
+          targetElement.dispatchEvent(syntheticEvent);
+          
+          if (pointerEvent.type === 'click' || pointerEvent.type === 'pointerdown') {
+            pointerEvent.stopPropagation();
+          }
+        }
+      }
+    };
+
+    const canvas = gl.domElement;
+    canvas.addEventListener('click', handleEvent);
+    canvas.addEventListener('pointerdown', handleEvent);
+    canvas.addEventListener('pointerup', handleEvent);
+    canvas.addEventListener('pointermove', handleEvent);
+
+    return () => {
+      canvas.removeEventListener('click', handleEvent);
+      canvas.removeEventListener('pointerdown', handleEvent);
+      canvas.removeEventListener('pointerup', handleEvent);
+      canvas.removeEventListener('pointermove', handleEvent);
+    };
+  }, [gl, camera, pointer, raycaster, meshRef, portalNode, overlayNode, cssWidth]);
 
   useFrame(() => {
     if (!meshRef.current) return;

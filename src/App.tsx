@@ -4,10 +4,6 @@ import { Environment, Loader, CameraControls } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import { OfficeScene } from './components/OfficeScene'
 import { Component } from 'react'
-import { createPortal } from 'react-dom'
-import { GlobalOverlayContext } from './portfolio/contexts/OverlayState'
-import { portalState } from './components/PortalBridge'
-import { Leva } from 'leva'
 
 class ErrorBoundary extends Component<any, { hasError: boolean; error: any }> {
   constructor(props: any) {
@@ -23,20 +19,6 @@ class ErrorBoundary extends Component<any, { hasError: boolean; error: any }> {
     }
     return this.props.children;
   }
-}
-
-function PortalRenderer() {
-  const [, forceUpdate] = useState(0)
-  useEffect(() => portalState.subscribe(() => forceUpdate(x => x + 1)), [])
-  
-  if (!portalState.portalNode || !portalState.children) return null
-  
-  return createPortal(
-    <GlobalOverlayContext.Provider value={portalState.overlayNode}>
-      {portalState.children}
-    </GlobalOverlayContext.Provider>,
-    portalState.portalNode
-  )
 }
 
 function App() {
@@ -84,9 +66,6 @@ function App() {
 
   return (
     <>
-      <Leva hidden={false} />
-      <PortalRenderer />
-      
       <div id="overlay-ui">
         <button className={`back-btn ${isZoomed ? 'visible' : ''}`} onClick={handleBack}>
           ← Step Back

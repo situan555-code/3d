@@ -30,7 +30,7 @@ export function OfficeScene({
   // Initialize the WICG texture hook and pass it the ref of the div to be captured
   const screenTexture = useWICGTexture(uiSourceElement)
 
-  // ─── Scene traversal: capture refs + shadows + apply textures ───
+  // ─── Scene traversal: capture refs + shadows ───
   useEffect(() => {
     console.log('[OfficeScene] Traversing scene...')
     let htmlFound = false;
@@ -48,43 +48,6 @@ export function OfficeScene({
       }
     })
     console.log('[OfficeScene] Traverse complete. htmlFound:', htmlFound)
-
-    // Load and map art textures asynchronously so we don't block Suspense boundaries
-    const textureMap: Record<string, string> = {
-      Desk_Photo_1: '/textures/Photo_Desk_Photo_1.png',
-      Desk_Photo_2: '/textures/Photo_Desk_Photo_2.png',
-      Desk_Photo_3: '/textures/Photo_Desk_Photo_3.png',
-      Desk_Photo_4: '/textures/Photo_Desk_Photo_4.png',
-      Desk_Photo_5: '/textures/Photo_Desk_Photo_5.png',
-      Desk_Photo_6: '/textures/Photo_Desk_Photo_6.png',
-      Pinboard_Photo_1: '/textures/Photo_Pinboard_Photo_1.png',
-      Pinboard_Photo_2: '/textures/Photo_Pinboard_Photo_2.png',
-      Pinboard_Photo_3: '/textures/Photo_Pinboard_Photo_3.png',
-      Pinboard_Photo_4: '/textures/Photo_Pinboard_Photo_4.png',
-      Pinboard_Envelope: '/textures/Photo_Pinboard_Envelope.png',
-      Object_95: '/textures/Poster_Atlas_Image_27.jpg'
-    }
-
-    const loader = new THREE.TextureLoader()
-    Object.entries(textureMap).forEach(([nodeName, path]) => {
-      loader.load(path, (texture) => {
-        texture.flipY = false
-        texture.colorSpace = THREE.SRGBColorSpace
-        
-        scene.traverse((child: any) => {
-          if (child.isMesh && child.name === nodeName) {
-            // Clone material first so we don't accidentally override shared materials
-            if (!child.userData.materialCloned) {
-              child.material = child.material.clone()
-              child.userData.materialCloned = true
-            }
-            child.material.map = texture
-            child.material.needsUpdate = true
-          }
-        })
-      })
-    })
-
   }, [scene])
 
   // ─── Apply WICG texture to Monitor_HTML ───
@@ -179,8 +142,8 @@ export function OfficeScene({
     const center = new THREE.Vector3()
     screenNode.geometry.boundingBox!.getCenter(center)
     
-    // Do NOT set center.z = max.z; the bounding box encapsulates the rotated monitor,
-    // so the center is the truest center of the physical glass!
+    // Position target right at the front face of the screen
+    center.z = screenNode.geometry.boundingBox!.max.z
 
     const targetPos = center.clone()
     screenNode.localToWorld(targetPos)
@@ -188,30 +151,22 @@ export function OfficeScene({
     const screenQuat = new THREE.Quaternion()
     screenNode.getWorldQuaternion(screenQuat)
 
-    // Calculate true average normal from geometry vertices (safely)
-    const normalAttr = screenNode.geometry.attributes.normal as THREE.BufferAttribute | undefined
+    // Calculate true average normal from geometry vertices
+    const normalAttr = screenNode.geometry.attributes.normal as THREE.BufferAttribute
     let nx = 0, ny = 0, nz = 0
-    if (normalAttr) {
-      for(let i=0; i<normalAttr.count; i++) {
-        nx += normalAttr.getX(i)
-        ny += normalAttr.getY(i)
-        nz += normalAttr.getZ(i)
-      }
-      const len = Math.sqrt(nx*nx + ny*ny + nz*nz)
-      if (len > 0) {
-        nx /= len; ny /= len; nz /= len;
-      }
-    } else {
-      nz = 1; // Default local forward if no normals exist
+    for(let i=0; i<normalAttr.count; i++) {
+      nx += normalAttr.getX(i)
+      ny += normalAttr.getY(i)
+      nz += normalAttr.getZ(i)
     }
-    const localForward = new THREE.Vector3(nx, ny, nz)
+    const len = Math.sqrt(nx*nx + ny*ny + nz*nz)
+    const localForward = new THREE.Vector3(nx/len, ny/len, nz/len)
     
     const forward = localForward.applyQuaternion(screenQuat).normalize()
 
-    // Create a perfectly orthogonal basis for the camera, irrespective of object scale/skew
-    const globalUp = new THREE.Vector3(0, 1, 0)
-    const right = new THREE.Vector3().crossVectors(globalUp, forward).normalize()
-    const up = new THREE.Vector3().crossVectors(forward, right).normalize()
+    // Determine up and right vectors based on the screen's rotation
+    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(screenQuat).normalize()
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(screenQuat).normalize()
 
     // Apply target offsets
     targetPos.add(right.clone().multiplyScalar(targetOffsetX))
@@ -250,7 +205,7 @@ export function OfficeScene({
         onClick={(e: ThreeEvent<MouseEvent>) => {
           let current: THREE.Object3D | null = e.object
           while (current) {
-            if ((current.name && current.name.includes('Monitor')) || (current.name && current.name.includes('Object_26_Restored_Part'))) {
+            if (current.name && current.name.includes('Monitor')) {
               handleFocus(e)
               return
             }
@@ -260,7 +215,7 @@ export function OfficeScene({
         onPointerOver={(e: ThreeEvent<PointerEvent>) => {
           let current: THREE.Object3D | null = e.object
           while (current) {
-            if ((current.name && current.name.includes('Monitor')) || (current.name && current.name.includes('Object_26_Restored_Part'))) {
+            if (current.name && current.name.includes('Monitor')) {
               e.stopPropagation()
               document.body.style.cursor = 'pointer'
               return

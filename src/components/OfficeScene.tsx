@@ -76,21 +76,14 @@ export function OfficeScene({
       const minZ = geom.boundingBox!.min.z;
       const maxZ = geom.boundingBox!.max.z;
 
-      const dx = maxX - minX;
-      const dz = maxZ - minZ;
-      const width = Math.sqrt(dx*dx + dz*dz);
+      const width = maxX - minX;
       const height = maxY - minY;
 
       for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i);
         const y = pos.getY(i);
-        const z = pos.getZ(i);
 
-        const projX = x - minX;
-        const projZ = z - maxZ; // Z axis goes towards screen, maxZ is front
-        const distAlongWidth = Math.sqrt(projX*projX + projZ*projZ);
-        
-        let u = distAlongWidth / width;
+        let u = (x - minX) / width;
         let v = (maxY - y) / height;
 
         uvs.setXY(i, u, v);

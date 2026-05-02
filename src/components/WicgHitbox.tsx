@@ -107,9 +107,14 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
         return;
       }
 
-      // Update raycaster using the current R3F pointer and camera
-      raycaster.setFromCamera(pointer, camera);
+      // Update raycaster using exact NDC coordinates from the raw event
+      const rect = (pointerEvent.target as HTMLElement).getBoundingClientRect();
+      const x = ((pointerEvent.clientX - rect.left) / rect.width) * 2 - 1;
+      const y = -((pointerEvent.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+      
       const intersects = raycaster.intersectObject(meshRef.current);
+      console.log('[WicgHitbox] raycast:', { x, y, intersectsLength: intersects.length });
       
       if (intersects.length > 0 && intersects[0].uv) {
         const uv = intersects[0].uv;
@@ -135,6 +140,8 @@ export function WicgHitbox({ meshRef, cssWidth = 1024, onProvidePortal, children
         
         const targetElement = document.elementFromPoint(clientX, clientY);
         
+        console.log(`[WicgHitbox] synthetic event: type=${pointerEvent.type}, uv=${uv.x},${uv.y}, clientXY=${clientX},${clientY}, target=`, targetElement);
+
         // Restore portalNode back to its proper canvas fallback location
         if (oldParent) oldParent.appendChild(portalNode);
         portalNode.style.transform = oldTransform;
